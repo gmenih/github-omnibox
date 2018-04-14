@@ -20,14 +20,29 @@
     "@babel/core": "7.0.0-beta.44",
     "@babel/preset-env": "7.0.0-beta.44",
     "babel-loader": "7.1.4",
+    "babel-preset-airbnb": "^2.4.0",
     "clean-webpack-plugin": "0.1.19",
     "copy-webpack-plugin": "4.5.1",
-    "eslint": "4.19.1",
-    "handlebars-loader": "^1.7.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
     "handlebars": "4.0.11",
+    "handlebars-loader": "^1.7.0",
     "html-webpack-plugin": "3.2.0",
     "webpack": "4.5.0"
   },
-  "dependencies": {
+  "dependencies": {},
+  "babel": {
+    "presets": [
+      "env"
+    ],
+    "plugins": [
+      "transform-class-properties"
+    ]
+  },
+  "eslint": {
+    "extends": "airbnb"
   }
 }
