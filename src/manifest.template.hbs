@@ -1,0 +1,24 @@
+{
+    "manifest_version": 2,
+    "author": "Gregor Menih",
+    "name": "Github Omnibox",
+    "version": "1.0",
+    "description": "Suggests your Github repos in the Omnibox",
+    "permissions": [
+        "storage"
+    ],
+    "background": {
+        "scripts": [
+            "{{htmlWebpackPlugin.files.chunks.background.entry}}"
+        ]
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "assets/github-48x48.png",
+            "32": "assets/github-48x48.png",
+            "64": "assets/github-48x48.png"
+        },
+        "default_title": "Github repo",
+        "default_popup": "popup.html"
+    }
+}
