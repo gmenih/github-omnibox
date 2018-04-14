@@ -1,0 +1,20 @@
+query getAllRepos {
+    viewer {
+        repositories(first: 100) {
+            nodes {
+                name,
+                url
+            }
+        }
+        organizations(first: 100) {
+            nodes {
+                repositories(first: 100) {
+                    nodes {
+                        name,
+                        url
+                    }
+                }
+            }
+        }
+    }
+}

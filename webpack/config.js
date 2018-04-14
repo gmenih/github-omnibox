@@ -44,6 +44,9 @@ const defaultConfig = {
         }, {
             test: /\.hbs$/,
             loader: 'handlebars-loader',
+        }, {
+            test: /\.(gql|graphql)$/,
+            loader: 'graphql-tag/loader',
         }]
     },
     devtool: 'cheap-source-map',
