@@ -4,7 +4,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { resolve, normalize } = require('path');
 
-
 /** @import webpack as wp */
 /** @type {wp.Configuration} */
 const defaultConfig = {
@@ -16,7 +15,7 @@ const defaultConfig = {
     },
     output: {
         path: resolve(__dirname, '../bin'),
-        filename: '[name]-bundle.js',
+        filename: 'script/[name]-[hash:6].b.js',
     },
     plugins: [
         new CleanWebpackPlugin(['bin'], {
@@ -27,10 +26,10 @@ const defaultConfig = {
             chunks: ['popup'],
             inject: 'body',
             template: '../src/popup/index.html',
-            filename: 'popup.html',
+            filename: 'popup_page.html',
         }),
         new HtmlWebpackPlugin({
-            template: '../src/manifest.template.hbs',
+            template: '!!handlebars-loader!./src/manifest.template.hbs',
             filename: 'manifest.json',
             inject: false,
         }),
@@ -40,15 +39,14 @@ const defaultConfig = {
     ],
     module: {
         rules: [{
+            test: /\.jsx?$/,
+            loader: 'babel-loader',
+        }, {
             test: /\.hbs$/,
             loader: 'handlebars-loader',
         }]
     },
-    devServer: {
-        contentBase: resolve('../bin'),
-        compress: true,
-        port: 9000
-    }
+    devtool: 'cheap-source-map',
 };
 
 module.exports = defaultConfig;
