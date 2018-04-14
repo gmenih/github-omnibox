@@ -1,0 +1,22 @@
+{
+  "name": "repo-omnibox",
+  "version": "0.0.1",
+  "description": "A browser extension that suggests your GitHub repos in Omnibox",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm t"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh+https://github.com/gmenih341/repo-omnibox.git"
+  },
+  "author": "Gregor Menih <gmenih@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "babel-loader": "^7.1.4",
+    "webpack": "^4.5.0"
+  },
+  "dependencies": {}
+}
