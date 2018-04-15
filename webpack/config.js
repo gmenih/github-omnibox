@@ -2,9 +2,12 @@ const wp = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ZipWebpackPlugin = require('zip-webpack-plugin');
 const { resolve, normalize } = require('path');
 const pkg = require('../package.json');
 
+const isProduction = process.env.NODE_ENV === 'production';
+const zipFileName = `${pkg.name}-${pkg.version}.zip`;
 /** @import webpack as wp */
 /** @type {wp.Configuration} */
 const defaultConfig = {
@@ -33,11 +36,18 @@ const defaultConfig = {
             template: '!!handlebars-loader!./src/manifest.template.hbs',
             filename: 'manifest.json',
             inject: false,
+            minify: false,
             pkg,
         }),
         new CopyWebpackPlugin([{
             from: 'assets/*.png',
-        }])
+        }]),
+        ...( isProduction ? [
+            new ZipWebpackPlugin({
+                path: '../release',
+                filename: `${zipFileName}`,
+            }),
+        ] : []),
     ],
     module: {
         rules: [{
@@ -51,7 +61,7 @@ const defaultConfig = {
             loader: 'graphql-tag/loader',
         }]
     },
-    devtool: 'cheap-source-map',
+    devtool: !isProduction ? 'cheap-source-map' : '',
 };
 
 module.exports = defaultConfig;
