@@ -6,7 +6,6 @@ import { SEARCH_DEBOUNCE } from '../constants';
  * @param {chrome.omnibox} omnibox
 */
 export const registerHandlers = (client, logins, omnibox) => {
-
     const textChangedHandler = debounce(async (text, suggest) => {
         try {
             const response = await client.searchRepositories(text, logins);

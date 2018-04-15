@@ -1,7 +1,7 @@
-import { registerHandlers, removeHandlers } from './omnibox.handlers';
+import { registerHandlers } from './omnibox.handlers';
 import { GithubClient } from '../github/client';
 import { browser, storageWrapper } from '../browser';
-import { GITHUB_TOKEN, GITHUB_LOGINS } from '../constants';
+import { GITHUB_TOKEN } from '../constants';
 
 const storage = storageWrapper(browser.storage.local);
 
