@@ -1,14 +1,11 @@
 import { debounce } from 'lodash';
-import { GithubClient } from '../github/client';
+import { browser } from '../browser';
+import { SEARCH_DEBOUNCE } from '../constants';
 
 /** @param {GithubClient} client
  * @param {chrome.omnibox} omnibox
 */
 export const registerHandlers = (client, logins, omnibox) => {
-    omnibox.setDefaultSuggestion({
-        description: 'Enter repository name...',
-    });
-
     const textChangedHandler = debounce(async (text, suggest) => {
         try {
             const response = await client.searchRepositories(text, logins);
@@ -20,7 +17,24 @@ export const registerHandlers = (client, logins, omnibox) => {
         } catch (err) {
             console.error('Error searching repos');
         }
-    }, 100, { leading: true });
+    }, SEARCH_DEBOUNCE, { leading: true });
+
+    const searchEnterHandler = (text, disposition) => {
+        const url = text.startsWith('https://')
+            ? text
+            : `https://github.com/${text}`;
+
+        switch (disposition) {
+        case 'currentTab':
+            return browser.tabs.update({ url });
+        case 'newForegroundTab':
+            return browser.tabs.create({ url });
+        case 'newBackgroundTab':
+        default:
+            return browser.tabs.create({ url, active: false });
+        }
+    };
 
     omnibox.onInputChanged.addListener(textChangedHandler);
+    omnibox.onInputEntered.addListener(searchEnterHandler);
 };
