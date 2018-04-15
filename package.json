@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run build:dev",
-    "build:dev": "webpack --config webpack/config.js --progress --env=dev",
-    "build:prod": "webpack --config webpack/config.js --progress -p",
+    "build:dev": "NODE_ENV=development webpack --config webpack/config.js --progress --env=dev",
+    "build:prod": "NODE_ENV=production webpack --config webpack/config.js --progress -p",
     "lint": "eslint ./src/**",
     "test": "echo \"Not implemented\"",
     "dev": "webpack --config webpack/config.js --progress --env=dev --watch"
@@ -27,16 +27,17 @@
     "babel-preset-airbnb": "^2.4.0",
     "clean-webpack-plugin": "0.1.19",
     "copy-webpack-plugin": "4.5.1",
+    "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
-    "eslint": "^4.19.1",
-    "handlebars-loader": "^1.7.0",
     "handlebars": "4.0.11",
+    "handlebars-loader": "^1.7.0",
     "html-webpack-plugin": "3.2.0",
+    "webpack": "4.5.0",
     "webpack-cli": "^2.0.14",
-    "webpack": "4.5.0"
+    "zip-webpack-plugin": "^3.0.0"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.1.12",
@@ -44,8 +45,8 @@
     "apollo-client": "^2.2.8",
     "apollo-link-http": "^1.5.4",
     "bytes": "^3.0.0",
-    "graphql-tag": "^2.8.0",
     "graphql": "^0.13.2",
+    "graphql-tag": "^2.8.0",
     "lodash": "^4.17.5"
   },
   "babel": {
