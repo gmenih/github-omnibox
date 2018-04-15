@@ -7,6 +7,7 @@
     "build": "npm run build:dev",
     "build:dev": "webpack --config webpack/config.js --progress --env=dev",
     "build:prod": "webpack --config webpack/config.js --progress -p",
+    "lint": "eslint ./src/**",
     "test": "echo \"Not implemented\"",
     "dev": "webpack --config webpack/config.js --progress --env=dev --watch"
   },

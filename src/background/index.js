@@ -7,20 +7,23 @@
 // });
 
 // browser.omnibox.onInputChanged.addListener(handleTextChanged)
+import { GithubClient } from '../github/client';
+import { browser, storageWrapper } from '../browser';
 
-import { client } from '../github/client';
-import getAllRepos from '../github/queries/getAllRepos.gql';
+const storage = storageWrapper(browser.storage.local);
 
-client('48a3b45d7bbbc036c3b5f871208edb1f281daa03')
-    .query({
-        query: getAllRepos,
-    })
-    .then(({ data }) => {
-        console.log('we got that data');
-        const userRepos = data.viewer.repositories.nodes;
-        const orgRespos = data.viewer.organizations.nodes.reduce((all, organization) => {
-            return [...all, ...organization.repositories.nodes]
-        }, []);
-        console.log([...userRepos, ...orgRespos]);
-    })
-    .catch(console.error);
+(async () => {
+    const githubToken = await storage.getItem('__github.token');
+    if (!githubToken) {
+        console.log('No token present - exiting');
+        return;
+    }
+    console.log('Token received - continuing');
+    const client = new GithubClient(githubToken);
+    try {
+        const logins = await client.searchRepositories('pdp', ['equaleyes', 'erento']);
+        console.log(logins);
+    } catch (err) {
+        console.error(err);
+    }
+})();

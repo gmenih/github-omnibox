@@ -1,9 +1,15 @@
 {
     "extends": "airbnb",
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true
+    },
     "rules": {
-        "indent": [
-            4,
-            "error"
-        ]
+        "indent": ["error", 4],
+        "import/prefer-default-export": [false],
+        "no-await-in-loop": [0]
     }
 }

@@ -18,30 +18,19 @@ const persistor = new CachePersistor({
     maxSize: bytes('4MB'),
 });
 
-export class GithubError extends Error {
-    static ErrorCodes = {
-        UnknownError: "An unhandled error!",
-        TokenAccess: "Your access token has improper access rights.",
-    }
-    constructor(message) {
-        super(message);
-        this.type = GithubError.Error.UnknownError;
-    }
-}
-
 export class GithubClient {
     constructor(authKey) {
         if (!authKey) {
-            throw new Error("Missing authKey for GithubClient");
+            throw new Error('Missing authKey for GithubClient');
         }
         this.apollo = new ApolloClient({
             link: new HttpLink({
                 uri: GITHUB_API,
                 headers: {
                     Authorization: `Bearer ${authKey}`,
-                }
+                },
             }),
-            cache: memCache,
+            cache: persistor,
         });
     }
 
@@ -56,7 +45,7 @@ export class GithubClient {
                     query: queryUserDetailsGQL,
                     variables: {
                         after: endCursor,
-                        first: BATCH_SIZE
+                        first: BATCH_SIZE,
                     },
                 });
                 console.log(response);
@@ -64,8 +53,10 @@ export class GithubClient {
                     allLogins.push(response.data.viewer.login);
                 }
                 allLogins.push(...response.data.viewer.organizations.nodes.map(n => n.login));
-                if (response.data.viewer.organizations.pageInfo.endCursor && allLogins.length >= BATCH_SIZE) {
-                    endCursor = response.data.viewer.organizations.pageInfo.endCursor;
+                if (response.data.viewer.organizations.pageInfo.endCursor
+                    && allLogins.length >= BATCH_SIZE
+                ) {
+                    ({ endCursor } = response.data.viewer.organizations.pageInfo);
                 } else {
                     fetchDetails = false;
                 }
@@ -73,7 +64,7 @@ export class GithubClient {
             return allLogins;
         } catch (err) {
             if (err instanceof ApolloError) {
-                throw new GIthubError(err.graphQLErrors[0].message);
+                throw new Error(err.graphQLErrors[0].message);
             }
             throw err;
         }
@@ -89,17 +80,17 @@ export class GithubClient {
                 variables: {
                     searchTerm,
                     first: 10,
-                }
+                },
             });
             const repos = response.data.search.edges;
             return repos.map(({ node: repo }) => ({
                 name: repo.name,
                 url: repo.url,
                 organization: repo.owner.login,
-            }))
+            }));
         } catch (err) {
             if (err instanceof ApolloError) {
-                throw new GIthubError(err.graphQLErrors[0].message);
+                throw new Error(err.graphQLErrors[0].message);
             }
             throw err;
         }
