@@ -3,6 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { resolve, normalize } = require('path');
+const pkg = require('../package.json');
 
 /** @import webpack as wp */
 /** @type {wp.Configuration} */
@@ -32,6 +33,7 @@ const defaultConfig = {
             template: '!!handlebars-loader!./src/manifest.template.hbs',
             filename: 'manifest.json',
             inject: false,
+            pkg,
         }),
         new CopyWebpackPlugin([{
             from: 'assets/*.png',
