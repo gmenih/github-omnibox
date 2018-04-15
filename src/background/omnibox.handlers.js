@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { browser } from '../browser';
 import { SEARCH_DEBOUNCE } from '../constants';
 
@@ -6,6 +6,7 @@ import { SEARCH_DEBOUNCE } from '../constants';
  * @param {chrome.omnibox} omnibox
 */
 export const registerHandlers = (client, logins, omnibox) => {
+
     const textChangedHandler = debounce(async (text, suggest) => {
         try {
             const response = await client.searchRepositories(text, logins);
