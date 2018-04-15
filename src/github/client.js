@@ -1,8 +1,6 @@
 import { ApolloClient, ApolloError } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { CachePersistor } from 'apollo-cache-persist';
-import bytes from 'bytes';
 
 import { GITHUB_API } from '../constants';
 import queryUserDetailsGQL from './queries/queryUserOrgDetails.gql';
@@ -11,11 +9,6 @@ import searchReposGQL from './queries/searchRepos.gql';
 const memCache = new InMemoryCache({
     dataIdFromObject: object => object.id,
     addTypename: true,
-});
-const persistor = new CachePersistor({
-    storage: window.localStorage,
-    cache: memCache,
-    maxSize: bytes('4MB'),
 });
 
 export class GithubClient {
@@ -30,7 +23,7 @@ export class GithubClient {
                     Authorization: `Bearer ${authKey}`,
                 },
             }),
-            cache: persistor,
+            cache: memCache,
         });
     }
 
@@ -70,6 +63,7 @@ export class GithubClient {
         }
     }
 
+    /** @returns {Promise<[{ name: string, url: string, organization: string }]>} */
     async searchRepositories(text, userLogins = [], targets = ['name']) {
         const userAccess = userLogins.map(login => `user:${login}`).join(' ');
         const searchTargets = targets.map(target => `in:${target}`).join(' ');
