@@ -67,7 +67,7 @@ export class GithubClient {
     async searchRepositories(text, userLogins = [], targets = ['name']) {
         const userAccess = userLogins.map(login => `user:${login}`).join(' ');
         const searchTargets = targets.map(target => `in:${target}`).join(' ');
-        const searchTerm = `${text} ${searchTargets} ${userAccess}`;
+        const searchTerm = `${text} ${searchTargets} ${userAccess} fork:true`;
         try {
             const response = await this.apollo.query({
                 query: searchReposGQL,
