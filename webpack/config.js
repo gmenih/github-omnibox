@@ -10,7 +10,7 @@ const defaultConfig = {
     mode: process.env.NODE_ENV || 'development',
     context: resolve(__dirname, '../src'),
     entry: {
-        background: './background/index.js',
+        background: ['babel-polyfill', './background/index.js'],
         popup: './popup/index.js',
     },
     output: {
@@ -45,7 +45,7 @@ const defaultConfig = {
             test: /\.hbs$/,
             loader: 'handlebars-loader',
         }, {
-            test: /\.(gql|graphql)$/,
+            test: /\.gql$/,
             loader: 'graphql-tag/loader',
         }]
     },

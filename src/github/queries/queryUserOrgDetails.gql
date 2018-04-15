@@ -1,0 +1,13 @@
+query getUserInfo($first: Int!, $after: String) {
+    viewer {
+        login
+        organizations(first: $first, after: $after) {
+            nodes {
+              login
+            },
+            pageInfo {
+                endCursor
+            }
+        }
+    }
+}
