@@ -10,6 +10,7 @@
     "rules": {
         "indent": ["error", 4],
         "import/prefer-default-export": [false],
-        "no-await-in-loop": [0]
+        "no-await-in-loop": [0],
+        "max-len": [120, "error"]
     }
 }

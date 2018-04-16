@@ -13,84 +13,8 @@
                 <h1>{{htmlWebpackPlugin.options.pkg.full_name}}</h1>
                 <h4><span class="label">{{htmlWebpackPlugin.options.pkg.version}}</span></h4>
             </div>
-            <div class="authorization">
-                <h2>Authorization token</h2>
-                <div class="content">
-                    <p>
-                        <span class="label warning">Oops!</span>
-                        It looks like your Github token is missing! You won't be able to use this extension.
-                    </p>
-                    <p>
-                        You can set it up by logging in using Github, or generating your own token, and entering it below.
-                    </p>
-                </div>
-                <div class="billboard">
-                    <article class="card github-auth">
-                        <header>
-                            <h3>Github login</h3>
-                        </header>
-                        <p>
-                            <span class="label">Note</span>
-                            Your organization owners might have restricted access to third party apps (this extension). In that case, it's better to use the mehtod below.
-                        </p>
-                        <footer class="flex one center">
-                            <div class="center-button">
-                                <button class="success github-button">Authorize Github</button>
-                            </div>
-                        </footer>
-                    </article>
-                    <article class="card github-auth">
-                        <header>
-                            <h4>Self generated token</h4>
-                        </header>
-                        <p>
-                            Visit <a href="https://github.com/settings/token">Github settings</a> to generate your token. Make sure to give it full <code>repo</code> access. If you which to also read your organizations' repositories, add <code>read:org</code> access.
-                        </p>
-                        <footer>
-                            <div class="flex five">
-                                <div class="four-fifth">
-                                    <input type="text" placeholder="Github token...">
-                                </div>
-                                <div>
-                                    <button type="submit">Save token</button>
-                                </div>
-                            </div>
-                        </footer>
-                    </article>
-                </div>
-             </div>
-             <div class="other-settings">
-                 <h2>Other settings</h2>
-                 <article class="card">
-                     <header>
-                         <h3>Search settings</h3>
-                     </header>
-                     <div class="container">
-                        <label>
-                            <input type="checkbox">
-                            <span class="checkable">Include forked repositories</span>
-                        </label>
-                        <br />
-                        <label>
-                            <input type="checkbox">
-                            <span class="checkable">Search by repository name</span>
-                        </label>
-                        <br />
-                        <label>
-                            <input type="checkbox">
-                            <span class="checkable">Search by repository description</span>
-                        </label>
-                        <br />
-                        <label>
-                            <input type="checkbox">
-                            <span class="checkable">Search by repository labels</span>
-                        </label>
-                     </div>
-                 </article>
-                 <div>
-                     <button class="warning">Clear all settings</button>
-                 </div>
-             </div>
+            <div id="authorization"></div>
+            <div id="settings"></div>
         </section>
     </div>
 </body>
