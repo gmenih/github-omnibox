@@ -4,10 +4,12 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ZipWebpackPlugin = require('zip-webpack-plugin');
 const { resolve, normalize } = require('path');
+const sharp = require('sharp');
 const pkg = require('../package.json');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const zipFileName = `${pkg.name}-${pkg.version}.zip`;
+const iconSizes = [16, 32, 48, 64];
 /** @import webpack as wp */
 /** @type {wp.Configuration} */
 const defaultConfig = {
@@ -39,9 +41,17 @@ const defaultConfig = {
             minify: false,
             pkg,
         }),
-        new CopyWebpackPlugin([{
-            from: 'assets/*.png',
-        }]),
+        new CopyWebpackPlugin(iconSizes.map(size => ({
+            from: 'assets/github-main.png',
+            to: `assets/github-${size}x${size}.png`,
+            cache: !isProduction,
+            transform: (content, path) => {
+                return sharp(content)
+                    .resize(size, size)
+                    .png()
+                    .toBuffer()
+            }
+        }))),
         ...( isProduction ? [
             new ZipWebpackPlugin({
                 path: '../release',

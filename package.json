@@ -1,13 +1,13 @@
 {
   "name": "repo-omnibox",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1",
   "full_name": "Github Omnibox Search",
   "description": "A browser extension that suggests your GitHub repos in Omnibox",
-  "main": "index.js",
+  "main": "webpack/config.js",
   "scripts": {
     "build": "npm run build:dev",
     "build:dev": "NODE_ENV=development webpack --config webpack/config.js --progress --env=dev",
-    "build:prod": "NODE_ENV=production webpack --config webpack/config.js --progress -p",
+    "build:prod": "NODE_ENV=production webpack --config webpack/config.js --progress --env=production",
     "lint": "eslint ./src/**",
     "test": "echo \"Not implemented\"",
     "dev": "webpack --config webpack/config.js --progress --env=dev --watch"
@@ -35,6 +35,7 @@
     "handlebars": "4.0.11",
     "handlebars-loader": "^1.7.0",
     "html-webpack-plugin": "3.2.0",
+    "sharp": "^0.20.1",
     "webpack": "4.5.0",
     "webpack-cli": "^2.0.14",
     "zip-webpack-plugin": "^3.0.0"
