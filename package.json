@@ -1,6 +1,6 @@
 {
   "name": "repo-omnibox",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "full_name": "Github Omnibox Search",
   "description": "A browser extension that suggests your GitHub repos in Omnibox",
   "main": "webpack/config.js",
@@ -41,12 +41,9 @@
     "zip-webpack-plugin": "^3.0.0"
   },
   "dependencies": {
-    "apollo-cache-inmemory": "^1.1.12",
-    "apollo-cache-persist": "^0.1.1",
-    "apollo-client": "^2.2.8",
-    "apollo-link-http": "^1.5.4",
     "bytes": "^3.0.0",
     "graphql": "^0.13.2",
+    "graphql-request": "^1.5.1",
     "graphql-tag": "^2.8.0",
     "lodash": "^4.17.5"
   },
@@ -57,8 +54,5 @@
     "plugins": [
       "transform-class-properties"
     ]
-  },
-  "eslint": {
-    "extends": "airbnb"
   }
 }
