@@ -17,11 +17,11 @@ const defaultConfig = {
     context: resolve(__dirname, '../src'),
     entry: {
         background: ['babel-polyfill', './background/index.js'],
-        popup: './popup/index.js',
+        options: './options/index.js',
     },
     output: {
         path: resolve(__dirname, '../bin'),
-        filename: 'script/[name]-[hash:6].b.js',
+        filename: 'script/[name].b.js',
     },
     plugins: [
         new CleanWebpackPlugin(['bin'], {
@@ -29,10 +29,11 @@ const defaultConfig = {
             root: resolve(__dirname, '..'),
         }),
         new HtmlWebpackPlugin({
-            chunks: ['popup'],
+            chunks: ['options'],
             inject: 'body',
-            template: '../src/popup/index.html',
-            filename: 'popup_page.html',
+            template: '../src/options/index.hbs',
+            filename: 'options_page.html',
+            pkg,
         }),
         new HtmlWebpackPlugin({
             template: '!!handlebars-loader!./src/manifest.template.hbs',
@@ -69,6 +70,15 @@ const defaultConfig = {
         }, {
             test: /\.gql$/,
             loader: 'graphql-tag/loader',
+        }, {
+            test: /\.(scss|sass)$/,
+            use: [{
+                loader: 'style-loader',
+            }, {
+                loader: 'css-loader',
+            }, {
+                loader: 'sass-loader',
+            }]
         }]
     },
     devtool: !isProduction ? 'cheap-source-map' : '',

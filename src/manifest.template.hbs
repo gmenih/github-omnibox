@@ -8,7 +8,6 @@
         "storage"
     ],
     "background": {
-        "persistent": true,
         "scripts": [
             "{{htmlWebpackPlugin.files.chunks.background.entry}}"
         ]
@@ -26,8 +25,11 @@
             "48": "assets/github-48x48.png",
             "64": "assets/github-64x64.png"
         },
-        "default_popup": "popup_page.html",
         "default_title": "Github repo"
+    },
+    "options_ui": {
+        "page": "options_page.html",
+        "open_in_tab": true
     },
     "omnibox": {
         "keyword": "ghr"

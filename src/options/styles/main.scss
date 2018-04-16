@@ -1,0 +1,37 @@
+@import "~picnic/src/picnic";
+
+.page-content {
+    section {
+        background: #fff;
+        text-align: left;
+        width: 90%;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 80px 0;
+
+        .title {
+            h1,h4 {
+                display: inline-block;
+                vertical-align: middle;
+            }
+        }
+
+        .center-button {
+            text-align: center;
+        }
+
+        .github-button {
+            font-size: 1.5em;
+        }
+
+        button[type=submit] {
+            margin: 0;
+            display: block;
+            width: 100%;
+        }
+
+        .card > .container {
+            padding: .6em .8em;
+        }
+    }
+}
