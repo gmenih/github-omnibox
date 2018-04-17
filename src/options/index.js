@@ -1,16 +1,9 @@
-import { render, h } from 'preact';
+import { render, h, Component } from 'preact';
 
-import { AuthComponent } from './components/authorization.component';
-import { Settings } from './components/settings.component'
+import { App } from './components/app.component';
 import './styles/main.scss';
 
-
 render(
-    <AuthComponent />,
-    document.getElementById('authorization')
-);
-
-render(
-    <Settings />,
-    document.getElementById('settings')
+    <App />,
+    document.getElementById('app')
 );

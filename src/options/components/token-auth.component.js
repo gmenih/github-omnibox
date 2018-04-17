@@ -9,8 +9,8 @@ export const SelfToken = () => (
             Visit <a href="https://github.com/settings/token">Github settings</a> to generate your token. Make sure to give it full <code>repo</code> access. If you which to also read your organizations' repositories, add <code>read:org</code> access.
         </p>
         <footer>
-            <div className="flex five">
-                <div className="four-fifth">
+            <div className="flex one five-600 four-800">
+                <div className="four-fifth-600 three-fourth-800">
                     <input type="text" placeholder="Github token..."/>
                 </div>
                 <div>

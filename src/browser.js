@@ -23,6 +23,13 @@ export const storageWrapper = storage => ({
             });
         });
     },
+    getItems(keys) {
+        return new Promise((resolve) => {
+            storage.get(keys, (items) => {
+                return resolve(items);
+            });
+        });
+    },
     setItem(key, value) {
         storage.set({ [key]: value });
     },
