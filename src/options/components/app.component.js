@@ -64,10 +64,15 @@ export class App extends Component {
         storage.setItem(settingName, event.target.value);
     }
 
+    onAuthSet(authKey, type) {
+       storage.setItem(OPT.GITHUB_TOKEN, authKey);
+       storage.setItem(OPT.TOKEN_TYPE, type);
+    }
+
     render() {
         return (
             <div>
-                <AuthComponent authTokenSet={ this.state.authTokenSet } />
+                <AuthComponent onAuthKeySet={ this.onAuthSet }authTokenSet={ this.state.authTokenSet } />
                 <Settings onChange={ this.onSettingChange } values={ this.state.settings } />
             </div>
         );

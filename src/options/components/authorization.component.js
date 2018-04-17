@@ -27,15 +27,15 @@ const showAuthWarning = (authTokenSet) => {
     );
 }
 
-export const AuthComponent = ({ authTokenSet, setAuthToken }) => (
+export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
     <div className="authorization">
         <h2>Authorization token</h2>
         <div className="content">
             { showAuthWarning(authTokenSet) }
         </div>
         <div className="billboard">
-            <GithubAuth />
-            <SelfToken />
+            <GithubAuth onAuthKeySet={ onAuthKeySet } />
+            <SelfToken onAuthKeySet={ onAuthKeySet } />
         </div>
     </div>
 );
