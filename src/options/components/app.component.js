@@ -1,4 +1,5 @@
-import { h, Component } from 'preact';
+/* eslint-disable class-methods-use-this */
+import { Component } from 'preact';
 
 import { AuthComponent } from './authorization.component';
 import { Settings } from './settings.component';
@@ -31,16 +32,24 @@ export class App extends Component {
         browser.storage.onChanged.removeListener(this.storeChangeListener.bind(this));
     }
 
-    storeChangeListener(changes, instance) {
-        if (instance !== 'local') { 
+    onSettingChange(settingName, event) {
+        console.log(settingName, event);
+        if (event && event.target && event.target.type === 'checkbox') {
+            const val = !!event.target.checked;
+            storage.setItem(settingName, val);
             return;
         }
-        this.updateFromStore(changes);
+        storage.setItem(settingName, event.target.value);
     }
+
+    onAuthSet(authKey, type) {
+        storage.setItem(OPT.GITHUB_TOKEN, authKey);
+        storage.setItem(OPT.TOKEN_TYPE, type);
+    }
+
     updateFromStore() {
         storage.getItems(null).then((items) => {
             this.settings = items;
-            const scopes = items[OPT.GITHUB_SEARCH_SCOPES] || [];
             const newState = {
                 authTokenSet: !!items[OPT.GITHUB_TOKEN],
                 settings: {
@@ -54,26 +63,17 @@ export class App extends Component {
         });
     }
 
-    onSettingChange(settingName, event) {
-        console.log(settingName, event);
-        if (event && event.target && event.target.type === 'checkbox') {
-            const val = !!event.target.checked;
-            storage.setItem(settingName, val);
+    storeChangeListener(changes, instance) {
+        if (instance !== 'local') {
             return;
         }
-        storage.setItem(settingName, event.target.value);
+        this.updateFromStore(changes);
     }
-
-    onAuthSet(authKey, type) {
-       storage.setItem(OPT.GITHUB_TOKEN, authKey);
-       storage.setItem(OPT.TOKEN_TYPE, type);
-    }
-
     render() {
         return (
             <div>
-                <AuthComponent onAuthKeySet={ this.onAuthSet }authTokenSet={ this.state.authTokenSet } />
-                <Settings onChange={ this.onSettingChange } values={ this.state.settings } />
+                <AuthComponent onAuthKeySet={this.onAuthSet}authTokenSet={this.state.authTokenSet} />
+                <Settings onChange={this.onSettingChange} clearSettings={storage.clear} values={this.state.settings} />
             </div>
         );
     }

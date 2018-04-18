@@ -1,17 +1,12 @@
-import { h, Component } from 'preact';
-
 import { browser, storageWrapper } from '../../browser';
-import { OPTION_STRINGS as OPTIONS } from '../../constants';
 import { GithubAuth } from './github-auth.component';
 import { SelfToken } from './token-auth.component';
-
-const storage = storageWrapper(browser.storage.local);
 
 const showAuthWarning = (authTokenSet) => {
     if (authTokenSet === true) {
         return (
             <p>
-                <span className="label success">Great!</span> 
+                <span className="label success">Great!</span>
                 {' You\'re all set. If you wish, you can change your token below.'}
             </p>
         );
@@ -25,7 +20,7 @@ const showAuthWarning = (authTokenSet) => {
             You can set it up by logging in using Github, or generating your own token, and entering it below.
         </p>
     );
-}
+};
 
 export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
     <div className="authorization">
@@ -34,8 +29,8 @@ export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
             { showAuthWarning(authTokenSet) }
         </div>
         <div className="billboard">
-            <GithubAuth onAuthKeySet={ onAuthKeySet } />
-            <SelfToken onAuthKeySet={ onAuthKeySet } />
+            <GithubAuth onAuthKeySet={onAuthKeySet} />
+            <SelfToken onAuthKeySet={onAuthKeySet} />
         </div>
     </div>
 );

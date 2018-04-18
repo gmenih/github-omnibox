@@ -1,9 +1,7 @@
-import { h } from 'preact';
-
 export const SelfToken = ({ onAuthKeySet }) => {
     let token = '';
-    const setValue = ({ target: { value }}) => {
-        token = value
+    const setValue = ({ target: { value } }) => {
+        token = value;
     };
     const sendAuthToken = () => {
         onAuthKeySet(token, 'token');
@@ -15,16 +13,17 @@ export const SelfToken = ({ onAuthKeySet }) => {
                 <h4>Self generated token</h4>
             </header>
             <p>
-                Visit <a href="https://github.com/settings/token">Github settings</a> to generate your token. Make sure to give it full <code>repo</code> access.
-                If you which to also read your organizations' repositories, add <code>read:org</code> access.
+                Visit <a href="https://github.com/settings/tokens">Github settings</a> to generate your token.
+                Make sure to give it full <code>repo</code> access.
+                If you which to also read your organizations repositories, add <code>read:org</code> access.
             </p>
             <footer>
                 <div className="flex one five-600 four-800">
                     <div className="four-fifth-600 three-fourth-800">
-                        <input type="text" placeholder="Github token..." value={ token } onCHange={ setValue }/>
+                        <input type="text" placeholder="Github token..." value={token} onCHange={setValue} />
                     </div>
                     <div>
-                        <button type="submit" onClick={ sendAuthToken }>Save token</button>
+                        <button type="submit" onClick={sendAuthToken}>Save token</button>
                     </div>
                 </div>
             </footer>

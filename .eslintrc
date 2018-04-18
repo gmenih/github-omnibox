@@ -11,6 +11,9 @@
         "indent": ["error", 4],
         "import/prefer-default-export": [false],
         "no-await-in-loop": [0],
-        "max-len": [2, 120]
+        "max-len": [2, 120],
+        "react/react-in-jsx-scope": 0,
+        "react/jsx-indent": 0,
+        "react/jsx-filename-extension": 0
     }
 }
