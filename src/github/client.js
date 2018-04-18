@@ -47,10 +47,14 @@ export class GithubClient {
     }
 
     /** @returns {Promise<[{ name: string, url: string, organization: string }]>} */
-    async searchRepositories(text, userLogins = [], targets = ['name']) {
-        const userAccess = userLogins.map(login => `user:${login}`).join(' ');
-        const searchTargets = targets.map(target => `in:${target}`).join(' ');
-        const searchTerm = `${text} ${searchTargets} ${userAccess} fork:true`;
+    async searchRepositories(text, userLogins = [], {
+        targets = [],
+        searchForks = false,
+    }) {
+        const loginsFilter = userLogins.map(login => `user:${login}`).join(' ');
+        const targetsFilter = targets.map(target => `in:${target}`).join(' ');
+        const forksFilter = `fork:${searchForks.toString()}`;
+        const searchTerm = `${text} ${targetsFilter} ${loginsFilter} ${forksFilter}`;
         try {
             const response = await this.client.request(print(searchReposGQL), {
                 searchTerm,

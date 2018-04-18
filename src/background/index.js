@@ -8,6 +8,7 @@ const storage = storageWrapper(browser.storage.local);
 const onItemSelected = onEnterFactory(browser);
 
 const bindBackgroundHandlers = async (omnibox) => {
+    console.log('binding');
     const settings = await storage.getAllSettings();
 
     if (!settings[OPTIONS.GITHUB_TOKEN]) {
@@ -19,12 +20,12 @@ const bindBackgroundHandlers = async (omnibox) => {
         return;
     }
     const client = new GithubClient(settings[OPTIONS.GITHUB_TOKEN]);
-
+    console.log('got the client');
     try {
         const logins = await client.fetchUserLogins();
         storage.setItem(OPTIONS.GITHUB_LOGINS, logins);
         onTextChanged = onTextChangedFactory(client, storage);
-        omnibox.onChanged.addListener(onTextChanged);
+        omnibox.onInputChanged.addListener(onTextChanged);
     } catch (err) {
         console.error('Something went wrong!');
         console.error(err);
@@ -44,11 +45,11 @@ browser.storage.onChanged.addListener(async (changes, scope) => {
     if (scope !== 'local') {
         return;
     }
-    unbindBackgroundHandlers();
+    unbindBackgroundHandlers(browser.omnibox);
     if (Object.keys(changes).includes(OPTIONS.GITHUB_TOKEN)) {
         console.log('Updated key - registering');
-        await bindBackgroundHandlers();
+        await bindBackgroundHandlers(browser.omnibox);
     }
 });
 
-bindBackgroundHandlers();
+bindBackgroundHandlers(browser.omnibox);

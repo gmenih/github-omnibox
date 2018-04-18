@@ -4,11 +4,30 @@ import { SEARCH_DEBOUNCE, OPTION_STRINGS } from '../constants';
 
 const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${text}</match>`) : name);
 
-export const onTextChangedFactory = (client, storage, { debounceTime = SEARCH_DEBOUNCE, ...options }) =>
+const getTargetsFromSettings = (settings) => {
+    const targets = [];
+    if (settings[OPTION_STRINGS.SEARCH_NAME]) {
+        targets.push('name');
+    }
+    if (settings[OPTION_STRINGS.SEARCH_DESC]) {
+        targets.push('desc');
+    }
+    return targets;
+};
+
+export const onTextChangedFactory = (client, storage, { debounceTime = SEARCH_DEBOUNCE } = {}) =>
     debounce(async (text, suggest) => {
         try {
-            const logins = await storage.getItem(OPTION_STRINGS.GITHUB_LOGINS);
-            const response = await client.searchRepositories(text, logins, { ...options });
+            const settings = await storage.getAllSettings();
+            const targets = getTargetsFromSettings(settings);
+            const searchForks = !!settings[OPTION_STRINGS.SEARCH_FORKED];
+
+            const response = await client.searchRepositories(
+                text,
+                settings[OPTION_STRINGS.GITHUB_LOGINS],
+                { targets, searchForks },
+            );
+
             suggest(response.map(repo => ({
                 description: `${repo.organization}/${formatRepoName(repo.name, text)}`,
                 content: `${repo.url}`,
