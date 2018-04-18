@@ -25,9 +25,7 @@ export const storageWrapper = storage => ({
     },
     getItems(keys) {
         return new Promise((resolve) => {
-            storage.get(keys, (items) => {
-                return resolve(items);
-            });
+            storage.get(keys, items => resolve(items));
         });
     },
     setItem(key, value) {
@@ -38,6 +36,9 @@ export const storageWrapper = storage => ({
     },
     clear() {
         storage.clear();
+    },
+    getAllSettings() {
+        return this.getItems(null);
     },
 });
 

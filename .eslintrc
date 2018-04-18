@@ -11,6 +11,6 @@
         "indent": ["error", 4],
         "import/prefer-default-export": [false],
         "no-await-in-loop": [0],
-        "max-len": [120, "error"]
+        "max-len": [2, 120]
     }
 }

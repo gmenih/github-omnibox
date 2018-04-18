@@ -1,41 +1,54 @@
-import { registerHandlers } from './omnibox.handlers';
 import { GithubClient } from '../github/client';
 import { browser, storageWrapper } from '../browser';
 import { OPTION_STRINGS as OPTIONS } from '../constants';
+import { onTextChangedFactory, onEnterFactory } from './omnibox.handlers';
 
+let onTextChanged = null;
 const storage = storageWrapper(browser.storage.local);
+const onItemSelected = onEnterFactory(browser);
 
-const hookBackground = async () => {
-    const githubToken = await storage.getItem(OPTIONS.GITHUB_TOKEN);
-    if (!githubToken) {
-        const optionsShownOnce = await storage.getItem(OPTIONS.OPTIONS_SHOWN);
-        console.log('No token present - exiting');
-        if (!optionsShownOnce) {
+const bindBackgroundHandlers = async (omnibox) => {
+    const settings = await storage.getAllSettings();
+
+    if (!settings[OPTIONS.GITHUB_TOKEN]) {
+        if (!settings[OPTIONS.OPTIONS_SHOWN]) {
             browser.runtime.openOptionsPage(() => {
                 storage.setItem(OPTIONS.OPTIONS_SHOWN, true);
             });
         }
         return;
     }
-    console.log('Token received - continuing');
-    const client = new GithubClient(githubToken);
+    const client = new GithubClient(settings[OPTIONS.GITHUB_TOKEN]);
+
     try {
         const logins = await client.fetchUserLogins();
-        console.log('Fetched most recent logins - continuing');
-        registerHandlers(client, logins, browser.omnibox);
+        storage.setItem(OPTIONS.GITHUB_LOGINS, logins);
+        onTextChanged = onTextChangedFactory(client, storage);
+        omnibox.onChanged.addListener(onTextChanged);
     } catch (err) {
+        console.error('Something went wrong!');
         console.error(err);
     }
 };
 
-browser.storage.onChanged.addListener((changes, scope) => {
+const unbindBackgroundHandlers = (omnibox) => {
+    if (typeof onTextChanged === 'function') {
+        omnibox.onInputChanged.removeListener(onTextChanged);
+    }
+    if (typeof onItemSelected === 'function') {
+        omnibox.onInputEntered.removeListener(onItemSelected);
+    }
+};
+
+browser.storage.onChanged.addListener(async (changes, scope) => {
     if (scope !== 'local') {
         return;
     }
+    unbindBackgroundHandlers();
     if (Object.keys(changes).includes(OPTIONS.GITHUB_TOKEN)) {
         console.log('Updated key - registering');
-        hookBackground();
+        await bindBackgroundHandlers();
     }
 });
 
-hookBackground();
+bindBackgroundHandlers();

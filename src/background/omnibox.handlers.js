@@ -1,40 +1,36 @@
 import debounce from 'lodash/debounce';
-import { browser } from '../browser';
-import { SEARCH_DEBOUNCE } from '../constants';
+import { isChrome } from '../browser';
+import { SEARCH_DEBOUNCE, OPTION_STRINGS } from '../constants';
 
-/** @param {GithubClient} client
- * @param {chrome.omnibox} omnibox
-*/
-export const registerHandlers = (client, logins, omnibox) => {
-    const textChangedHandler = debounce(async (text, suggest) => {
+const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${text}</match>`) : name);
+
+export const onTextChangedFactory = (client, storage, { debounceTime = SEARCH_DEBOUNCE, ...options }) =>
+    debounce(async (text, suggest) => {
         try {
-            const response = await client.searchRepositories(text, logins);
-
+            const logins = await storage.getItem(OPTION_STRINGS.GITHUB_LOGINS);
+            const response = await client.searchRepositories(text, logins, { ...options });
             suggest(response.map(repo => ({
-                description: `${repo.organization}/${repo.name.replace(new RegExp(text, 'g'), `<match>${text}</match>`)}`,
+                description: `${repo.organization}/${formatRepoName(repo.name, text)}`,
                 content: `${repo.url}`,
             })));
         } catch (err) {
-            console.error('Error searching repos');
+            console.error('Error searching repos!');
+            console.error(err);
         }
-    }, SEARCH_DEBOUNCE, { leading: true });
+    }, debounceTime);
 
-    const searchEnterHandler = (text, disposition) => {
-        const url = text.startsWith('https://')
-            ? text
-            : `https://github.com/${text}`;
+export const onEnterFactory = browser => (text, disposition) => {
+    const url = text.startsWith('https://')
+        ? text
+        : `https://github.com/${text}`;
 
-        switch (disposition) {
-        case 'currentTab':
-            return browser.tabs.update({ url });
-        case 'newForegroundTab':
-            return browser.tabs.create({ url });
-        case 'newBackgroundTab':
-        default:
-            return browser.tabs.create({ url, active: false });
-        }
-    };
-
-    omnibox.onInputChanged.addListener(textChangedHandler);
-    omnibox.onInputEntered.addListener(searchEnterHandler);
+    switch (disposition) {
+    case 'currentTab':
+        return browser.tabs.update({ url });
+    case 'newForegroundTab':
+        return browser.tabs.create({ url });
+    case 'newBackgroundTab':
+    default:
+        return browser.tabs.create({ url, active: false });
+    }
 };
