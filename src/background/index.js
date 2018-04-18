@@ -26,6 +26,7 @@ const bindBackgroundHandlers = async (omnibox) => {
         storage.setItem(OPTIONS.GITHUB_LOGINS, logins);
         onTextChanged = onTextChangedFactory(client, storage);
         omnibox.onInputChanged.addListener(onTextChanged);
+        omnibox.onInputEntered.addListener(onItemSelected);
     } catch (err) {
         console.error('Something went wrong!');
         console.error(err);
