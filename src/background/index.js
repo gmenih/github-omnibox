@@ -8,11 +8,12 @@ const storage = storageWrapper(browser.storage.local);
 const onItemSelected = onEnterFactory(browser);
 
 const bindBackgroundHandlers = async (omnibox) => {
-    console.log('binding');
     const settings = await storage.getAllSettings();
 
     if (!settings[OPTIONS.GITHUB_TOKEN]) {
         if (!settings[OPTIONS.OPTIONS_SHOWN]) {
+            storage.setItem(OPTIONS.SEARCH_NAME, true);
+            storage.setItem(OPTIONS.SEARCH_FORKED, true);
             browser.runtime.openOptionsPage(() => {
                 storage.setItem(OPTIONS.OPTIONS_SHOWN, true);
             });
@@ -20,7 +21,6 @@ const bindBackgroundHandlers = async (omnibox) => {
         return;
     }
     const client = new GithubClient(settings[OPTIONS.GITHUB_TOKEN]);
-    console.log('got the client');
     try {
         const logins = await client.fetchUserLogins();
         storage.setItem(OPTIONS.GITHUB_LOGINS, logins);
@@ -28,7 +28,6 @@ const bindBackgroundHandlers = async (omnibox) => {
         omnibox.onInputChanged.addListener(onTextChanged);
         omnibox.onInputEntered.addListener(onItemSelected);
     } catch (err) {
-        console.error('Something went wrong!');
         console.error(err);
     }
 };
