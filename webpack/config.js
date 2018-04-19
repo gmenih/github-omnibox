@@ -17,7 +17,7 @@ const defaultConfig = {
     context: resolve(__dirname, '../src'),
     entry: {
         background: ['babel-polyfill', './background/index.js'],
-        options: './options/index.js',
+        options: ['babel-polyfill', './options/index.js'],
     },
     output: {
         path: resolve(__dirname, '../bin'),
@@ -27,6 +27,10 @@ const defaultConfig = {
         new CleanWebpackPlugin(['bin'], {
             verbose: true,
             root: resolve(__dirname, '..'),
+        }),
+        new wp.DefinePlugin({
+            'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
+            'process.env.CLIENT_SECRET': JSON.stringify(process.env.CLIENT_SECRET),
         }),
         new HtmlWebpackPlugin({
             chunks: ['options'],

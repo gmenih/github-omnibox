@@ -46,9 +46,8 @@ browser.storage.onChanged.addListener(async (changes, scope) => {
     if (scope !== 'local') {
         return;
     }
-    unbindBackgroundHandlers(browser.omnibox);
     if (Object.keys(changes).includes(OPTIONS.GITHUB_TOKEN)) {
-        console.log('Updated key - registering');
+        unbindBackgroundHandlers(browser.omnibox);
         await bindBackgroundHandlers(browser.omnibox);
     }
 });

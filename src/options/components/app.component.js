@@ -1,10 +1,10 @@
-/* eslint-disable class-methods-use-this */
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 
 import { AuthComponent } from './authorization.component';
 import { Settings } from './settings.component';
 import { browser, storageWrapper } from '../../browser';
 import { OPTION_STRINGS as OPT } from '../../constants';
+import { openAuthFlowPage } from '../../github/auth';
 
 const storage = storageWrapper(browser.storage.local);
 
@@ -72,7 +72,11 @@ export class App extends Component {
     render() {
         return (
             <div>
-                <AuthComponent onAuthKeySet={this.onAuthSet}authTokenSet={this.state.authTokenSet} />
+                <AuthComponent
+                    onAuthKeySet={this.onAuthSet}
+                    authTokenSet={this.state.authTokenSet}
+                    beginAuthFlow={openAuthFlowPage}
+                />
                 <Settings onChange={this.onSettingChange} clearSettings={storage.clear} values={this.state.settings} />
             </div>
         );

@@ -1,4 +1,4 @@
-import { browser, storageWrapper } from '../../browser';
+import { h } from 'preact';
 import { GithubAuth } from './github-auth.component';
 import { SelfToken } from './token-auth.component';
 
@@ -22,14 +22,14 @@ const showAuthWarning = (authTokenSet) => {
     );
 };
 
-export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
+export const AuthComponent = ({ authTokenSet, onAuthKeySet, beginAuthFlow }) => (
     <div className="authorization">
         <h2>Authorization token</h2>
         <div className="content">
             { showAuthWarning(authTokenSet) }
         </div>
         <div className="billboard">
-            <GithubAuth onAuthKeySet={onAuthKeySet} />
+            <GithubAuth beginAuthFlow={beginAuthFlow} />
             <SelfToken onAuthKeySet={onAuthKeySet} />
         </div>
     </div>

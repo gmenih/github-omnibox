@@ -1,4 +1,6 @@
-export const GithubAuth = () => (
+import { h } from 'preact';
+
+export const GithubAuth = ({ beginAuthFlow }) => (
     <article className="card github-auth">
         <header>
             <h3>Github login</h3>
@@ -10,7 +12,7 @@ export const GithubAuth = () => (
         </p>
         <footer className="flex one center">
             <div className="center-button">
-                <button className="success github-button">Authorize Github</button>
+                <button className="success github-button" onClick={beginAuthFlow}>Authorize Github</button>
             </div>
         </footer>
     </article>

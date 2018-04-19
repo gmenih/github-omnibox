@@ -1,3 +1,4 @@
+import { h } from 'preact';
 export const SelfToken = ({ onAuthKeySet }) => {
     let token = '';
     const setValue = ({ target: { value } }) => {
