@@ -1,54 +1,62 @@
+import { autorun, reaction } from 'mobx';
+
 import { GithubClient } from '../github/client';
-import { browser, storageWrapper } from '../browser';
+import { browser } from '../browser';
+import { OptionsObservable as Options } from '../options/options.observable';
 import { OPTION_STRINGS as OPTIONS } from '../constants';
-import { onTextChangedFactory, onEnterFactory } from './omnibox.handlers';
+import { onTextChangedFactory, onInputEnteredFactory } from './omnibox.handlers';
 
-let onTextChanged = null;
-const storage = storageWrapper(browser.storage.local);
-const onItemSelected = onEnterFactory(browser);
+const onInputEntered = onInputEnteredFactory(browser);
+let onTextChanged;
 
-const bindBackgroundHandlers = async (omnibox) => {
-    const settings = await storage.getAllSettings();
-
-    if (!settings[OPTIONS.GITHUB_TOKEN]) {
-        if (!settings[OPTIONS.OPTIONS_SHOWN]) {
-            storage.setItem(OPTIONS.SEARCH_NAME, true);
-            storage.setItem(OPTIONS.SEARCH_FORKED, true);
-            browser.runtime.openOptionsPage(() => {
-                storage.setItem(OPTIONS.OPTIONS_SHOWN, true);
-            });
+// Fetch logins when github token changes
+reaction(
+    () => Options[OPTIONS.GITHUB_TOKEN],
+    async (token) => {
+        if (!token) {
+            return;
         }
-        return;
-    }
-    const client = new GithubClient(settings[OPTIONS.GITHUB_TOKEN]);
-    try {
-        const logins = await client.fetchUserLogins();
-        storage.setItem(OPTIONS.GITHUB_LOGINS, logins);
-        onTextChanged = onTextChangedFactory(client, storage);
-        omnibox.onInputChanged.addListener(onTextChanged);
-        omnibox.onInputEntered.addListener(onItemSelected);
-    } catch (err) {
-        console.error(err);
-    }
-};
+        try {
+            const client = new GithubClient(token);
+            const logins = await client.fetchUserLogins();
+            Options.setValue(OPTIONS.GITHUB_LOGINS, logins);
+        } catch (err) {
+            console.error('Error fetching User logins!');
+            console.error(err.message);
+        }
+    },
+);
+
 
 const unbindBackgroundHandlers = (omnibox) => {
     if (typeof onTextChanged === 'function') {
         omnibox.onInputChanged.removeListener(onTextChanged);
     }
     if (typeof onItemSelected === 'function') {
-        omnibox.onInputEntered.removeListener(onItemSelected);
+        omnibox.onInputEntered.removeListener(onInputEntered);
     }
 };
 
-browser.storage.onChanged.addListener(async (changes, scope) => {
-    if (scope !== 'local') {
+const bindBackgroundHandlers = (omnibox) => {
+    omnibox.onInputChanged.addListener(onTextChanged);
+    omnibox.onInputEntered.addListener(onInputEntered);
+};
+
+// Rebind listeners when state changes
+autorun(async () => {
+    console.log('autorun');
+    if (!Options[OPTIONS.OPTIONS_SHOWN]) {
+        Options.setValue(OPTIONS.SEARCH_NAME, true);
+        Options.setValue(OPTIONS.SEARCH_FORKED, true);
+        browser.runtime.openOptionsPage(() => {
+            Options.setValue(OPTIONS.OPTIONS_SHOWN, true);
+        });
+    }
+    if (!Options[OPTIONS.GITHUB_TOKEN]) {
         return;
     }
-    if (Object.keys(changes).includes(OPTIONS.GITHUB_TOKEN)) {
-        unbindBackgroundHandlers(browser.omnibox);
-        await bindBackgroundHandlers(browser.omnibox);
-    }
+    unbindBackgroundHandlers(browser.omnibox);
+    const client = new GithubClient(Options[OPTIONS.GITHUB_TOKEN]);
+    onTextChanged = onTextChangedFactory(client, Options);
+    bindBackgroundHandlers(browser.omnibox);
 });
-
-bindBackgroundHandlers(browser.omnibox);

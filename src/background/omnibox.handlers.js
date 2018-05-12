@@ -1,47 +1,47 @@
 import debounce from 'lodash/debounce';
 import { isChrome } from '../browser';
-import { SEARCH_DEBOUNCE, OPTION_STRINGS } from '../constants';
+import { SEARCH_DEBOUNCE, OPTION_STRINGS as OPTIONS } from '../constants';
 
 const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${text}</match>`) : name);
 
 const getTargetsFromSettings = (settings) => {
     const targets = [];
-    if (settings[OPTION_STRINGS.SEARCH_NAME]) {
+    if (settings[OPTIONS.SEARCH_NAME]) {
         targets.push('name');
     }
-    if (settings[OPTION_STRINGS.SEARCH_DESC]) {
+    if (settings[OPTIONS.SEARCH_DESC]) {
         targets.push('desc');
     }
     return targets;
 };
 
-export const onTextChangedFactory = (client, storage, { debounceTime = SEARCH_DEBOUNCE } = {}) =>
+export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_DEBOUNCE } = {}) =>
     debounce(async (text, suggest) => {
-        try {
-            const settings = await storage.getAllSettings();
-            const targets = getTargetsFromSettings(settings);
-            const searchForks = !!settings[OPTION_STRINGS.SEARCH_FORKED];
+        const targets = getTargetsFromSettings(settings);
+        const searchForks = !!settings[OPTIONS.SEARCH_FORKED];
+        const userLogins = settings[OPTIONS.GITHUB_LOGINS];
 
+        try {
             const response = await client.searchRepositories(
                 text,
-                settings[OPTION_STRINGS.GITHUB_LOGINS],
+                userLogins,
                 { targets, searchForks },
             );
 
             suggest(response.map(repo => ({
                 description: `${repo.organization}/${formatRepoName(repo.name, text)}`,
-                content: `${repo.url}`,
+                content: repo.url,
             })));
         } catch (err) {
-            console.error('Error searching repos!');
+            console.error('Error fetching repositories');
             console.error(err);
         }
     }, debounceTime);
 
-export const onEnterFactory = browser => (text, disposition) => {
+export const onInputEnteredFactory = browser => (text, disposition) => {
     const url = text.startsWith('https://')
         ? text
-        : `https://github.com/${text}`;
+        : `https://github.com/search?q=${text}`;
 
     switch (disposition) {
     case 'currentTab':

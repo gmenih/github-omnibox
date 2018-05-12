@@ -18,6 +18,7 @@ export const OptionsObservable = observable({
     getValue(key) {
         return this[key];
     },
+    /** Will trigger browser storage change */
     setValue(key, value) {
         this[key] = value;
         if (Object.values(O).some(x => x === key)) {
@@ -34,9 +35,19 @@ export const OptionsObservable = observable({
 
 // Update state on startup
 storage.getItems(null)
-    .then((values) => {
+    .then(values =>
         Object.keys(values)
             .forEach((key) => {
-                OptionsObservable.setValue(key, values[key]);
-            });
-    });
+                OptionsObservable[key] = values[key];
+            }));
+
+browser.storage.onChanged.addListener((changes) => {
+    Object.keys(changes)
+        .forEach((change) => {
+            const { oldValue, newValue } = changes[change];
+            if (oldValue === newValue) {
+                return;
+            }
+            OptionsObservable[change] = newValue;
+        });
+});
