@@ -21,7 +21,6 @@ export const OptionsObservable = observable({
     setValue(key, value) {
         this[key] = value;
         if (Object.values(O).some(x => x === key)) {
-            console.log('updating setting');
             storage.setItem(key, value);
         }
     },
