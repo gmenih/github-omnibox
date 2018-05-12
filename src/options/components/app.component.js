@@ -1,84 +1,38 @@
+/* eslint-disable no-unused-vars */
 import { Component, h } from 'preact';
+/* eslint-neable no-unused-vars */
+import { observer } from 'mobx-preact';
 
+import { OptionsObservable } from '../options.observable';
 import { AuthComponent } from './authorization.component';
 import { Settings } from './settings.component';
-import { browser, storageWrapper } from '../../browser';
 import { OPTION_STRINGS as OPT } from '../../constants';
 import { openAuthFlowPage } from '../../github/auth';
 
-const storage = storageWrapper(browser.storage.local);
+const onSettingChange = (settingName, event) => {
+    let { value } = event.target;
+    if (event && event.target && event.target.type === 'checkbox') {
+        value = !!event.target.checked;
+    }
+    OptionsObservable.setValue(settingName, value);
+};
 
-export class App extends Component {
-    constructor() {
-        super();
-        this.state = {
-            authTokenSet: false,
-            settings: {
-                [OPT.SEARCH_NAME]: false,
-                [OPT.SEARCH_LABEL]: false,
-                [OPT.SEARCH_DESC]: false,
-                [OPT.SEARCH_FORKED]: false,
-            },
-        };
-        this.settings = {};
-    }
+const onAuthSet = (authKey, type) => {
+    OptionsObservable.setValue(OPT.GITHUB_TOKEN, authKey);
+    OptionsObservable.setValue(OPT.TOKEN_TYPE, type);
+};
 
-    componentWillMount() {
-        this.updateFromStore();
-        browser.storage.onChanged.addListener(this.storeChangeListener.bind(this));
-    }
 
-    componentWillUnmount() {
-        browser.storage.onChanged.removeListener(this.storeChangeListener.bind(this));
-    }
-
-    onSettingChange(settingName, event) {
-        console.log(settingName, event);
-        if (event && event.target && event.target.type === 'checkbox') {
-            const val = !!event.target.checked;
-            storage.setItem(settingName, val);
-            return;
-        }
-        storage.setItem(settingName, event.target.value);
-    }
-
-    onAuthSet(authKey, type) {
-        storage.setItem(OPT.GITHUB_TOKEN, authKey);
-        storage.setItem(OPT.TOKEN_TYPE, type);
-    }
-
-    updateFromStore() {
-        storage.getItems(null).then((items) => {
-            this.settings = items;
-            const newState = {
-                authTokenSet: !!items[OPT.GITHUB_TOKEN],
-                settings: {
-                    [OPT.SEARCH_NAME]: !!items[OPT.SEARCH_NAME],
-                    [OPT.SEARCH_LABEL]: !!items[OPT.SEARCH_LABEL],
-                    [OPT.SEARCH_DESC]: !!items[OPT.SEARCH_DESC],
-                    [OPT.SEARCH_FORKED]: !!items[OPT.SEARCH_FORKED],
-                },
-            };
-            this.setState(newState);
-        });
-    }
-
-    storeChangeListener(changes, instance) {
-        if (instance !== 'local') {
-            return;
-        }
-        this.updateFromStore(changes);
-    }
-    render() {
-        return (
-            <div>
-                <AuthComponent
-                    onAuthKeySet={this.onAuthSet}
-                    authTokenSet={this.state.authTokenSet}
-                    beginAuthFlow={openAuthFlowPage}
-                />
-                <Settings onChange={this.onSettingChange} clearSettings={storage.clear} values={this.state.settings} />
-            </div>
-        );
-    }
-}
+export const App = observer(({ options }) => {
+    const { authTokenSet, ...settings } = options;
+    return (
+        <div>
+            <AuthComponent
+                onAuthKeySet={onAuthSet}
+                authTokenSet={authTokenSet}
+                beginAuthFlow={openAuthFlowPage}
+            />
+            <Settings onChange={onSettingChange} clearSettings={options.clearOptions} values={settings} />
+        </div>
+    );
+});

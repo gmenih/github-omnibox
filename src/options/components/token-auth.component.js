@@ -1,4 +1,7 @@
 import { h } from 'preact';
+import PropTypes from 'prop-types';
+
+
 export const SelfToken = ({ onAuthKeySet }) => {
     let token = '';
     const setValue = ({ target: { value } }) => {
@@ -31,3 +34,4 @@ export const SelfToken = ({ onAuthKeySet }) => {
         </article>
     );
 };
+

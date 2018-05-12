@@ -5,6 +5,7 @@ import { OPTION_STRINGS as OPTIONS } from '../constants';
 import { fetchUserToken } from '../github/auth';
 import { browser, storageWrapper } from '../browser';
 import './styles/main.scss';
+import { OptionsObservable } from './options.observable';
 
 const storage = storageWrapper(browser.storage.local);
 const codeRegex = /^\?code=/i;
@@ -19,7 +20,7 @@ const codeRegex = /^\?code=/i;
     }
 
     render(
-        <App />,
+        <App options={OptionsObservable} />,
         document.getElementById('app'),
     );
 })();
