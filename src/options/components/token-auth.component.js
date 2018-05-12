@@ -1,4 +1,6 @@
+/* eslint-disable */
 import { h } from 'preact';
+/* eslint-enable */
 import PropTypes from 'prop-types';
 
 
@@ -19,7 +21,7 @@ export const SelfToken = ({ onAuthKeySet }) => {
             <p>
                 Visit <a href="https://github.com/settings/tokens">Github settings</a> to generate your token.
                 Make sure to give it full <code>repo</code> access.
-                If you which to also read your organizations repositories, add <code>read:org</code> access.
+                If you also wish to have repos from your organizations included, add <code>read:org</code> access.
             </p>
             <footer>
                 <div className="flex one five-600 four-800">
@@ -35,3 +37,6 @@ export const SelfToken = ({ onAuthKeySet }) => {
     );
 };
 
+SelfToken.propTypes = {
+    onAuthKeySet: PropTypes.func.isRequired,
+};

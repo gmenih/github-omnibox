@@ -11,7 +11,8 @@ const SuccessMessage = () => (
 
 const WarningMessage = () => (
     <div className="alert info">
-       Looks like you haven't set up your token yet! You can keep using the extension, but your search will be global through GitHub.
+       Looks like you haven't set up your token yet!
+       You can keep using the extension, but your search will be global through GitHub.
     </div>
 );
 
