@@ -2,7 +2,7 @@ import { autorun, reaction } from 'mobx';
 
 import { GithubClient } from '../github/client';
 import { browser } from '../browser';
-import { OptionsObservable as Options } from '../options/options.observable';
+import { OptionsObservable as Options } from '../options.observable';
 import { OPTION_STRINGS as OPTIONS } from '../constants';
 import { onTextChangedFactory, onInputEnteredFactory } from './omnibox.handlers';
 

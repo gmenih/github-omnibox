@@ -1,11 +1,11 @@
 import { observable } from 'mobx';
 
-import { storageWrapper, browser } from '../browser';
-import { OPTION_STRINGS as O } from '../constants';
+import { storageWrapper, browser } from './browser';
+import { OPTION_STRINGS as O } from './constants';
 
 const storage = storageWrapper(browser.storage.local);
 
-export const OptionsObservable = observable({
+export const options = observable({
     [O.GITHUB_TOKEN]: '',
     [O.GITHUB_LOGINS]: '',
     [O.SEARCH_NAME]: '',
@@ -38,7 +38,7 @@ storage.getItems(null)
     .then(values =>
         Object.keys(values)
             .forEach((key) => {
-                OptionsObservable[key] = values[key];
+                options[key] = values[key];
             }));
 
 browser.storage.onChanged.addListener((changes) => {
@@ -48,6 +48,6 @@ browser.storage.onChanged.addListener((changes) => {
             if (oldValue === newValue) {
                 return;
             }
-            OptionsObservable[change] = newValue;
+            options[change] = newValue;
         });
 });

@@ -3,7 +3,7 @@ import { Component, h } from 'preact';
 /* eslint-neable no-unused-vars */
 import { observer } from 'mobx-preact';
 
-import { OptionsObservable } from '../options.observable';
+import { OptionsObservable } from '../../options.observable';
 import { AuthComponent } from './authorization.component';
 import { Settings } from './settings.component';
 import { OPTION_STRINGS as OPT } from '../../constants';
