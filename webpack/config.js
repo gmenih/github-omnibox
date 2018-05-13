@@ -86,6 +86,10 @@ const defaultConfig = {
         }]
     },
     devtool: !isProduction ? 'cheap-source-map' : '',
+    node: {
+        dns: 'mock',
+        net: 'mock',
+    }
 };
 
 module.exports = defaultConfig;

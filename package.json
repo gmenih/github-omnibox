@@ -1,6 +1,6 @@
 {
   "name": "repo-omnibox",
-  "version": "0.1.3",
+  "version": "0.2.1",
   "full_name": "Github Omnibox Search",
   "description": "A browser extension that suggests your GitHub repos in Omnibox",
   "main": "webpack/config.js",
@@ -47,6 +47,7 @@
     "zip-webpack-plugin": "^3.0.0"
   },
   "dependencies": {
+    "fetch": "^1.1.0",
     "graphql": "^0.13.2",
     "graphql-request": "^1.5.1",
     "graphql-tag": "^2.8.0",
