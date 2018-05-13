@@ -2,6 +2,7 @@
 import { h } from 'preact';
 /* eslint-enable */
 import PropTypes from 'prop-types';
+import { observer } from 'mobx-preact';
 import { OPTION_STRINGS as OPT } from '../../constants';
 import { options } from '../../options.observable';
 
@@ -13,7 +14,7 @@ const onSettingChange = (settingName, event) => {
     options.setValue(settingName, value);
 };
 
-const CheckBox = ({ children, settingName }) => (
+const CheckBox = observer(({ children, settingName }) => (
     <label htmlFor={settingName}>
         <input
             id={settingName}
@@ -23,7 +24,7 @@ const CheckBox = ({ children, settingName }) => (
         />
         <span className="checkable">{ children }</span>
     </label>
-);
+));
 
 CheckBox.propTypes = {
     children: PropTypes.string.isRequired,
