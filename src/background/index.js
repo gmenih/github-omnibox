@@ -27,6 +27,19 @@ reaction(
     },
 );
 
+reaction(
+    () => options[OPTIONS.OPTIONS_SHOWN],
+    (optionsShown) => {
+        if (!optionsShown) {
+            options.setValue(OPTIONS.SEARCH_NAME, true);
+            options.setValue(OPTIONS.SEARCH_FORKED, true);
+            browser.runtime.openOptionsPage(() => {
+                options.setValue(OPTIONS.OPTIONS_SHOWN, true);
+            });
+        }
+    },
+);
+
 
 const unbindBackgroundHandlers = (omnibox) => {
     if (typeof onTextChanged === 'function') {
@@ -42,21 +55,15 @@ const bindBackgroundHandlers = (omnibox) => {
     omnibox.onInputEntered.addListener(onInputEntered);
 };
 
-// Rebind listeners when state changes
-autorun(async () => {
-    console.log('autorun');
-    if (!options[OPTIONS.OPTIONS_SHOWN]) {
-        options.setValue(OPTIONS.SEARCH_NAME, true);
-        options.setValue(OPTIONS.SEARCH_FORKED, true);
-        browser.runtime.openOptionsPage(() => {
-            options.setValue(OPTIONS.OPTIONS_SHOWN, true);
-        });
-    }
-    if (!options[OPTIONS.GITHUB_TOKEN]) {
-        return;
-    }
-    unbindBackgroundHandlers(browser.omnibox);
-    const client = new GithubClient(options[OPTIONS.GITHUB_TOKEN]);
-    onTextChanged = onTextChangedFactory(client, options);
-    bindBackgroundHandlers(browser.omnibox);
-});
+reaction(
+    () => options[OPTIONS.GITHUB_TOKEN],
+    (token) => {
+        if (!token) {
+            return;
+        }
+        unbindBackgroundHandlers(browser.omnibox);
+        const client = new GithubClient(token);
+        onTextChanged = onTextChangedFactory(client, options);
+        bindBackgroundHandlers(browser.omnibox);
+    },
+);
