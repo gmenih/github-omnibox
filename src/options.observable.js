@@ -13,14 +13,14 @@ export const options = observable({
     [O.SEARCH_LABEL]: '',
     [O.SEARCH_FORKED]: '',
     get authTokenSet() {
-        return !!this[O.GITHUB_TOKEN];
+        return !!options[O.GITHUB_TOKEN];
     },
     getValue(key) {
-        return this[key];
+        return options[key];
     },
     /** Will trigger browser storage change */
     setValue(key, value) {
-        this[key] = value;
+        options[key] = value;
         if (Object.values(O).some(x => x === key)) {
             storage.setItem(key, value);
         }
@@ -28,7 +28,7 @@ export const options = observable({
     clearOptions() {
         Object.keys(O)
             .forEach((key) => {
-                this[O[key]] = '';
+                options[O[key]] = '';
             });
     },
 });

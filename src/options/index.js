@@ -1,26 +1,11 @@
+/* eslint-disable */
 import { render, h } from 'preact';
+/* eslint-enable */
 
-import { App } from './components/app.component';
-import { OPTION_STRINGS as OPTIONS } from '../constants';
-import { fetchUserToken } from '../github/auth';
-import { browser, storageWrapper } from '../browser';
 import './styles/main.scss';
-import { OptionsObservable } from './options.observable';
+import { App } from './components/app.component';
 
-const storage = storageWrapper(browser.storage.local);
-const codeRegex = /^\?code=/i;
-
-(async () => {
-    if (codeRegex.test(window.location.search)) {
-        const code = window.location.search.replace(codeRegex, '');
-        const response = await fetchUserToken(code);
-        if (response.access_token) {
-            storage.setItem(OPTIONS.GITHUB_TOKEN, response.access_token);
-        }
-    }
-
-    render(
-        <App options={OptionsObservable} />,
-        document.getElementById('app'),
-    );
-})();
+render(
+    <App />,
+    document.getElementById('app'),
+);

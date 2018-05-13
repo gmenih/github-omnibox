@@ -7,11 +7,11 @@ import { AuthorizationStatus } from './authorization-status.component';
 import { GithubAuth } from './github-auth.component';
 import { SelfToken } from './token-auth.component';
 
-export const AuthComponent = ({ authTokenSet, onAuthKeySet, beginAuthFlow }) => (
+export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
     <div className="authorization">
         <h2>Authorization token</h2>
         <AuthorizationStatus tokenSet={authTokenSet}>
-            <GithubAuth beginAuthFlow={beginAuthFlow} />
+            <GithubAuth onAuthKeySet={onAuthKeySet} />
             <SelfToken onAuthKeySet={onAuthKeySet} />
         </AuthorizationStatus>
     </div>
@@ -20,5 +20,4 @@ export const AuthComponent = ({ authTokenSet, onAuthKeySet, beginAuthFlow }) => 
 AuthComponent.propTypes = {
     authTokenSet: PropTypes.bool.isRequired,
     onAuthKeySet: PropTypes.func.isRequired,
-    beginAuthFlow: PropTypes.func.isRequired,
 };
