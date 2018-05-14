@@ -1,4 +1,4 @@
-import { autorun, reaction } from 'mobx';
+import { reaction } from 'mobx';
 
 import { GithubClient } from '../github/client';
 import { browser } from '../browser';
@@ -8,6 +8,20 @@ import { onTextChangedFactory, onInputEnteredFactory } from './omnibox.handlers'
 
 const onInputEntered = onInputEnteredFactory(browser);
 let onTextChanged;
+
+const unbindBackgroundHandlers = (omnibox) => {
+    if (typeof onTextChanged === 'function') {
+        omnibox.onInputChanged.removeListener(onTextChanged);
+    }
+    if (typeof onItemSelected === 'function') {
+        omnibox.onInputEntered.removeListener(onInputEntered);
+    }
+};
+
+const bindBackgroundHandlers = (omnibox) => {
+    omnibox.onInputChanged.addListener(onTextChanged);
+    omnibox.onInputEntered.addListener(onInputEntered);
+};
 
 // Fetch logins when github token changes
 reaction(
@@ -39,21 +53,6 @@ reaction(
         }
     },
 );
-
-
-const unbindBackgroundHandlers = (omnibox) => {
-    if (typeof onTextChanged === 'function') {
-        omnibox.onInputChanged.removeListener(onTextChanged);
-    }
-    if (typeof onItemSelected === 'function') {
-        omnibox.onInputEntered.removeListener(onInputEntered);
-    }
-};
-
-const bindBackgroundHandlers = (omnibox) => {
-    omnibox.onInputChanged.addListener(onTextChanged);
-    omnibox.onInputEntered.addListener(onInputEntered);
-};
 
 reaction(
     () => options[OPTIONS.GITHUB_TOKEN],
