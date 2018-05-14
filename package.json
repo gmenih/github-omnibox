@@ -1,6 +1,6 @@
 {
   "name": "repo-omnibox",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "full_name": "Github Omnibox Search",
   "description": "A browser extension that suggests your GitHub repos in Omnibox",
   "main": "webpack/config.js",
