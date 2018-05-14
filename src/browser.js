@@ -1,3 +1,4 @@
+import FETCH_POLYFILL from 'fetch';
 export const isChrome = typeof global.chrome !== 'undefined';
 
 /** @returns {chrome} */
@@ -43,3 +44,5 @@ export const storageWrapper = storage => ({
 });
 
 export const browser = getBrowser();
+
+export const fetch = window.fetch || FETCH_POLYFILL;

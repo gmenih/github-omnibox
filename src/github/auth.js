@@ -1,26 +1,23 @@
-import fetch from 'fetch';
-
-import { GITHUB_OAUTH_URL, GITHUB_TOKEN_URL } from '../constants';
-import { browser } from '../browser';
+import { GITHUB_OAUTH_URL, GITHUB_TOKEN_URL, REDIRECT_URL } from '../constants';
+import { browser, fetch } from '../browser';
 
 
 const toQueryString = obj => Object.keys(obj).map(key => `${key}=${encodeURIComponent(obj[key])}`).join('&');
 const toUrl = (url, obj) => `${url}?${toQueryString(obj)}`;
 
-const getAuthUrl = (clientId, extensionId, scopes = ['repo', 'read:org']) => {
-    const settingsUrl = `chrome-extension://${extensionId}/options_page.html`;
-    return toUrl(GITHUB_OAUTH_URL, {
+const getAuthUrl = (clientId, extensionId, scopes = ['repo', 'read:org'], randomState = '') =>
+    toUrl(GITHUB_OAUTH_URL, {
         client_id: clientId,
-        redirect_uri: settingsUrl,
+        redirect_uri: REDIRECT_URL,
         scopes: scopes.join(' '),
+        state: randomState,
     });
-};
 
-export const openAuthFlowPage = () => {
+export const openAuthFlowPage = (randomState) => {
     const extensionId = browser.runtime.id;
     const clientId = process.env.CLIENT_ID;
     const scopes = ['repo', 'read:org'];
-    const url = getAuthUrl(clientId, extensionId, scopes);
+    const url = getAuthUrl(clientId, extensionId, scopes, randomState);
     browser.tabs.create({ url });
 };
 
@@ -32,15 +29,15 @@ const generateTokenUrl = (clientId, clientSecret, code) =>
     });
 
 export const fetchUserToken = (code) => {
-    const {
-        CLIENT_ID: clientId,
-        CLIENT_SECRET: clientSecret,
-    } = process.env;
+    const clientId = process.env.CLIENT_ID;
+    const clientSecret = process.env.CLIENT_SECRET;
     const tokenUrl = generateTokenUrl(clientId, clientSecret, code);
     return fetch(tokenUrl, {
         method: 'POST',
         headers: {
             Accept: 'application/json',
         },
-    }).then(r => r.json());
+    })
+        .then(r => r.json())
+        .then(response => response.access_token);
 };

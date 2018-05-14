@@ -4,28 +4,10 @@ import { h } from 'preact';
 import { observer } from 'mobx-preact';
 import PropTypes from 'prop-types';
 
-import { authFlow } from '../auth.state';
-// const storage = storageWrapper(browser.storage.local);
-const codeRegex = /^\?code=(.+)&/i;
-
-// (async () => {
-//     if (codeRegex.test(window.location.search)) {
-//         const code = window.location.search.replace(codeRegex, '');
-//         const response = await fetchUserToken(code);
-//         if (response.access_token) {
-//             storage.setItem(OPTIONS.GITHUB_TOKEN, response.access_token);
-//         }
-//     }
-
-// })();
-
+import { authFlow, setOauthToken } from '../auth.state';
 
 export const GithubAuth = observer(({ onAuthKeySet }) => {
-    const { search } = window.location;
-    if (codeRegex.test(search)) {
-        const [, code] = search.match(codeRegex);
-        onAuthKeySet(code, 'oauth');
-    }
+    setOauthToken(onAuthKeySet);
     return (
         <article className="card github-auth">
             <header>

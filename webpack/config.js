@@ -18,6 +18,7 @@ const defaultConfig = {
     entry: {
         background: ['babel-polyfill', './background/index.js'],
         options: ['babel-polyfill', './options/index.js'],
+        extractor: ['./extractor/index.js'],
     },
     output: {
         path: resolve(__dirname, '../bin'),
