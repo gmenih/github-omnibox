@@ -1,4 +1,4 @@
-import { observable, when } from 'mobx';
+import { observable, reaction } from 'mobx';
 import { browser } from '../browser';
 import { openAuthFlowPage, fetchUserToken } from '../github/auth';
 
@@ -18,10 +18,12 @@ export const authFlow = observable({
 });
 
 export const setOauthToken = (setKey) => {
-    when(
-        () => authFlow.token.length === 40,
-        () => {
-            const { token } = authFlow;
+    reaction(
+        () => authFlow.token,
+        (token) => {
+            if (token.length !== 40) {
+                return;
+            }
             setKey(token, 'oauth');
             authFlow.clear();
         },
@@ -29,9 +31,12 @@ export const setOauthToken = (setKey) => {
 };
 
 
-when(
+reaction(
     () => authFlow.flowActive,
-    () => {
+    (flowActive) => {
+        if (flowActive) {
+            return;
+        }
         const randomState = Math.random().toString(32).substr(2);
         browser.runtime.onMessage.addListener(async ({ code, state }, sender) => {
             if (randomState === state) {
