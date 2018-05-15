@@ -1,7 +1,8 @@
 import { observable, reaction } from 'mobx';
-import { browser } from '../browser';
-import { openAuthFlowPage, fetchUserToken } from '../github/auth';
 
+import { onTabClosed } from '../browser';
+import { openAuthFlowPage, fetchUserToken, onCodeReceived } from '../github/auth';
+import { addAlert } from './alerts.state';
 
 export const authFlow = observable({
     flowActive: false,
@@ -33,24 +34,27 @@ export const setOauthToken = (setKey) => {
 
 reaction(
     () => authFlow.flowActive,
-    (flowActive) => {
-        if (flowActive) {
+    async (flowActive) => {
+        if (!flowActive) {
             return;
         }
         const randomState = Math.random().toString(32).substr(2);
-        browser.runtime.onMessage.addListener(async ({ code, state }, sender) => {
-            if (randomState === state) {
-                browser.tabs.remove([sender.tab.id]);
-                try {
-                    const accessToken = await fetchUserToken(code);
-                    authFlow.flowActive = false;
-                    authFlow.token = accessToken;
-                } catch (err) {
-                    console.error('Failed fetching Auth token');
-                    console.error(err);
-                }
-            }
-        });
-        openAuthFlowPage(randomState);
+        const tab = await openAuthFlowPage(randomState);
+
+        try {
+            const code = await Promise.race([
+                onCodeReceived(randomState),
+                onTabClosed(tab, 'Couldn\'t complete - tab was closed'),
+            ]);
+            const accessToken = await fetchUserToken(code);
+            authFlow.flowActive = false;
+            authFlow.token = accessToken;
+            addAlert('Successfuly authenticated!', 'success', 10000);
+        } catch (err) {
+            // tab closed
+            authFlow.flowActive = false;
+            authFlow.token = '';
+            addAlert(err.message, 'warning', 15000);
+        }
     },
 );

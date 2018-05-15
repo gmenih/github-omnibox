@@ -13,12 +13,14 @@ const getAuthUrl = (clientId, extensionId, scopes = ['repo', 'read:org'], random
         state: randomState,
     });
 
-export const openAuthFlowPage = (randomState) => {
+export const openAuthFlowPage = async (randomState) => {
     const extensionId = browser.runtime.id;
     const clientId = process.env.CLIENT_ID;
     const scopes = ['repo', 'read:org'];
     const url = getAuthUrl(clientId, extensionId, scopes, randomState);
-    browser.tabs.create({ url });
+    return new Promise((resolve) => {
+        browser.tabs.create({ url }, resolve);
+    });
 };
 
 const generateTokenUrl = (clientId, clientSecret, code) =>
@@ -41,3 +43,14 @@ export const fetchUserToken = (code) => {
         .then(r => r.json())
         .then(response => response.access_token);
 };
+
+export const onCodeReceived = async randomState =>
+    new Promise((resolve) => {
+        browser.runtime.onMessage.addListener(({ code, state }, sender) => {
+            if (!code || state) return;
+            if (randomState === state) {
+                browser.tabs.remove([sender.tab.id]);
+                resolve(code);
+            }
+        });
+    });

@@ -1,4 +1,5 @@
 import FETCH_POLYFILL from 'fetch';
+
 export const isChrome = typeof global.chrome !== 'undefined';
 
 /** @returns {chrome} */
@@ -46,3 +47,12 @@ export const storageWrapper = storage => ({
 export const browser = getBrowser();
 
 export const fetch = window.fetch || FETCH_POLYFILL;
+
+export const onTabClosed = async (tab, message) =>
+    new Promise((resolve, reject) => {
+        browser.tabs.onRemoved.addListener((tabId) => {
+            if (tabId === tab.id) {
+                reject(new Error(message));
+            }
+        });
+    });
