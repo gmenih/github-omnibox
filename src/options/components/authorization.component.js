@@ -10,7 +10,7 @@ import { SelfToken } from './token-auth.component';
 export const AuthComponent = ({ authTokenSet, onAuthKeySet }) => (
     <div className="authorization">
         <h2>Authorization token</h2>
-        <AuthorizationStatus tokenSet={authTokenSet}>
+        <AuthorizationStatus isTokenSet={authTokenSet}>
             <GithubAuth onAuthKeySet={onAuthKeySet} />
             <SelfToken onAuthKeySet={onAuthKeySet} />
         </AuthorizationStatus>

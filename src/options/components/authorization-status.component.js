@@ -17,7 +17,7 @@ const WarningMessage = () => (
 );
 
 const showMessage = (tokenSet) => {
-    if (!tokenSet) return <SuccessMessage />;
+    if (tokenSet) return <SuccessMessage />;
     return <WarningMessage />;
 };
 
