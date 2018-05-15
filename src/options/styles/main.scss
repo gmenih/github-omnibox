@@ -91,3 +91,15 @@
         transform: scale(1.0);
     }
 }
+
+
+.alerts-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    .content {
+        width: 400px;
+        margin: 10px auto;
+    }
+}

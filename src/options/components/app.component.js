@@ -8,6 +8,7 @@ import { options } from '../../options.observable';
 import { AuthComponent } from './authorization.component';
 import { Settings } from './settings.component';
 import { OPTION_STRINGS as OPT } from '../../constants';
+import { Alerts } from './alerts.component';
 
 const onAuthSet = (authKey, type) => {
     options.setValue(OPT.GITHUB_TOKEN, authKey);
@@ -16,12 +17,12 @@ const onAuthSet = (authKey, type) => {
 
 
 export const App = observer(() => {
-    const { authTokenSet } = options;
     return (
         <div>
+            <Alerts />
             <AuthComponent
                 onAuthKeySet={onAuthSet}
-                authTokenSet={authTokenSet}
+                authTokenSet={options.authTokenSet}
             />
             <Settings />
         </div>
