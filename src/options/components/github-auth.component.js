@@ -4,6 +4,7 @@ import { h } from 'preact';
 import { observer } from 'mobx-preact';
 import PropTypes from 'prop-types';
 
+import { LoadingButton } from './loading-button.component';
 import { authFlow, setOauthToken } from '../auth.state';
 
 export const GithubAuth = observer(({ onAuthKeySet }) => {
@@ -20,7 +21,13 @@ export const GithubAuth = observer(({ onAuthKeySet }) => {
             </p>
             <footer className="flex one center">
                 <div className="center-button">
-                    <button className="success github-button" onClick={authFlow.start}>Authorize Github</button>
+                    <LoadingButton
+                        isLoading={authFlow.flowActive}
+                        className="success github-button"
+                        onClick={authFlow.start}
+                    >
+                        Authorize Github
+                    </LoadingButton>
                 </div>
             </footer>
         </article>

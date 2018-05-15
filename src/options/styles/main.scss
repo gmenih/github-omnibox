@@ -1,5 +1,4 @@
 @import "~picnic/src/picnic";
-
 .page-content {
     section {
         background: #fff;
@@ -8,38 +7,35 @@
         max-width: 960px;
         margin: 0 auto;
         padding: 80px 0;
-
         .title {
-            h1,h4 {
+            h1,
+            h4 {
                 display: inline-block;
                 vertical-align: middle;
             }
         }
-
         .center-button {
             text-align: center;
         }
-
         .github-button {
             font-size: 1.5em;
+            &[disabled] {
+                background: #2ecc40;
+            }
         }
-
         button[type=submit] {
             margin: 0;
             display: block;
             width: 100%;
         }
-
-        .card > .container {
+        .card>.container {
             padding: .6em .8em;
         }
-
-        p > span:not(:first-of-type) {
+        p>span:not(:first-of-type) {
             margin-left: 5px;
         }
     }
 }
-
 
 .alert {
     position: relative;
@@ -47,22 +43,51 @@
     margin-bottom: 1rem;
     border: 1px solid transparent;
     border-radius: .25rem;
-
     &.warning {
         color: #856404;
         background-color: #fff3cd;
         border-color: #ffeeba;
     }
-
     &.success {
         color: #155724;
         background-color: #d4edda;
         border-color: #c3e6cb;
     }
-
     &.info {
         color: #0c5460;
         background-color: #d1ecf1;
         border-color: #bee5eb;
+    }
+}
+
+.spinner {
+    margin: 0 63px 0;
+    width: 70px;
+    text-align: center;
+    >div {
+        width: 18px;
+        height: 18px;
+        background-color: #fff;
+        border-radius: 100%;
+        display: inline-block;
+        margin: 0 2px;
+        animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    }
+    .bounce1 {
+        animation-delay: -0.32s;
+    }
+    .bounce2 {
+        animation-delay: -0.16s;
+    }
+}
+
+@keyframes sk-bouncedelay {
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1.0);
     }
 }

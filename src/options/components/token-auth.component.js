@@ -1,10 +1,12 @@
 /* eslint-disable */
 import { h } from 'preact';
 /* eslint-enable */
+import { observer } from 'mobx-preact';
 import PropTypes from 'prop-types';
 
+import { authFlow } from '../auth.state';
 
-export const SelfToken = ({ onAuthKeySet }) => {
+export const SelfToken = observer(({ onAuthKeySet }) => {
     let token = '';
     const setValue = ({ target: { value } }) => {
         token = value;
@@ -26,16 +28,22 @@ export const SelfToken = ({ onAuthKeySet }) => {
             <footer>
                 <div className="flex one five-600 four-800">
                     <div className="four-fifth-600 three-fourth-800">
-                        <input type="text" placeholder="Github token..." value={token} onCHange={setValue} />
+                        <input
+                            disabled={authFlow.flowActive}
+                            type="text"
+                            placeholder="Github token..."
+                            value={token}
+                            onChange={setValue}
+                        />
                     </div>
                     <div>
-                        <button type="submit" onClick={sendAuthToken}>Save token</button>
+                        <button disabled={authFlow.flowActive} type="submit" onClick={sendAuthToken}>Save token</button>
                     </div>
                 </div>
             </footer>
         </article>
     );
-};
+});
 
 SelfToken.propTypes = {
     onAuthKeySet: PropTypes.func.isRequired,
