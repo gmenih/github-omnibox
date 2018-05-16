@@ -44,14 +44,13 @@ reaction(
         try {
             const code = await Promise.race([
                 onCodeReceived(randomState),
-                onTabClosed(tab, 'Couldn\'t complete - tab was closed'),
+                onTabClosed(tab, 'Couldn\'t complete authentication'),
             ]);
             const accessToken = await fetchUserToken(code);
             authFlow.flowActive = false;
             authFlow.token = accessToken;
             addAlert('Successfuly authenticated!', 'success', 10000);
         } catch (err) {
-            // tab closed
             authFlow.flowActive = false;
             authFlow.token = '';
             addAlert(err.message, 'warning', 15000);

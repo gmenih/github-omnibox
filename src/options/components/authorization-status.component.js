@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 const SuccessMessage = () => (
     <div className="alert success">
-        Looks like you're all done! If you want to set up a new token, you can expand the section below.
+        Looks like you're all done! If you wish to change your token, you can authorize again below.
     </div>
 );
 
