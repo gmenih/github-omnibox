@@ -48,12 +48,13 @@ const defaultConfig = {
             pkg,
         }),
         new CopyWebpackPlugin(iconSizes.map(size => ({
-            from: 'assets/github-main.png',
+            from: 'assets/repo-icon.png',
             to: `assets/github-${size}x${size}.png`,
             cache: !isProduction,
             transform: (content, path) => {
                 return sharp(content)
                     .resize(size, size)
+                    .max()
                     .png()
                     .toBuffer()
             }
