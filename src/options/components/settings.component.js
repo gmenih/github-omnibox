@@ -58,7 +58,7 @@ export const Settings = () => (
             </div>
         </article>
         <div>
-            <button className="warning" onClick={options.clearSettings}>Clear all settings</button>
+            <button className="warning" onClick={options.clearOptions}>Clear all settings</button>
         </div>
     </div>
 );

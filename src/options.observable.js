@@ -26,10 +26,7 @@ export const options = observable({
         }
     },
     clearOptions() {
-        Object.keys(O)
-            .forEach((key) => {
-                options[O[key]] = '';
-            });
+        storage.clear();
     },
 });
 
