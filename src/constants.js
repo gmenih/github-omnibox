@@ -14,5 +14,5 @@ export const OPTION_STRINGS = {
     HISTORY: '__extension.search_history',
     UPDATE_LOGINS: '__extension.update_logins',
     OPTIONS_SHOWN: '__extension.options_shown_once',
-    TOKEN_TYPE: '__exatension.token_type',
+    TOKEN_TYPE: '__extension.token_type',
 };
