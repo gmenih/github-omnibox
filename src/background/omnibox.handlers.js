@@ -1,4 +1,4 @@
-import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import { isChrome } from '../browser';
 import { SEARCH_DEBOUNCE, OPTION_STRINGS as OPTIONS } from '../constants';
 
@@ -22,8 +22,8 @@ const getTargetsFromSettings = (settings) => {
     return targets;
 };
 
-export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_DEBOUNCE } = {}) =>
-    debounce(async (text, suggest) => {
+export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_DEBOUNCE } = {}) => {
+    const throttledSearch = throttle(async (text, suggest) => {
         const targets = getTargetsFromSettings(settings);
         const searchForks = !!settings[OPTIONS.SEARCH_FORKED];
         const userLogins = [];
@@ -46,6 +46,13 @@ export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_D
             console.error(err);
         }
     }, debounceTime);
+    return (text, suggest) => {
+        if (text.length < 2) {
+            return;
+        }
+        throttledSearch(text, suggest);
+    };
+};
 
 export const onInputEnteredFactory = browser => (text, disposition) => {
     const url = text.startsWith('https://')
