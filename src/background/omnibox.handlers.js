@@ -6,9 +6,6 @@ const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${
 
 const getTargetsFromSettings = (settings) => {
     const targets = [];
-    if (settings[OPTIONS.SEARCH_GLOBAL]) {
-        return targets;
-    }
     if (settings[OPTIONS.SEARCH_DESC]) {
         targets.push('desc');
     }
@@ -19,7 +16,10 @@ export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_D
     debounce(async (text, suggest) => {
         const targets = getTargetsFromSettings(settings);
         const searchForks = !!settings[OPTIONS.SEARCH_FORKED];
-        const userLogins = settings[OPTIONS.GITHUB_LOGINS];
+        const userLogins = [];
+        if (!settings[OPTIONS.SEARCH_GLOBAL]) {
+            userLogins.push(...settings[OPTIONS.GITHUB_LOGINS]);
+        }
 
         try {
             const response = await client.searchRepositories(
