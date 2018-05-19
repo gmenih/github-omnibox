@@ -45,7 +45,7 @@ reaction(
     () => options[OPTIONS.OPTIONS_SHOWN],
     (optionsShown) => {
         if (!optionsShown) {
-            options.setValue(OPTIONS.SEARCH_NAME, true);
+            options.setValue(OPTIONS.SEARCH_GLOBAL, false);
             options.setValue(OPTIONS.SEARCH_FORKED, true);
             browser.runtime.openOptionsPage(() => {
                 options.setValue(OPTIONS.OPTIONS_SHOWN, true);

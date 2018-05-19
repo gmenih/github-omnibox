@@ -8,9 +8,8 @@ const storage = storageWrapper(browser.storage.local);
 export const options = observable({
     [O.GITHUB_TOKEN]: '',
     [O.GITHUB_LOGINS]: '',
-    [O.SEARCH_NAME]: '',
+    [O.SEARCH_GLOBAL]: '',
     [O.SEARCH_DESC]: '',
-    [O.SEARCH_LABEL]: '',
     [O.SEARCH_FORKED]: '',
     get authTokenSet() {
         return !!options[O.GITHUB_TOKEN];

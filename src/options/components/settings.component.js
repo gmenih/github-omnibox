@@ -39,22 +39,17 @@ export const Settings = () => (
                 <h3>Search settings</h3>
             </header>
             <div className="container">
-                <CheckBox settingName={OPT.SEARCH_NAME}>
-                    Search by repository name
-                </CheckBox>
-                <br />
                 <CheckBox settingName={OPT.SEARCH_DESC}>
                     Search by repository description
-                </CheckBox>
-                <br />
-                <CheckBox settingName={OPT.SEARCH_LABEL}>
-                    Search by repository labels
                 </CheckBox>
                 <br />
                 <CheckBox settingName={OPT.SEARCH_FORKED}>
                     Include forked repositories
                 </CheckBox>
                 <br />
+                <CheckBox settingName={OPT.SEARCH_GLOBAL}>
+                    Don't limit search to my organizations only
+                </CheckBox>
             </div>
         </article>
         <div>

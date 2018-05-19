@@ -6,9 +6,8 @@ export const SEARCH_DEBOUNCE = 50;
 export const OPTION_STRINGS = {
     GITHUB_TOKEN: '__github.token',
     GITHUB_LOGINS: '__github.logins',
-    SEARCH_NAME: '__github.search_name',
+    SEARCH_GLOBAL: '__github.search_global',
     SEARCH_DESC: '__github.search_desc',
-    SEARCH_LABEL: '__github.search_label',
     SEARCH_FORKED: '__github.search_forked',
 
     USE_HISTORY: '__extension.use_history',

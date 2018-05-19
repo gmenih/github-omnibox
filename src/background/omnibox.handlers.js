@@ -6,8 +6,8 @@ const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${
 
 const getTargetsFromSettings = (settings) => {
     const targets = [];
-    if (settings[OPTIONS.SEARCH_NAME]) {
-        targets.push('name');
+    if (settings[OPTIONS.SEARCH_GLOBAL]) {
+        return targets;
     }
     if (settings[OPTIONS.SEARCH_DESC]) {
         targets.push('desc');
