@@ -2,7 +2,17 @@ import debounce from 'lodash/debounce';
 import { isChrome } from '../browser';
 import { SEARCH_DEBOUNCE, OPTION_STRINGS as OPTIONS } from '../constants';
 
-const formatRepoName = (name, text) => (isChrome ? name.replace(text, `<match>${text}</match>`) : name);
+const formatRepoName = (name, text) => {
+    if (!isChrome) {
+        return name;
+    }
+    const reg = new RegExp(text, 'i');
+    const matches = name.match(reg);
+    if (!matches) {
+        return name;
+    }
+    return matches.reduce((out, curr) => out.replace(curr, `<match>${curr}</match>`), name);
+};
 
 const getTargetsFromSettings = (settings) => {
     const targets = [];
@@ -27,7 +37,6 @@ export const onTextChangedFactory = (client, settings, { debounceTime = SEARCH_D
                 userLogins,
                 { targets, searchForks },
             );
-
             suggest(response.map(repo => ({
                 description: `${repo.organization}/${formatRepoName(repo.name, text)}`,
                 content: repo.url,
