@@ -12,18 +12,21 @@ A browser extension that allows you to search GitHub repositories in your browse
 
 ## Preview
 
-![Chrome search bar][ChromeSearchBar]
+> Search your local, or global repositories
+
+![Firefox search bar][FirefoxSearchBar]
+
+> Use advanced GitHub search features
 
 ![Chrome search bar][ChromeSearchBarAdv]
+
+> Authenticate and change your settings
 
 ![Chrome settings][ChromeSettingsPage]
 
 
+[FirefoxSearchBar]: https://github.com/gmenih341/github-omnibox/raw/master/.github/firefox-search.png "Chrome Search bar"
 
-
-
-[ChromeSearchBar]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-search-bar.png "Chrome Search bar"
-
-[ChromeSearchBarAdv]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-search-bar-adv.png "Chrome Search bar"
+[ChromeSearchBarAdv]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-search-adv.png "Chrome Search bar"
 
 [ChromeSettingsPage]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-settings.png "Chrome Settings"
