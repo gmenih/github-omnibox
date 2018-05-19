@@ -1,13 +1,13 @@
 import FETCH_POLYFILL from 'fetch';
 
-export const isChrome = typeof global.chrome !== 'undefined';
+export const isChrome = typeof window.browser === 'undefined';
 
 /** @returns {chrome} */
 const getBrowser = () => {
     if (isChrome) {
-        return global.chrome;
+        return window.chrome;
     }
-    return global.browser;
+    return window.browser;
 };
 
 /** @param {chrome.storage}
