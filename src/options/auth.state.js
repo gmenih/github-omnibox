@@ -38,13 +38,16 @@ reaction(
         if (!flowActive) {
             return;
         }
+
         const randomState = Math.random().toString(32).substr(2);
+        const codeReciever = onCodeReceived(randomState);
         const tab = await openAuthFlowPage(randomState);
+        const tabClosedReciever = onTabClosed(tab, 'Couldn\'t complete authentication');
 
         try {
             const code = await Promise.race([
-                onCodeReceived(randomState),
-                onTabClosed(tab, 'Couldn\'t complete authentication'),
+                codeReciever,
+                tabClosedReciever,
             ]);
             const accessToken = await fetchUserToken(code);
             authFlow.flowActive = false;

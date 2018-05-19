@@ -47,10 +47,10 @@ export const fetchUserToken = (code) => {
 export const onCodeReceived = async randomState =>
     new Promise((resolve) => {
         browser.runtime.onMessage.addListener(({ code, state }, sender) => {
-            if (!code || state) return;
+            if (!code || !state) return;
             if (randomState === state) {
-                browser.tabs.remove([sender.tab.id]);
                 resolve(code);
+                browser.tabs.remove([sender.tab.id]);
             }
         });
     });
