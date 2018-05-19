@@ -52,7 +52,6 @@ reaction(
             const accessToken = await fetchUserToken(code);
             authFlow.flowActive = false;
             authFlow.token = accessToken;
-            addAlert('Successfuly authenticated!', 'success', 10000);
         } catch (err) {
             authFlow.flowActive = false;
             authFlow.token = '';
