@@ -7,6 +7,19 @@
         max-width: 960px;
         margin: 0 auto;
         padding: 80px 0;
+        > div {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .icon {
+            width: 64px;
+            height: 64px;
+            background-size: 64px 64px;
+            background-position: center center;
+            background-image: url('../../assets/repo-icon.png');
+            background-repeat: no-repeat;
+            margin-right: 10px;
+        }
         .title {
             h1,
             h4 {
