@@ -49,7 +49,7 @@ const defaultConfig = {
         }),
         new CopyWebpackPlugin(iconSizes.map(size => ({
             from: 'assets/repo-icon.png',
-            to: `assets/github-${size}x${size}.png`,
+            to: `assets/icon-${size}x${size}.png`,
             cache: !isProduction,
             transform: (content, path) => {
                 return sharp(content)
@@ -76,6 +76,13 @@ const defaultConfig = {
         }, {
             test: /\.gql$/,
             loader: 'graphql-tag/loader',
+        }, {
+            test: /\.(png|jpg|jpeg)$/,
+            loader: 'file-loader',
+            options: {
+                outputPath: 'assets/',
+
+            }
         }, {
             test: /\.(scss|sass)$/,
             use: [{
