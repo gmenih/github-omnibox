@@ -1,4 +1,0 @@
-src/manifest.template.hbs
-node_modules
-webpack/*
-bin/*

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Github fetchLogins maps data to GithubLogins interface 1`] = `
+Object {
+  "displayName": "Test",
+  "organizations": Array [
+    "test-organization-1",
+    "test-organization-2",
+  ],
+  "username": "test-login",
+}
+`;
+
+exports[`Github fetchLogins query matches snapshot and is called with proper arguments 1`] = `
+"
+                    query getUserInfo($pageSize: Int!, $endCursor: String) {
+                        viewer {
+                            login
+                            name
+                            organizations(after: $endCursor, first: $pageSize) {
+                                nodes {
+                                    login
+                                }
+                                pageInfo {
+                                    endCursor
+                                }
+                            }
+                        }
+                    }
+                "
+`;
