@@ -1,14 +1,10 @@
 const wp = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ZipWebpackPlugin = require('zip-webpack-plugin');
 const {resolve} = require('path');
 const pkg = require('./package.json');
 
 const isProduction = process.env.NODE_ENV === 'production';
-const zipFileName = `${pkg.name}-${pkg.version}.zip`;
-const iconSizes = [16, 32, 48, 64];
 
 /** @import webpack as wp */
 /** @type {wp.Configuration} */
@@ -56,10 +52,7 @@ const defaultConfig = {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin(['dist'], {
-            verbose: true,
-            root: './dist',
-        }),
+        new CleanWebpackPlugin(),
         new wp.DefinePlugin({
             'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
             'process.env.CLIENT_SECRET': JSON.stringify(process.env.CLIENT_SECRET),
@@ -78,24 +71,6 @@ const defaultConfig = {
             minify: false,
             pkg,
         }),
-        // new CopyWebpackPlugin(iconSizes.map(size => ({
-        //     from: 'assets/repo-icon.png',
-        //     to: `assets/icon-${size}x${size}.png`,
-        //     cache: !isProduction,
-        //     transform: (content, path) => {
-        //         return sharp(content)
-        //             .resize(size, size)
-        //             .max()
-        //             .png()
-        //             .toBuffer()
-        //     }
-        // }))),
-        // ...isProduction && [
-        //     new ZipWebpackPlugin({
-        //         path: '../release',
-        //         filename: `${zipFileName}`,
-        //     })
-        // ],
     ],
 };
 
