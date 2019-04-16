@@ -15,7 +15,7 @@ describe('Omnibox Flags', () => {
             ['--nofork test', {excludeForks: true}],
             ['--noflag', {excludeForks: false, isGlobal: false}],
             ['--glabal', {excludeForks: false, isGlobal: false}],
-        ])('should properly parse "%s"', (value: string, expected: Partial<SearchFlags>) => {
+        ] as any)('should properly parse "%s"', (value: string, expected: Partial<SearchFlags>) => {
             expect(parseFlags(value)).toMatchObject(expected);
         });
     });
@@ -34,8 +34,11 @@ describe('Omnibox Flags', () => {
             ['--nofork test', 'test'],
             ['--noflag', ''],
             ['--glabal', ''],
-        ])('should clear flags from "%s" to "%s"', (value: string, expected: string) => {
-            expect(clearFlags(value)).toBe(expected);
-        });
+        ])(
+            'should clear flags from "%s" to "%s"',
+            (value: string, expected: string): void => {
+                expect(clearFlags(value)).toBe(expected);
+            },
+        );
     });
 });

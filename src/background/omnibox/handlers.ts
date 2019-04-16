@@ -11,9 +11,9 @@ import {createClient, searchRepositories} from '../../common/github/queries';
 import {StorageObservable} from '../../common/storage';
 import {generateSearchTerm} from './searchTerm';
 
-const MIN_SEARCH_LENGTH = 3;
+const MIN_SEARCH_LENGTH = 2;
 const MAX_RESULTS = 10;
-const SEARCH_TIMEOUT = 150;
+const SEARCH_TIMEOUT = 200;
 
 function urlModifier (disposition: chrome.omnibox.OnInputEnteredDisposition): string {
     switch (disposition) {
@@ -36,8 +36,11 @@ export const onInputChanged = (storage: StorageObservable): InputChangedCallback
     let suggestions: SuggestResult[] = [];
     const debouncedSearch = debounce<InputChangedCallback>(
         async (text, suggest) => {
-            if (!storage.token || text.length < MIN_SEARCH_LENGTH) {
+            if (!storage.token) {
                 debouncedSearch.cancel();
+                return;
+            }
+            if (text.length < MIN_SEARCH_LENGTH) {
                 return;
             }
             const results = await searchRepositories(createClient(storage.token), generateSearchTerm(text, storage));
@@ -53,11 +56,10 @@ export const onInputChanged = (storage: StorageObservable): InputChangedCallback
                 ].slice(0, MAX_RESULTS);
             }
             suggest(suggestions);
-            debouncedSearch.cancel();
         },
         SEARCH_TIMEOUT,
         {
-            trailing: true,
+            leading: true,
         },
     );
     return debouncedSearch;
