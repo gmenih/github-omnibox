@@ -52,7 +52,7 @@
     "graphql": "0.13.2",
     "graphql-request": "1.6.0",
     "graphql-tag": "2.9.2",
-    "lodash": "4.17.10",
+    "lodash": "4.17.19",
     "mobx": "4.2.1",
     "mobx-preact": "2.0.0",
     "picnic": "6.5.0",
