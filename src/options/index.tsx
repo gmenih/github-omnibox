@@ -1,8 +1,10 @@
+import 'reflect-metadata';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {App} from './components/app';
-import {createAppState} from './state';
+import {createStorageService} from './state';
 
-const state = createAppState();
+const storageService = createStorageService();
 
-ReactDOM.render(<App state={state} />, document.getElementById('root'));
+ReactDOM.render(<App storageService={storageService} />, document.getElementById('root'));

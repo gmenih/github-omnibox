@@ -24,7 +24,6 @@ const StyledAlert = styled.div`
     border-radius: 2px;
     padding: ${SPACER_SMALL}px;
     margin: ${SPACER_SMALL}px 0;
-    ${(props) => props.theme}
 `;
 
 export const Alert: FunctionComponent<AlertProps> = ({type, children}) => {

@@ -1,5 +1,5 @@
 import {StorageObservable} from '../../../common/storage';
-import {generateSearchTerm} from '../searchTerm';
+import {generateSearchTerm} from '../search-term.service';
 
 describe('Omnibox SearchTerm', () => {
     describe('generateSearchTerm()', () => {

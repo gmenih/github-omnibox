@@ -31,7 +31,6 @@ const StyledButton = styled.button`
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
-    ${(props) => props.theme}
 `;
 
 const getButtonTypeStyle: (type?: ButtonType) => SerializedStyles = (type = ButtonType.primary) => {

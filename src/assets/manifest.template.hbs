@@ -11,13 +11,13 @@
     ],
     "background": {
         "scripts": [
-            "{{htmlWebpackPlugin.files.chunks.background.entry}}"
+            "{{ htmlWebpackPlugin.files.js.[0] }}"
         ]
     },
     "content_scripts": [
         {
             "matches": ["https://github.com/gmenih341/github-omnibox*"],
-            "js": ["{{htmlWebpackPlugin.files.chunks.extractor.entry}}"],
+            "js": ["{{ htmlWebpackPlugin.files.js.[1] }}"],
             "run_at": "document_start"
         }
     ],

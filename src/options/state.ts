@@ -1,29 +1,7 @@
-import {IObservableObject, observable, reaction} from 'mobx';
-import {createStorageObservable, StorageObservable} from '../common/storage';
+import {container} from 'tsyringe';
+import {StorageService} from '../common/storage.service';
 
-export interface AppState {
-    storage: StorageObservable;
-    displayName: string;
-    loading: boolean;
-    loggedIn: boolean;
-    submittedAuth: boolean;
-}
+export function createStorageService (): StorageService {
+    return container.resolve(StorageService);
 
-export type AppStateObservable = AppState & IObservableObject;
-
-export function createAppState (): AppStateObservable {
-    const storage = createStorageObservable();
-    const state = observable<AppState>({
-        loading: false,
-        storage,
-        submittedAuth: false,
-        get displayName (): string {
-            return storage.displayName || storage.username;
-        },
-        get loggedIn (): boolean {
-            return storage.loggedIn;
-        },
-    });
-
-    return state;
 }

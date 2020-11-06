@@ -1,5 +1,5 @@
 const wp = require('webpack');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {resolve} = require('path');
 const pkg = require('./package.json');
@@ -12,8 +12,8 @@ const defaultConfig = {
     mode: process.env.NODE_ENV || 'development',
     entry: {
         background: './src/background/index.ts',
-        options: './src//options/index.tsx',
-        extractor: './src/content-script/index.ts',
+        options: './src/options/index.tsx',
+        scripts: './src/content-script/index.ts',
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
@@ -52,7 +52,7 @@ const defaultConfig = {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin(),
+        // new CleanWebpackPlugin(),
         new wp.DefinePlugin({
             'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
             'process.env.CLIENT_SECRET': JSON.stringify(process.env.CLIENT_SECRET),

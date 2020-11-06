@@ -1,13 +1,8 @@
-import {createStorageObservable} from '../common/storage';
-import {omniboxBootstrap} from './omnibox';
-import {fetchLoginsForToken} from './reactions/fetchLogins';
-import {showOptionsOnce} from './reactions/showOptions';
+import 'reflect-metadata';
+import {container} from 'tsyringe';
+import {Logster} from '../common/logster.service';
+import {BackgroundService} from './background.service';
 
-function bootstrap (): void {
-    const storage = createStorageObservable();
-    showOptionsOnce(storage);
-    fetchLoginsForToken(storage);
-    omniboxBootstrap(storage);
-}
-
-bootstrap();
+const logster = new Logster('System');
+const bgService = container.resolve<BackgroundService>(BackgroundService);
+bgService.bootstrap().catch((...args: any[]) => logster.error(args));
