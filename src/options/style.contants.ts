@@ -1,6 +1,6 @@
-export const SPACER_SMALL: number = 7;
-export const SPACER: number = 15;
-export const SPACER_BIG: number = 30;
+export const SPACER_SMALL = 7;
+export const SPACER = 15;
+export const SPACER_BIG = 30;
 
 export const COLOR_GRAY: string[] = [
     '#f0f2f4',

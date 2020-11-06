@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "prettier": "prettier --write ./src/**/*.{ts,tsx}",
-    "lint": "tslint -c tslint.json ./src/**/*.{ts,tsx} --fix",
+    "lint": "eslint ./src/**/*.{ts,tsx} --fix",
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
     "copy-webpack-plugin": "6.3.0",
     "eslint": "7.12.1",
     "eslint-config": "0.3.0",
+    "eslint-config-prettier": "6.15.0",
     "eslint-plugin-prettier": "3.1.4",
     "eslint-plugin-react": "7.21.5",
     "eslint-plugin-react-hooks": "4.2.0",

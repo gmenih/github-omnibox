@@ -6,13 +6,13 @@ import {WINDOW_TOKEN} from '../common/window.provider';
 @injectable()
 @logsterRegistry()
 export class ContentScriptService {
-    constructor (
+    constructor(
         @inject(WINDOW_TOKEN) private readonly window: Window,
         private readonly logster: Logster,
         private readonly runtime: RuntimeService,
     ) {}
 
-    public checkForLoginToken (): void {
+    public checkForLoginToken(): void {
         if (this.window.location.pathname === '/gmenih341/github-omnibox') {
             this.logster.info('Checking for login token presence', this.window.location);
             const queryString = this.parseQueryString(this.window.location.search);
@@ -23,12 +23,12 @@ export class ContentScriptService {
         }
     }
 
-    private parseQueryString (queryString: string): Record<string, string> {
+    private parseQueryString(queryString: string): Record<string, string> {
         return Object.fromEntries(
-            queryString.replace(/^\?/, '')
+            queryString
+                .replace(/^\?/, '')
                 .split('&')
-                .map((pair) => pair.split('=').map(x => decodeURIComponent(x))),
-        )
-
+                .map((pair) => pair.split('=').map((x) => decodeURIComponent(x))),
+        );
     }
 }

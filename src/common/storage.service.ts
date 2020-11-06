@@ -22,26 +22,23 @@ const DAY_MS = 86400000;
 @injectable()
 @singleton()
 export class StorageService {
-    constructor (
-        private readonly browserStorage: BrowserStorageService<Storage>,
-        private readonly logster: Logster,
-    ) {
-    }
+    constructor(private readonly browserStorage: BrowserStorageService<Storage>, private readonly logster: Logster) {}
 
-    public onKeysChanged<T extends keyof Storage> (...keys: T[]): Observable<Pick<Storage, T>> {
-        return this.browserStorage.onChange()
-            .pipe(
-                map((value: Partial<Storage>): Pick<Storage, T> => {
-                    const entries: [T, any][] = keys.map((key: T): [T, any] => ([key, value[key]]));
-                    const partialObject: Pick<Storage, T> = <Pick<Storage, T>> Object.fromEntries<any>(entries);
+    public onKeysChanged<T extends keyof Storage>(...keys: T[]): Observable<Pick<Storage, T>> {
+        return this.browserStorage.onChange().pipe(
+            map(
+                (value: Partial<Storage>): Pick<Storage, T> => {
+                    const entries: [T, any][] = keys.map((key: T): [T, any] => [key, value[key]]);
+                    const partialObject: Pick<Storage, T> = <Pick<Storage, T>>Object.fromEntries<any>(entries);
 
                     return partialObject;
-                }),
-                distinctUntilChanged((a, b) => deepEqual(a, b)),
-            );
-    } 
+                },
+            ),
+            distinctUntilChanged((a, b) => deepEqual(a, b)),
+        );
+    }
 
-    public saveLoginData (username: string, displayName: string, organizations: string[]): void {
+    public saveLoginData(username: string, displayName: string, organizations: string[]): void {
         this.updateStorage({
             displayName: displayName,
             loggedIn: true,
@@ -50,13 +47,13 @@ export class StorageService {
         });
     }
 
-    public saveToken (token: string): void {
+    public saveToken(token: string): void {
         this.updateStorage({
             token,
         });
     }
 
-    public saveRepositories (repositories: GithubRepository[]): void {
+    public saveRepositories(repositories: GithubRepository[]): void {
         this.updateStorage({
             repositories,
             lastRepoRefreshDate: new Date().toISOString(),
@@ -64,30 +61,26 @@ export class StorageService {
     }
 
     /** Moves repo to the top so it will appear on the top of */
-    public increaseRepositoryFrequency (repoUrl: string): void {
+    public increaseRepositoryFrequency(repoUrl: string): void {
         this.logster.info(`Increasing repo frequency for "${repoUrl}"`);
         const repositories = this.browserStorage.store?.repositories ?? [];
-        const targetRepo = repositories.find(r => r.url === repoUrl);
+        const targetRepo = repositories.find((r) => r.url === repoUrl);
         if (!targetRepo) {
             this.logster.error(`Could not find repo "${repoUrl}"`);
             return;
         }
 
-
-        const newRepositories = [
-            targetRepo,
-            ...repositories.filter(r => r.url !== targetRepo.url),
-        ];
+        const newRepositories = [targetRepo, ...repositories.filter((r) => r.url !== targetRepo.url)];
         this.updateStorage({repositories: newRepositories});
     }
 
-    public setOptionsShownDate (): void {
+    public setOptionsShownDate(): void {
         this.updateStorage({
             optionsShown: Date.now(),
         });
     }
 
-    public shouldRefreshRepos () {
+    public shouldRefreshRepos() {
         const lastRefresh = this.browserStorage.store?.lastRepoRefreshDate;
         if (!lastRefresh) {
             return true;
@@ -99,7 +92,7 @@ export class StorageService {
         return delta > now - DAY_MS;
     }
 
-    private async updateStorage (storage: Partial<Storage>) {
+    private async updateStorage(storage: Partial<Storage>) {
         await this.browserStorage.updateStorage(storage);
     }
 }

@@ -5,22 +5,19 @@ export class Logster {
     constructor(private source?: string) {}
 
     public info(...args: any[]): void {
-        console.log.apply(console, this.logMessage(args));
+        console.log(...this.logMessage(args));
     }
 
     public error(...args: any[]): void {
-        console.error.apply(console, this.logMessage(args));
+        console.error(...this.logMessage(args));
     }
 
-    public warn (...args: any[]): void {
-        console.warn.apply(console, this.logMessage(args))
+    public warn(...args: any[]): void {
+        console.warn(...this.logMessage(args));
     }
 
-    private logMessage (args: any[]): any[] {
-        return [
-            `[${this.source}]`,
-            ...args,
-        ];
+    private logMessage(args: any[]): any[] {
+        return [`[${this.source}]`, ...args];
     }
 }
 
@@ -35,7 +32,7 @@ export function logsterRegistry(registrations?: Parameters<typeof registry>[0]):
                     return new Logster(target.name);
                 },
             },
-            ...registrations ?? [],
+            ...(registrations ?? []),
         ])(target);
-    }
+    };
 }
