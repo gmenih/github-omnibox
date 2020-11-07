@@ -1,15 +1,15 @@
 import Fuse from 'fuse.js';
 import debounce from 'lodash/debounce';
-import {injectable} from 'tsyringe';
+import {injectable, registry} from 'tsyringe';
 import {BrowserOmniboxService, EnteredDisposition, SuggestFunction, SuggestResult} from '../../common/browser/omnibox.service';
 import {TabsService} from '../../common/browser/tabs.service';
 import {GitHubClient} from '../../common/github/github.client';
 import {GithubRepository} from '../../common/github/types';
-import {Logster, logsterRegistry} from '../../common/logster.service';
+import {Logster} from '../../common/logster.service';
 import {StorageService} from '../../common/storage.service';
 
 @injectable()
-@logsterRegistry([
+@registry([
     {
         token: Fuse,
         useValue: new Fuse([], {
@@ -24,14 +24,13 @@ import {StorageService} from '../../common/storage.service';
 ])
 export class OmniboxService {
     private suggestions: SuggestResult[] = [];
+    private readonly logster: Logster = new Logster('OmniboxService');
 
     constructor(
-        private readonly logster: Logster,
+        private readonly fuse: Fuse<GithubRepository>,
         private readonly omnibox: BrowserOmniboxService,
         private readonly storage: StorageService,
-        private readonly githubClient: GitHubClient,
         private readonly tabsService: TabsService,
-        private readonly fuse: Fuse<GithubRepository>,
     ) {}
 
     public registerHandlers(): void {
@@ -49,8 +48,6 @@ export class OmniboxService {
         this.omnibox.listenInputEntered(this.onInputEntered.bind(this));
         this.omnibox.listenInputStarted(this.onInputStarted.bind(this));
     }
-
-    public unregisterHandlers(): void {}
 
     private onDeleteSuggestion(): void {
         this.logster.warn('Not implemented yet');

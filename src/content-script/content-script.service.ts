@@ -1,16 +1,13 @@
 import {injectable, inject} from 'tsyringe';
 import {RuntimeService} from '../common/browser/runtime.service';
-import {Logster, logsterRegistry} from '../common/logster.service';
+import {Logster} from '../common/logster.service';
 import {WINDOW_TOKEN} from '../common/window.provider';
 
 @injectable()
-@logsterRegistry()
 export class ContentScriptService {
-    constructor(
-        @inject(WINDOW_TOKEN) private readonly window: Window,
-        private readonly logster: Logster,
-        private readonly runtime: RuntimeService,
-    ) {}
+    private readonly logster: Logster = new Logster('ContentScript');
+
+    constructor(@inject(WINDOW_TOKEN) private readonly window: Window, private readonly runtime: RuntimeService) {}
 
     public checkForLoginToken(): void {
         if (this.window.location.pathname === '/gmenih341/github-omnibox') {

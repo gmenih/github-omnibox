@@ -1,4 +1,5 @@
-import {container, injectable, Lifecycle, registry, scoped} from 'tsyringe';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {container, injectable} from 'tsyringe';
 
 @injectable()
 export class Logster {
@@ -23,16 +24,16 @@ export class Logster {
 
 container.register(Storage, Storage);
 
-export function logsterRegistry(registrations?: Parameters<typeof registry>[0]): ClassDecorator {
-    return (target) => {
-        registry([
-            {
-                token: Logster,
-                useFactory: () => {
-                    return new Logster(target.name);
-                },
-            },
-            ...(registrations ?? []),
-        ])(target);
-    };
-}
+// export function logsterRegistry(registrations?: Parameters<typeof registry>[0]): ClassDecorator {
+//     return (target) => {
+//         registry([
+//             {
+//                 token: Logster,
+//                 useFactory: () => {
+//                     return new Logster(target.name);
+//                 },
+//             },
+//             ...(registrations ?? []),
+//         ])(target);
+//     };
+// }

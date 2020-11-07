@@ -9,12 +9,13 @@ const PAGE_SIZE = 100;
 
 @injectable()
 export class BackgroundService {
+    private readonly log: Logster = new Logster('BackgroundService');
+
     constructor(
         private readonly storage: StorageService,
         private readonly githubClient: GitHubClient,
         private readonly omniboxService: OmniboxService,
         private readonly runtime: RuntimeService,
-        private readonly log: Logster,
     ) {}
 
     public async bootstrap() {

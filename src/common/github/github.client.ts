@@ -1,9 +1,17 @@
 import {GraphQLClient} from 'graphql-request';
 import {injectable, singleton} from 'tsyringe';
-import {Logster, logsterRegistry} from '../logster.service';
+import {Logster} from '../logster.service';
 import {StorageService} from '../storage.service';
 import {CLIENT_ID, CLIENT_SECRET, DEFAULT_FIRST_REPOS, DEFAULT_SCOPES, GITHUB_API, GITHUB_OAUTH_URL, GITHUB_TOKEN_URL} from './constants';
-import {GithubRepository, GitHubUserDataResponse, GitHubUserOrgsResponse, OrganizationNode, RepositoryNode, SearchResponse, GitHubOrgRepositoriesResponse} from './types';
+import {
+    GitHubOrgRepositoriesResponse,
+    GithubRepository,
+    GitHubUserDataResponse,
+    GitHubUserOrgsResponse,
+    OrganizationNode,
+    RepositoryNode,
+    SearchResponse,
+} from './types';
 import {toQueryString} from './utils';
 
 interface AuthorizationTokenResponse {
@@ -23,36 +31,30 @@ interface GitHubOrganizationData {
 
 @injectable()
 @singleton()
-@logsterRegistry()
 export class GitHubClient {
     private static lastCreated?: number;
     private gqlClient!: GraphQLClient;
+    private readonly logster: Logster = new Logster('GithubClient');
 
-    constructor(
-        private readonly storage: StorageService, 
-        private readonly logster: Logster,
-    ) {
+    constructor(private readonly storage: StorageService) {
         this.storage.onKeysChanged('token').subscribe(({token}) => {
             if (token) {
                 if (GitHubClient.lastCreated && Date.now() - GitHubClient.lastCreated < 5) {
                     this.logster.warn('Detected repeat creation');
-                    debugger;   
+                    debugger;
                 }
                 GitHubClient.lastCreated = Date.now();
                 this.logster.info(`Creating GithubClient for token "${token}"`);
-                this.gqlClient = new GraphQLClient(
-                    GITHUB_API,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                this.gqlClient = new GraphQLClient(GITHUB_API, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
                     },
-                );
+                });
             }
-        })
+        });
     }
 
-    public generateOAuthPageURL (state: string, scopes: string[] = DEFAULT_SCOPES): string {
+    public generateOAuthPageURL(state: string, scopes: string[] = DEFAULT_SCOPES): string {
         this.logster.info('Generating OAuth URL');
         const query = toQueryString({
             client_id: CLIENT_ID,
@@ -63,7 +65,7 @@ export class GitHubClient {
         return `${GITHUB_OAUTH_URL}?${query}`;
     }
 
-    public async fetchAuthorizationToken (code: string): Promise<string> {
+    public async fetchAuthorizationToken(code: string): Promise<string> {
         this.logster.info('Fetching auth token');
         const state = Math.random().toString(36).substr(2);
         const query = toQueryString({
@@ -80,7 +82,7 @@ export class GitHubClient {
             });
             const data: AuthorizationTokenResponse = await response.json();
             if (data && data.access_token) {
-                this.logster.info('Authorization token received!')
+                this.logster.info('Authorization token received!');
                 return data.access_token;
             }
             this.logster.error('Access token missing in response!');
@@ -91,14 +93,14 @@ export class GitHubClient {
         throw new Error('Failed to authorize');
     }
 
-    public async fetchUserData (pageSize = 100): Promise<GithubUserData> {
+    public async fetchUserData(pageSize = 100): Promise<GithubUserData> {
         const userData: GithubUserData = {repositories: [], displayName: '', username: ''};
         let repoCur: string | null = null;
         do {
             try {
                 const response: GitHubUserDataResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query ($pageSize: Int!, $repoCur: String) {
+                        query($pageSize: Int!, $repoCur: String) {
                             viewer {
                                 username: login
                                 name
@@ -116,18 +118,17 @@ export class GitHubClient {
                                 }
                             }
                         }
-
                     `,
                     {
                         repoCur,
-                        pageSize
+                        pageSize,
                     },
                 );
 
                 userData.displayName = response.viewer.name;
                 userData.username = response.viewer.username;
                 userData.repositories.push(...this.mapRepositories(response.viewer.repositories.nodes));
-                
+
                 repoCur = null;
                 if (response.viewer.repositories.nodes.length >= pageSize) {
                     repoCur = response.viewer.repositories.pageInfo.endCursor;
@@ -140,14 +141,14 @@ export class GitHubClient {
         return userData;
     }
 
-    public async fetchUserOrganizations (pageSize = 100): Promise<GitHubOrganizationData[]> {
+    public async fetchUserOrganizations(pageSize = 100): Promise<GitHubOrganizationData[]> {
         const organizations: GitHubOrganizationData[] = [];
         let orgCursor: string | null = null;
         do {
             try {
                 const response: GitHubUserOrgsResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query ($pageSize: Int!, $orgCursor: String) {
+                        query($pageSize: Int!, $orgCursor: String) {
                             viewer {
                                 organizations(after: $orgCursor, first: $pageSize) {
                                     nodes {
@@ -159,7 +160,6 @@ export class GitHubClient {
                                 }
                             }
                         }
-
                     `,
                     {
                         orgCursor,
@@ -181,16 +181,16 @@ export class GitHubClient {
         return organizations;
     }
 
-    public async fetchOrganizationRepositories (org: GitHubOrganizationData, pageSize = 100): Promise<GithubRepository[]> {
+    public async fetchOrganizationRepositories(org: GitHubOrganizationData, pageSize = 100): Promise<GithubRepository[]> {
         const repositories: GithubRepository[] = [];
         let repoCur: string | null = null;
         do {
             try {
                 const response: GitHubOrgRepositoriesResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query ($orgName: String!, $pageSize: Int!, $repoCur: String) {
+                        query($orgName: String!, $pageSize: Int!, $repoCur: String) {
                             viewer {
-                                organization (login: $orgName) {
+                                organization(login: $orgName) {
                                     repositories(after: $repoCur, first: $pageSize) {
                                         nodes {
                                             name
@@ -204,7 +204,6 @@ export class GitHubClient {
                                 }
                             }
                         }
-
                     `,
                     {
                         orgName: org.name,
@@ -227,7 +226,7 @@ export class GitHubClient {
         return repositories;
     }
 
-    public async searchRepositories (searchTerm: string, pageSize: number = DEFAULT_FIRST_REPOS): Promise<GithubRepository[]> {
+    public async searchRepositories(searchTerm: string, pageSize: number = DEFAULT_FIRST_REPOS): Promise<GithubRepository[]> {
         try {
             const response: SearchResponse = await this.gqlClient.request(
                 /* GraphQL */ `
@@ -264,8 +263,8 @@ export class GitHubClient {
         }
     }
 
-    private mapRepositories (nodes: RepositoryNode[], ownerName?: string): GithubRepository[] {
-        return nodes.map(node => {
+    private mapRepositories(nodes: RepositoryNode[], ownerName?: string): GithubRepository[] {
+        return nodes.map((node) => {
             return {
                 name: node.name,
                 owner: ownerName ? ownerName : node.owner.name,
@@ -274,12 +273,12 @@ export class GitHubClient {
         });
     }
 
-    private mapOrganizations (nodes: OrganizationNode[]): GitHubOrganizationData[] {
-        return nodes.map(node => {
+    private mapOrganizations(nodes: OrganizationNode[]): GitHubOrganizationData[] {
+        return nodes.map((node) => {
             return {
                 name: node.name,
                 repositories: [],
-            }
+            };
         });
     }
 }

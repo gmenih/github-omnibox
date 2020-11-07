@@ -22,13 +22,17 @@ const DAY_MS = 86400000;
 @injectable()
 @singleton()
 export class StorageService {
-    constructor(private readonly browserStorage: BrowserStorageService<Storage>, private readonly logster: Logster) {}
+    private readonly logster: Logster = new Logster('StorageService');
 
-    public onKeysChanged<T extends keyof Storage>(...keys: T[]): Observable<Pick<Storage, T>> {
+    constructor(private readonly browserStorage: BrowserStorageService<Storage>) {}
+
+    onKeysChanged<T extends keyof Storage>(...keys: T[]): Observable<Pick<Storage, T>> {
         return this.browserStorage.onChange().pipe(
             map(
                 (value: Partial<Storage>): Pick<Storage, T> => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const entries: [T, any][] = keys.map((key: T): [T, any] => [key, value[key]]);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const partialObject: Pick<Storage, T> = <Pick<Storage, T>>Object.fromEntries<any>(entries);
 
                     return partialObject;
@@ -38,7 +42,7 @@ export class StorageService {
         );
     }
 
-    public saveLoginData(username: string, displayName: string, organizations: string[]): void {
+    saveLoginData(username: string, displayName: string, organizations: string[]): void {
         this.updateStorage({
             displayName: displayName,
             loggedIn: true,
@@ -47,13 +51,13 @@ export class StorageService {
         });
     }
 
-    public saveToken(token: string): void {
+    saveToken(token: string): void {
         this.updateStorage({
             token,
         });
     }
 
-    public saveRepositories(repositories: GithubRepository[]): void {
+    saveRepositories(repositories: GithubRepository[]): void {
         this.updateStorage({
             repositories,
             lastRepoRefreshDate: new Date().toISOString(),
@@ -61,7 +65,7 @@ export class StorageService {
     }
 
     /** Moves repo to the top so it will appear on the top of */
-    public increaseRepositoryFrequency(repoUrl: string): void {
+    increaseRepositoryFrequency(repoUrl: string): void {
         this.logster.info(`Increasing repo frequency for "${repoUrl}"`);
         const repositories = this.browserStorage.store?.repositories ?? [];
         const targetRepo = repositories.find((r) => r.url === repoUrl);
@@ -74,13 +78,13 @@ export class StorageService {
         this.updateStorage({repositories: newRepositories});
     }
 
-    public setOptionsShownDate(): void {
+    setOptionsShownDate(): void {
         this.updateStorage({
             optionsShown: Date.now(),
         });
     }
 
-    public shouldRefreshRepos() {
+    shouldRefreshRepos() {
         const lastRefresh = this.browserStorage.store?.lastRepoRefreshDate;
         if (!lastRefresh) {
             return true;
