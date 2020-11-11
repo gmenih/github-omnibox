@@ -61,6 +61,7 @@
     "@emotion/styled": "10.0.27",
     "debounce": "1.2.0",
     "deep-equal": "2.0.4",
+    "dotenv-webpack": "5.1.0",
     "fast-json-stringify": "2.2.9",
     "fuse.js": "6.4.3",
     "graphql-request": "3.3.0",

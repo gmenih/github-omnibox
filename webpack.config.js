@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const wp = require('webpack');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {resolve} = require('path');
 const pkg = require('./package.json');
@@ -53,10 +54,7 @@ const defaultConfig = {
     },
     plugins: [
         // new CleanWebpackPlugin(),
-        new wp.DefinePlugin({
-            'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
-            'process.env.CLIENT_SECRET': JSON.stringify(process.env.CLIENT_SECRET),
-        }),
+        new Dotenv({path: './src/.env'}),
         new HtmlWebpackPlugin({
             chunks: ['options'],
             inject: 'body',

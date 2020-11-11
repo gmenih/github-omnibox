@@ -4,7 +4,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {App} from './components/app';
 import {createStorageService} from './state';
+import {StorageProvider} from './storage/store.context';
 
 const storageService = createStorageService();
 
-ReactDOM.render(<App storageService={storageService} />, document.getElementById('root'));
+console.log(storageService);
+
+ReactDOM.render(
+    <StorageProvider storageService={storageService}>
+        <App />
+    </StorageProvider>,
+    document.getElementById('root'),
+);

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, {ChangeEvent, FormEvent, FunctionComponent, useState} from 'react';
-import {COLOR_GRAY, SPACER_SMALL} from '../../style.contants';
+import {COLOR_GRAY, SPACER_SMALL} from '../../style.constants';
 import {Button, ButtonType} from '../button/button';
 import {CenteredContent, Section} from '../section/section';
 
@@ -39,21 +39,12 @@ export const TokenAuthorization: FunctionComponent<TokenAuthorizationProps> = ({
             <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">
                 GitHub Settings
             </a>
-            ). To support searching, you need to give it the <code>repo</code> scope, and <code>read:org</code>, if you
-            also want to search in your organizations' repos.
+            ). To support searching, you need to give it the <code>repo</code> scope, and <code>read:org</code>, if you also want to search
+            in your organizations&apos; repos.
             <form onSubmit={onFormSubmit}>
                 <CenteredContent>
-                    <TokenInput
-                        type="text"
-                        placeholder="Paste the token here"
-                        value={token}
-                        onChange={onInputChanged}
-                    />
-                    <Button
-                        inline={true}
-                        styleType={!buttonMuted ? ButtonType.secondary : ButtonType.muted}
-                        type="submit"
-                    >
+                    <TokenInput type="text" placeholder="Paste the token here" value={token} onChange={onInputChanged} />
+                    <Button inline={true} styleType={!buttonMuted ? ButtonType.secondary : ButtonType.muted} type="submit">
                         Save token
                     </Button>
                 </CenteredContent>

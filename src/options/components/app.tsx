@@ -1,15 +1,11 @@
 import {css, Global, SerializedStyles} from '@emotion/core';
 import styled from '@emotion/styled';
-import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
-import {Storage, StorageService} from '../../common/storage.service';
-import {COLOR_BLACK, COLOR_WHITE} from '../style.contants';
+import React, {FunctionComponent} from 'react';
+import {useFrontendService, useStorage} from '../storage/store.context';
+import {COLOR_BLACK, COLOR_WHITE} from '../style.constants';
 import {GithubAuthorization} from './github-authorization/github-authorization';
 import {Settings} from './settings/settings';
 import {TokenAuthorization} from './token-authorization/token-authorization';
-
-export interface AppProps {
-    storageService: StorageService;
-}
 
 const globalStyles: SerializedStyles = css`
     html,
@@ -33,40 +29,25 @@ const AppGrid = styled.div`
 
 const AppTitle = styled.h1``;
 
-export const App: FunctionComponent<AppProps> = ({storageService}) => {
-    const [loading, setLoading] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const storage = useRef<Storage>();
+export const App: FunctionComponent = () => {
+    const storage = useStorage();
+    const frontendService = useFrontendService();
+    const loggedIn = storage.loggedIn;
 
-    useEffect(() => {
-        const s = storageService.onKeysChanged('token', 'loggedIn').subscribe(({token, loggedIn}) => {
-            if (!token) {
-                return;
-            }
+    const onAuthClick = () => {
+        frontendService.createOAuthTab();
+    };
 
-            console.log(token);
-            setLoading(() => loggedIn);
-        });
+    const onTokenSet = (token: string) => {
+        frontendService.setTokenValue(token);
+    };
 
-        storageService.onKeysChanged().subscribe((store: Storage) => {
-            storage.current = store;
-        })
-
-
-        return () => {
-            s.unsubscribe();
-        }
-    }, []);
-
-    const onAuthClick = () => {};
-    const onTokenSet = () => {};
- 
     return (
         <AppGrid>
             <Global styles={globalStyles} />
-            <pre>{JSON.stringify(storage)}</pre>
             <AppTitle>{'\u{1F50D}'} GitHub Omnibox search</AppTitle>
-            {loggedIn ? <Settings state={storage.current} /> : null}
+
+            {loggedIn ? <Settings storage={storage} /> : null}
             <GithubAuthorization onAuthClick={onAuthClick} buttonMuted={loggedIn} />
             <TokenAuthorization onTokenSet={onTokenSet} buttonMuted={loggedIn} />
         </AppGrid>

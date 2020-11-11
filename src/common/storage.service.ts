@@ -26,14 +26,23 @@ export class StorageService {
 
     constructor(private readonly browserStorage: BrowserStorageService<Storage>) {}
 
-    onKeysChanged<T extends keyof Storage>(...keys: T[]): Observable<Pick<Storage, T>> {
+    getStorage(): Promise<Storage> {
+        return this.browserStorage.getStorage();
+    }
+
+    onKeysChanged(): Observable<Storage>;
+    onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>>;
+    onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>> {
         return this.browserStorage.onChange().pipe(
             map(
-                (value: Partial<Storage>): Pick<Storage, T> => {
+                (value: Partial<Storage>): Pick<Storage, TKey> => {
+                    if (keys.length === 0) {
+                        return value as Pick<Storage, TKey>;
+                    }
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const entries: [T, any][] = keys.map((key: T): [T, any] => [key, value[key]]);
+                    const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [key, value[key]]);
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const partialObject: Pick<Storage, T> = <Pick<Storage, T>>Object.fromEntries<any>(entries);
+                    const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>Object.fromEntries<any>(entries);
 
                     return partialObject;
                 },

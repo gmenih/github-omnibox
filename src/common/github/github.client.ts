@@ -59,15 +59,14 @@ export class GitHubClient {
         const query = toQueryString({
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
-            scopes: scopes.join(' '),
-            state,
+            scope: scopes.join(' '),
+            state: Math.random().toString(32).substring(2),
         });
         return `${GITHUB_OAUTH_URL}?${query}`;
     }
 
-    public async fetchAuthorizationToken(code: string): Promise<string> {
+    public async fetchAuthorizationToken(code: string, state: string): Promise<string> {
         this.logster.info('Fetching auth token');
-        const state = Math.random().toString(36).substr(2);
         const query = toQueryString({
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,

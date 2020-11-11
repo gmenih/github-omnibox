@@ -1,7 +1,7 @@
 import {css, SerializedStyles} from '@emotion/core';
 import styled from '@emotion/styled';
 import React, {ButtonHTMLAttributes, FunctionComponent} from 'react';
-import {SPACER, SPACER_BIG, SPACER_SMALL} from '../../style.contants';
+import {SPACER, SPACER_BIG, SPACER_SMALL} from '../../style.constants';
 
 export enum ButtonType {
     primary,
@@ -62,7 +62,7 @@ const getButtonSizeStyle: (type?: ButtonSize) => SerializedStyles = (size = Butt
     }[size];
 };
 
-export const Button: FunctionComponent<ButtonProps> = ({size, styleType, inline, children, ...props}) => {
+export const Button: FunctionComponent<ButtonProps> = ({size, styleType, children, ...props}) => {
     return (
         <StyledButton theme={[getButtonSizeStyle(size), getButtonTypeStyle(styleType)]} {...props}>
             {children}

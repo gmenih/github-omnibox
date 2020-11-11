@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, {ReactNode} from 'react';
-import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../../style.contants';
+import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../../style.constants';
 
 const SectionContainer = styled.section`
     border-radius: 3px;
@@ -10,10 +10,27 @@ const SectionContainer = styled.section`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22);
 `;
 const SectionTitle = styled.div`
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: ${SPACER_SMALL}px ${SPACER}px;
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid ${COLOR_GRAY[1]};
+    padding: ${SPACER_SMALL}px ${SPACER}px;
+
+    &.big {
+        padding: 20px ${SPACER}px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+        padding: 0;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .controls {
+        margin-left: auto;
+        font-size: 1rem;
+        font-weight: normal;
+    }
 `;
 const SectionContent = styled.main`
     padding: ${SPACER}px;
@@ -49,12 +66,17 @@ export const CenteredContent = styled.div`
 export interface SectionProps {
     title: string;
     children: ReactNode;
+    controls?: ReactNode;
+    type?: 'big';
 }
 
-export function Section ({title, children}: SectionProps) {
+export function Section({title, children, controls, type}: SectionProps) {
     return (
         <SectionContainer>
-            <SectionTitle>{title}</SectionTitle>
+            <SectionTitle className={type}>
+                <h1>{title}</h1>
+                {controls && <div className="controls">{controls}</div>}
+            </SectionTitle>
             <SectionContent>{children}</SectionContent>
         </SectionContainer>
     );

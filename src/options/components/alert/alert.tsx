@@ -1,7 +1,7 @@
 import {css, SerializedStyles} from '@emotion/core';
 import styled from '@emotion/styled';
 import React, {FunctionComponent} from 'react';
-import {SPACER_SMALL} from '../../style.contants';
+import {SPACER_SMALL} from '../../style.constants';
 
 export enum AlertType {
     warning = 'warning',
