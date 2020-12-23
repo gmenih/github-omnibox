@@ -23,23 +23,10 @@
         }
     },
     "rules": {
-        "no-restricted-imports": [
-            "error",
-            {
-                "paths": [
-                    {
-                        "name": "styled-components",
-                        "message": "Please import from styled-components/macro."
-                    }
-                ],
-                "patterns": [
-                    "!styled-components/macro"
-                ]
-            }
-        ],
         "@typescript-eslint/interface-name-prefix": 0,
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "react/prop-types": "off",
         "react/display-name": "off",
         "react-hooks/rules-of-hooks": "error"

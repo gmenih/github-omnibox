@@ -1,40 +1,47 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const wp = require('webpack');
-const Dotenv = require('dotenv-webpack');
+const DotEnvPlugin = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {resolve} = require('path');
+const webpack = require('webpack');
+const path = require('path');
 const pkg = require('./package.json');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const MODULES_DIR = path.resolve(__dirname, './src/modules');
 
-/** @import webpack as wp */
-/** @type {wp.Configuration} */
-const defaultConfig = {
-    mode: process.env.NODE_ENV || 'development',
+/** 
+ * @param {string} moduleName
+ * @returns {[webpack.RuleSetRule]}
+ */
+function moduleTsRule(moduleName) {
+    return [
+        {
+            test: /\.tsx?$/,
+            loader: 'ts-loader',
+            include: [path.resolve(MODULES_DIR, `./${moduleName}`), path.resolve(__dirname, './src/core')],
+            options: {
+                instance: moduleName,
+                configFile: path.resolve(MODULES_DIR, `./${moduleName}/tsconfig.json`),
+                reportFiles: [path.resolve(MODULES_DIR, `./${moduleName}/**/*.{ts,tsx}`)],
+            },
+        },
+    ];
+}
+
+/** @type {webpack.Configuration} */
+const config = {
+    devtool: 'cheap-source-map',
     entry: {
-        background: './src/background/index.ts',
-        options: './src/options/index.tsx',
-        scripts: './src/content-script/index.ts',
+        background: path.join(__dirname, './src/modules/background/index.ts'),
+        options: path.join(__dirname, './src/modules/options/index.tsx'),
+        'content-script': path.join(__dirname, './src/modules/content-script/index.ts'),
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js'],
-    },
-    output: {
-        path: resolve('./dist'),
-        filename: 'script/[name].js',
-    },
-    devtool: !isProduction ? 'cheap-source-map' : '',
-    devServer: {
-        contentBase: './dist',
-        openPage: './options_page.html',
-        open: true,
+        extensions: ['.js', '.json', '.ts', '.tsx'],
     },
     module: {
         rules: [
-            {
-                test: /\.tsx?$/,
-                loader: 'awesome-typescript-loader',
-            },
+            ...moduleTsRule('background'),
+            ...moduleTsRule('content-script'),
+            ...moduleTsRule('options'),
             {
                 test: /\.hbs$/,
                 loader: 'handlebars-loader',
@@ -53,8 +60,7 @@ const defaultConfig = {
         ],
     },
     plugins: [
-        // new CleanWebpackPlugin(),
-        new Dotenv({path: './src/.env'}),
+        new DotEnvPlugin({path: './src/.env'}),
         new HtmlWebpackPlugin({
             chunks: ['options'],
             inject: 'body',
@@ -72,4 +78,4 @@ const defaultConfig = {
     ],
 };
 
-module.exports = defaultConfig;
+module.exports = config;

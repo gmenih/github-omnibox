@@ -1,19 +1,26 @@
 {
-  "exclude": ["./**/__tests__/*"],
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": [ "es2018", "dom", "es2019", "ES2020" ],
-    "jsx": "react",
-    "sourceMap": true,
-    "rootDir": "./src",
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noImplicitAny": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "esModuleInterop": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "es2020",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+  },
+  "include": ["./**/*.d.ts"]
 }
