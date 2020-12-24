@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const DotEnvPlugin = require('dotenv-webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugiN');
 const webpack = require('webpack');
 const path = require('path');
 const pkg = require('./package.json');
 const {join} = require('path');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const WebpackBar = require('webpackbar');
 
 const MODULES_DIR = path.resolve(__dirname, './src/modules');
 
@@ -32,6 +33,7 @@ const isProduction = () => process.env.NODE_ENV === 'production';
 
 /** @type {webpack.Configuration} */
 const config = {
+    mode: isProduction() ? 'production' : 'development',
     // only thing that works in a web extension
     devtool: !isProduction() ? 'cheap-source-map' : undefined,
     entry: {
@@ -94,6 +96,7 @@ const config = {
     } : {},
     plugins: [
         new CleanWebpackPlugin(),
+        new WebpackBar(),
         new DotEnvPlugin({path: './src/.env'}),
         new HtmlWebpackPlugin({
             chunks: ['options'],
