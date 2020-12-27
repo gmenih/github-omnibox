@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Github Util should properly convert to queryString 1`] = `"this=object&to=query"`;
-
-exports[`Github Util should properly convert to queryString 2`] = `"should=properly&convert=15&things=true"`;
-
-exports[`Github Util should properly convert to queryString 3`] = `"even=weird%0Avalues&like=true"`;
