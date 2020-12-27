@@ -3,6 +3,7 @@ import {injectable, singleton} from 'tsyringe';
 import {Logster} from '../logster.service';
 import {StorageService} from '../storage.service';
 import {CLIENT_ID, CLIENT_SECRET, DEFAULT_FIRST_REPOS, DEFAULT_SCOPES, GITHUB_API, GITHUB_OAUTH_URL, GITHUB_TOKEN_URL} from './constants';
+import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
 import {
     GitHubOrgRepositoriesResponse,
     GithubRepository,
@@ -10,24 +11,9 @@ import {
     GitHubUserOrgsResponse,
     OrganizationNode,
     RepositoryNode,
-    SearchResponse,
-} from './types';
+} from './types/repository';
+import {SearchResponse} from './types/search';
 import {toQueryString} from './utils';
-
-interface AuthorizationTokenResponse {
-    access_token: string;
-}
-
-interface GithubUserData {
-    username: string;
-    displayName: string;
-    repositories: GithubRepository[];
-}
-
-interface GitHubOrganizationData {
-    name: string;
-    repositories: GithubRepository[];
-}
 
 @injectable()
 @singleton()
@@ -226,6 +212,10 @@ export class GitHubClient {
     }
 
     public async searchRepositories(searchTerm: string, pageSize: number = DEFAULT_FIRST_REPOS): Promise<GithubRepository[]> {
+        if (!searchTerm) {
+            throw new Error('searchTerm must be set!');
+        }
+
         try {
             const response: SearchResponse = await this.gqlClient.request(
                 /* GraphQL */ `
@@ -251,11 +241,13 @@ export class GitHubClient {
                 },
             );
             return response.search.edges.map(
-                (node): GithubRepository => ({
-                    name: node.name,
-                    owner: node.owner.name,
-                    url: node.url,
-                }),
+                (edge): GithubRepository => {
+                    return {
+                        name: edge.node.name,
+                        owner: edge.node.owner.login,
+                        url: edge.node.url,
+                    };
+                },
             );
         } catch (err) {
             throw new Error('Failed to search repositories!');

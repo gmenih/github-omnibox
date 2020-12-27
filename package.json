@@ -8,6 +8,7 @@
     "build:dev": "webpack --progress",
     "build:prod": "NODE_ENV=production webpack --progress",
     "build:watch": "webpack --watch",
+    "start": "npm run build:watch",
     "build": "npm run build:dev",
     "test": "jest",
     "test:watch": "jest --watch",

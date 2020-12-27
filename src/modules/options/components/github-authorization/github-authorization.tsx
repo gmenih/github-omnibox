@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {useFrontendService, useStorage} from '../../storage/store.context';
+import {useFrontendService} from '../../storage/store.context';
 import {Alert, AlertType} from '../alert/alert';
 import {Button, ButtonSize} from '../button/button';
 import {CenteredContent, Section} from '../section/section';

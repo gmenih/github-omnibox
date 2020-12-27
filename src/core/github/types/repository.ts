@@ -41,20 +41,14 @@ export interface GitHubOrgRepositoriesResponse {
     };
 }
 
-interface PageInfo {
+export interface PageInfo {
     endCursor: string | null;
 }
 
-interface GithubLogin {
+export interface GithubLogin {
     displayName?: string;
     organizations: string[];
     username: string;
-}
-
-interface SearchResponse {
-    search: {
-        edges: RepositoryNode[];
-    };
 }
 
 export interface GithubRepository {

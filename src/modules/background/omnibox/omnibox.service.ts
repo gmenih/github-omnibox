@@ -1,36 +1,37 @@
 import Fuse from 'fuse.js';
 import * as debounce from 'lodash/debounce';
-import {injectable, registry} from 'tsyringe';
+import {injectable} from 'tsyringe';
 import {BrowserOmniboxService, EnteredDisposition, SuggestFunction, SuggestResult} from '../../../core/browser/omnibox.service';
 import {TabsService} from '../../../core/browser/tabs.service';
-import {GithubRepository} from '../../../core/github/types';
+import {GitHubClient} from '../../../core/github/github.client';
+import {GithubRepository} from '../../../core/github/types/repository';
 import {Logster} from '../../../core/logster.service';
 import {StorageService} from '../../../core/storage.service';
+import {atCommand, baseCommand, prCommand} from './searc-term.commands';
+import {SearchTermBuilder} from './search-term.builder';
+import {SearchTermBuildResponse} from './types/search-term';
 
 @injectable()
-@registry([
-    {
-        token: Fuse,
-        useValue: new Fuse([], {
-            keys: [
-                {name: 'name', weight: 0.7},
-                {name: 'owner', weight: 0.2},
-            ],
-            includeMatches: true,
-            shouldSort: true,
-        }),
-    },
-])
 export class OmniboxService {
-    private suggestions: SuggestResult[] = [];
     private readonly logster: Logster = new Logster('OmniboxService');
+    private readonly fuse: Fuse<GithubRepository> = new Fuse([], {
+        keys: [
+            {name: 'name', weight: 0.7},
+            {name: 'owner', weight: 0.2},
+        ],
+        includeMatches: true,
+        shouldSort: true,
+    });
 
     constructor(
-        private readonly fuse: Fuse<GithubRepository>,
         private readonly omnibox: BrowserOmniboxService,
         private readonly storage: StorageService,
         private readonly tabsService: TabsService,
-    ) {}
+        private readonly searchTermBuilder: SearchTermBuilder,
+        private readonly githubClient: GitHubClient,
+    ) {
+        this.searchTermBuilder.withCommand(atCommand).withCommand(prCommand).withCommand(baseCommand);
+    }
 
     public registerHandlers(): void {
         this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
@@ -38,7 +39,7 @@ export class OmniboxService {
             this.fuse.setCollection(repositories);
         });
 
-        const debouncedOnInputChanged = debounce(this.onInputChanged, 60, {leading: true});
+        const debouncedOnInputChanged = debounce(this.onInputChanged, 500, {leading: true});
         this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
 
         this.omnibox.listenInputCancelled(this.onInputCancelled.bind(this));
@@ -57,34 +58,12 @@ export class OmniboxService {
     }
 
     private async onInputChanged(text: string, suggest: SuggestFunction) {
-        // const storage = this.storage.getStore();
+        const searchTerm = this.searchTermBuilder.build(text);
+        const suggestions = searchTerm.isCachable
+            ? this.getHighlightedFuseSuggestions(searchTerm.term)
+            : await this.getSearchByCommandSuggestions(searchTerm);
 
-        suggest(this.getHighlightedFuseSuggestions(text, 5));
-
-        // suggest(results.map((result) => {
-        //     return {
-
-        //     }
-        // }))
-        // if (!storage.token) {
-        //     return;
-        // }
-        // if (text.length < 3) {
-        //     return;
-        // }
-        // const results = await this.githubClient.searchRepositories(text);
-        // if (results && results.length) {
-        //     this.suggestions = [
-        //         ...results.map(
-        //             (result): SuggestResult => ({
-        //                 content: result.url,
-        //                 description: `${result.owner}/${result.name}`,
-        //             }),
-        //         ),
-        //         ...this.suggestions,
-        //     ].slice(0, 5);
-        // }
-        suggest(this.suggestions);
+        suggest(suggestions);
     }
 
     private async onInputEntered(url: string, disposition: EnteredDisposition) {
@@ -92,9 +71,9 @@ export class OmniboxService {
         const realUrl = isRepoUrl ? `${url}${this.urlModifier(disposition)}` : `https://github.com/search?q=${encodeURIComponent(url)}`;
 
         await this.tabsService.redirectSelectedTab(realUrl);
-        if (isRepoUrl) {
-            this.storage.increaseRepositoryFrequency(url);
-        }
+        // if (isRepoUrl) {
+        //     this.storage.increaseRepositoryFrequency(url);
+        // }
     }
 
     private onInputStarted(): void {
@@ -117,28 +96,28 @@ export class OmniboxService {
     private getHighlightedFuseSuggestions(text: string, limit = 5): SuggestResult[] {
         const fuseResults = this.fuse.search(text, {limit});
         const results: SuggestResult[] = [];
-        this.logster.info(fuseResults);
 
         for (const result of fuseResults) {
-            // for (const match of result.matches ?? []) {
-            //     for (const [index, length] of match.indices) {
-            //         const fuck = [
-            //             match.value?.substr(0, index),
-            //             '<match>',
-            //             match.value?.substr(index, length),
-            //             '</match>',
-            //             match.value?.substr(index + length),
-            //         ];
-            //         consolefuck);
-            //     }
-            // }
-
             results.push({
                 content: result.item.url,
                 description: result.item.owner + '/' + result.item.name,
+                deletable: true,
             });
         }
 
         return results;
+    }
+
+    private async getSearchByCommandSuggestions(searchTerm: SearchTermBuildResponse, limit = 5): Promise<SuggestResult[]> {
+        this.logster.info('Searching', searchTerm.term);
+        const suggestions = await this.githubClient.searchRepositories(searchTerm.term, limit);
+
+        return suggestions.map(
+            (s): SuggestResult => ({
+                content: s.url,
+                description: searchTerm.formatter(`${s.owner}/${s.name}`),
+                deletable: true,
+            }),
+        );
     }
 }
