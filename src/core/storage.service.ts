@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
 import {BrowserStorageService} from './browser/browser-storage.service';
-import {GithubRepository} from './github/types';
+import {GithubRepository} from './github/types/repository';
 import {Logster} from './logster.service';
 
 export interface Storage {
@@ -39,9 +39,7 @@ export class StorageService {
                     if (keys.length === 0) {
                         return value as Pick<Storage, TKey>;
                     }
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [key, value[key]]);
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>Object.fromEntries<any>(entries);
 
                     return partialObject;
@@ -79,7 +77,7 @@ export class StorageService {
         const repositories = this.browserStorage.store?.repositories ?? [];
         const targetRepo = repositories.find((r) => r.url === repoUrl);
         if (!targetRepo) {
-            this.logster.error(`Could not find repo "${repoUrl}"`);
+            this.logster.info('Repo not found - nothing to do.');
             return;
         }
 

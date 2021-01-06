@@ -8,8 +8,6 @@ import {StorageProvider} from './storage/store.context';
 
 const storageService = createStorageService();
 
-console.log(storageService);
-
 ReactDOM.render(
     <StorageProvider storageService={storageService}>
         <App />

@@ -1,16 +1,6 @@
 import {SearchTermCommand} from './types/search-term';
 
 /**
- * Handles everything, should be the last command
- */
-export const baseCommand: SearchTermCommand = {
-    pattern: /.*/,
-    action: (matches) => ({
-        term: matches[0] ?? '',
-    }),
-};
-
-/**
  * Handles `@username` commands
  */
 export const atCommand: SearchTermCommand = {
@@ -20,9 +10,11 @@ export const atCommand: SearchTermCommand = {
         if (scope) {
             return {
                 term: `user:${scope}`,
-                cleanedInput: matches.input.replace(matches[0], '').trim(),
+                replaceMatch: true,
             };
         }
+
+        return undefined;
     },
 };
 
@@ -31,10 +23,10 @@ export const atCommand: SearchTermCommand = {
  */
 export const prCommand: SearchTermCommand = {
     pattern: /^#/,
-    action: (matches) => {
+    action: () => {
         return {
             term: 'type:pr',
-            cleanedInput: matches.input.replace(matches[0], '').trim(),
+            replaceMatch: true,
         };
     },
 };

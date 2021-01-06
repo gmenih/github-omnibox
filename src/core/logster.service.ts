@@ -5,6 +5,10 @@ import {container, injectable} from 'tsyringe';
 export class Logster {
     constructor(private source?: string) {}
 
+    public debug(...args: any[]): void {
+        console.debug(...this.logMessage(args));
+    }
+
     public info(...args: any[]): void {
         console.log(...this.logMessage(args));
     }

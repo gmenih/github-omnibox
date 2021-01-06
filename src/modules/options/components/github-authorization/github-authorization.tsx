@@ -7,11 +7,6 @@ import {TokenAuthorization} from '../token-authorization/token-authorization';
 
 export const GithubAuthorization: FC = () => {
     const service = useFrontendService();
-    // const {loggedIn} = storage;
-
-    const onAuthClick = () => {
-        service.createOAuthTab();
-    };
 
     return (
         <Section title={'\u{1F91F} GitHub authorization'} isExpanded={false} isExpandable={true}>
@@ -21,7 +16,7 @@ export const GithubAuthorization: FC = () => {
                 such organizations will now show up in search results if you use this authorization method.
             </Alert>
             <CenteredContent>
-                <Button size={ButtonSize.large} onClick={onAuthClick}>
+                <Button size={ButtonSize.large} onClick={() => service.createOAuthTab()}>
                     Authorize GitHub
                 </Button>
             </CenteredContent>

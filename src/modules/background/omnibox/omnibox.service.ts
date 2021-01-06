@@ -7,8 +7,8 @@ import {GitHubClient} from '../../../core/github/github.client';
 import {GithubRepository} from '../../../core/github/types/repository';
 import {Logster} from '../../../core/logster.service';
 import {StorageService} from '../../../core/storage.service';
-import {atCommand, baseCommand, prCommand} from './searc-term.commands';
 import {SearchTermBuilder} from './search-term.builder';
+import {atCommand, prCommand} from './search-term.commands';
 import {SearchTermBuildResponse} from './types/search-term';
 
 @injectable()
@@ -17,7 +17,7 @@ export class OmniboxService {
     private readonly fuse: Fuse<GithubRepository> = new Fuse([], {
         keys: [
             {name: 'name', weight: 0.7},
-            {name: 'owner', weight: 0.2},
+            {name: 'owner', weight: 0.3},
         ],
         includeMatches: true,
         shouldSort: true,
@@ -30,55 +30,43 @@ export class OmniboxService {
         private readonly searchTermBuilder: SearchTermBuilder,
         private readonly githubClient: GitHubClient,
     ) {
-        this.searchTermBuilder.withCommand(atCommand).withCommand(prCommand).withCommand(baseCommand);
+        this.searchTermBuilder.withCommand(atCommand).withCommand(prCommand);
     }
 
     public registerHandlers(): void {
         this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
-            this.logster.info('repos changed', repositories);
+            this.logster.debug('Repositories change. Length:', repositories.length);
             this.fuse.setCollection(repositories);
         });
 
-        const debouncedOnInputChanged = debounce(this.onInputChanged, 500, {leading: true});
+        const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
         this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
 
-        this.omnibox.listenInputCancelled(this.onInputCancelled.bind(this));
-        this.omnibox.listenDeleteSuggestion(this.onDeleteSuggestion.bind(this));
-        this.omnibox.listenInputCancelled(this.onInputCancelled.bind(this));
         this.omnibox.listenInputEntered(this.onInputEntered.bind(this));
         this.omnibox.listenInputStarted(this.onInputStarted.bind(this));
     }
 
-    private onDeleteSuggestion(): void {
-        this.logster.warn('Not implemented yet');
-    }
-
-    private onInputCancelled(): void {
-        this.logster.warn('Not implemented yet');
-    }
-
     private async onInputChanged(text: string, suggest: SuggestFunction) {
         const searchTerm = this.searchTermBuilder.build(text);
-        const suggestions = searchTerm.isCachable
-            ? this.getHighlightedFuseSuggestions(searchTerm.term)
-            : await this.getSearchByCommandSuggestions(searchTerm);
+        this.searchGitHubApi.cancel();
 
-        suggest(suggestions);
+        if (searchTerm.requiresApi) {
+            this.searchGitHubApi(searchTerm, undefined)?.then((value) => suggest(value));
+        } else {
+            suggest(this.searchByFuseCache(searchTerm.term));
+        }
     }
-
     private async onInputEntered(url: string, disposition: EnteredDisposition) {
         const isRepoUrl = url.startsWith('https://');
         const realUrl = isRepoUrl ? `${url}${this.urlModifier(disposition)}` : `https://github.com/search?q=${encodeURIComponent(url)}`;
 
         await this.tabsService.redirectSelectedTab(realUrl);
-        // if (isRepoUrl) {
-        //     this.storage.increaseRepositoryFrequency(url);
-        // }
+        this.storage.increaseRepositoryFrequency(url);
     }
 
     private onInputStarted(): void {
         this.omnibox.setDefaultSuggestion({
-            description: 'Simple command line supported - type /? for more',
+            description: 'Simple command line supported - type `?` for more',
         });
     }
 
@@ -93,7 +81,7 @@ export class OmniboxService {
         }
     }
 
-    private getHighlightedFuseSuggestions(text: string, limit = 5): SuggestResult[] {
+    private searchByFuseCache(text: string, limit = 5): SuggestResult[] {
         const fuseResults = this.fuse.search(text, {limit});
         const results: SuggestResult[] = [];
 
@@ -108,16 +96,20 @@ export class OmniboxService {
         return results;
     }
 
-    private async getSearchByCommandSuggestions(searchTerm: SearchTermBuildResponse, limit = 5): Promise<SuggestResult[]> {
-        this.logster.info('Searching', searchTerm.term);
-        const suggestions = await this.githubClient.searchRepositories(searchTerm.term, limit);
+    private searchGitHubApi = debounce(
+        async (searchTerm: SearchTermBuildResponse, limit = 5): Promise<SuggestResult[]> => {
+            this.logster.info('Searching', searchTerm.term);
+            const suggestions = await this.githubClient.searchRepositories(searchTerm.term, limit);
 
-        return suggestions.map(
-            (s): SuggestResult => ({
-                content: s.url,
-                description: searchTerm.formatter(`${s.owner}/${s.name}`),
-                deletable: true,
-            }),
-        );
-    }
+            return suggestions.map(
+                (s): SuggestResult => ({
+                    content: s.url,
+                    description: searchTerm.formatter(`${s.owner}/${s.name}`),
+                    deletable: true,
+                }),
+            );
+        },
+        500,
+        {leading: true},
+    );
 }

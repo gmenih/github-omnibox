@@ -35,11 +35,9 @@ export const StorageProvider: FC<StorageProviderProps> = ({storageService, child
     useEffect(() => {
         (async () => {
             const storage = await storageService.getStorage();
-            logger.info(`Got initial storage`, storage);
             setStorage(() => storage);
         })();
         const subscription = storageService.onKeysChanged().subscribe((storage) => {
-            logger.info(`Storage changed`, storage);
             setStorage(() => storage);
         });
 

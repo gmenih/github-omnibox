@@ -3,12 +3,12 @@ export type FormatterFn = (suggestion: string) => string;
 export interface SearchTermBuildResponse {
     formatter: FormatterFn;
     term: string;
-    isCachable: boolean;
+    requiresApi: boolean;
 }
 
 export interface SearchTermActionResponse {
     term: string;
-    cleanedInput?: string;
+    replaceMatch?: boolean;
 }
 
 export interface SearchTermCommand {

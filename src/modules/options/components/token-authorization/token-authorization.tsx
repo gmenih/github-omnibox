@@ -1,5 +1,6 @@
 import React, {ChangeEvent, FormEvent, FunctionComponent, useState} from 'react';
 import styled from 'styled-components';
+import {useFrontendService} from '../../storage/store.context';
 import {COLOR_GRAY, SPACER_SMALL} from '../../style.constants';
 import {Button, ButtonType} from '../button/button';
 import {CenteredContent} from '../section/section';
@@ -22,10 +23,11 @@ const TokenInput = styled.input`
 
 export const TokenAuthorization: FunctionComponent = () => {
     const [token, setToken] = useState('');
+    const service = useFrontendService();
     const onInputChanged = (e: ChangeEvent<HTMLInputElement>) => setToken(e.target.value);
     const onFormSubmit = (e: FormEvent) => {
         e.preventDefault();
-        // onTokenSet(token);
+        service.setTokenValue(token);
     };
 
     return (

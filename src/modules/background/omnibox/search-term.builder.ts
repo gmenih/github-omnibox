@@ -1,6 +1,16 @@
 import {injectable} from 'tsyringe';
 import {FormatterFn, SearchTermBuildResponse, SearchTermCommand} from './types/search-term';
 
+/**
+ * Handles everything, should be the last command
+ */
+const BASE_COMMAND: SearchTermCommand = {
+    pattern: /.*/,
+    action: (matches) => ({
+        term: matches[0] ?? '',
+    }),
+};
+
 @injectable()
 export class SearchTermBuilder {
     private commands: SearchTermCommand[] = [];
@@ -14,16 +24,21 @@ export class SearchTermBuilder {
         const terms: string[] = [];
         const formatters: FormatterFn[] = [];
         let _input = input;
+        let requiresApi = false;
 
-        for (const command of this.commands) {
+        for (const [i, command] of Object.entries([...this.commands, BASE_COMMAND])) {
             const matches = command.pattern.exec(_input);
             if (matches) {
                 const response = command.action(matches);
                 if (response) {
-                    terms.push(response?.term);
+                    // if we get a response from non-BASE_COMMAND, we need to call the API
+                    if (command !== BASE_COMMAND) {
+                        requiresApi = true;
+                    }
+                    response.term && terms.push(response.term);
                     command.formatter && formatters.push(command.formatter);
 
-                    _input = response.cleanedInput ?? _input;
+                    _input = response.replaceMatch === true ? _input.replace(matches[0], '').trim() : _input;
                 }
             }
         }
@@ -42,7 +57,7 @@ export class SearchTermBuilder {
         return {
             formatter,
             term: terms.join(' '),
-            isCachable: terms.length === 1,
+            requiresApi,
         };
     }
 }
