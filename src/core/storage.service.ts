@@ -49,7 +49,7 @@ export class StorageService {
         );
     }
 
-    saveLoginData(username: string, displayName: string, organizations: string[]): void {
+    saveLoginData(username: string, displayName: string, organizations: string[]) {
         this.updateStorage({
             displayName: displayName,
             loggedIn: true,
@@ -58,21 +58,30 @@ export class StorageService {
         });
     }
 
-    saveToken(token: string): void {
+    saveToken(token: string) {
         this.updateStorage({
             token,
         });
     }
 
-    saveRepositories(repositories: GithubRepository[]): void {
+    saveRepositories(repositories: GithubRepository[]) {
         this.updateStorage({
             repositories,
             lastRepoRefreshDate: new Date().toISOString(),
         });
     }
 
+    async addRepositories(repositories: GithubRepository[]) {
+        const existingRepositories = (await this.getStorage()).repositories;
+        const filteredUrls = existingRepositories.map((repo) => repo.url);
+        const repositoriesToAdd = repositories.filter((repo) => !filteredUrls.includes(repo.url));
+        if (repositoriesToAdd.length > 0) {
+            this.saveRepositories([...existingRepositories, ...repositoriesToAdd]);
+        }
+    }
+
     /** Moves repo to the top so it will appear on the top of */
-    increaseRepositoryFrequency(repoUrl: string): void {
+    increaseRepositoryFrequency(repoUrl: string) {
         this.logster.info(`Increasing repo frequency for "${repoUrl}"`);
         const repositories = this.browserStorage.store?.repositories ?? [];
         const targetRepo = repositories.find((r) => r.url === repoUrl);
@@ -85,7 +94,7 @@ export class StorageService {
         this.updateStorage({repositories: newRepositories});
     }
 
-    setOptionsShownDate(): void {
+    setOptionsShownDate() {
         this.updateStorage({
             optionsShown: Date.now(),
         });

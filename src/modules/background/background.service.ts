@@ -33,13 +33,11 @@ export class BackgroundService {
                     organizations.map((o) => o.name),
                 );
 
-                const allRepos = [...userData.repositories];
-                this.storage.saveRepositories(allRepos);
+                this.storage.addRepositories(userData.repositories);
 
                 for (const org of organizations) {
                     const repos = await this.githubClient.fetchOrganizationRepositories(org, PAGE_SIZE);
-                    allRepos.push(...repos);
-                    this.storage.saveRepositories(allRepos);
+                    this.storage.addRepositories(repos);
                 }
             }
         });

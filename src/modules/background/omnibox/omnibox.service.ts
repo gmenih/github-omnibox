@@ -33,7 +33,7 @@ export class OmniboxService {
         this.searchTermBuilder.withCommand(atCommand).withCommand(prCommand);
     }
 
-    public registerHandlers(): void {
+    public registerHandlers() {
         this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
             this.logster.debug('Repositories change. Length:', repositories.length);
             this.fuse.setCollection(repositories);
@@ -51,7 +51,7 @@ export class OmniboxService {
         this.searchGitHubApi.cancel();
 
         if (searchTerm.requiresApi) {
-            this.searchGitHubApi(searchTerm, undefined)?.then((value) => suggest(value));
+            this.searchGitHubApi(searchTerm)?.then((value) => suggest(value));
         } else {
             suggest(this.searchByFuseCache(searchTerm.term));
         }
@@ -64,7 +64,7 @@ export class OmniboxService {
         this.storage.increaseRepositoryFrequency(url);
     }
 
-    private onInputStarted(): void {
+    private onInputStarted() {
         this.omnibox.setDefaultSuggestion({
             description: 'Simple command line supported - type `?` for more',
         });

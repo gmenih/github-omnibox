@@ -10,7 +10,7 @@ export class ContentScriptService {
 
     constructor(@inject(WINDOW_TOKEN) private readonly window: Window, private readonly runtime: RuntimeService) {}
 
-    checkForLoginToken(): void {
+    checkForLoginToken() {
         if (this.window.location.pathname === '/gmenih341/github-omnibox') {
             this.logster.info('Checking for login token presence', this.window.location);
             const queryString = this.parseQueryString(this.window.location.search);
