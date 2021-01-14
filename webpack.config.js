@@ -48,6 +48,9 @@ const config = {
     },
     resolve: {
         extensions: ['.js', '.json', '.ts', '.tsx'],
+        alias: {
+            '@core': path.resolve(__dirname, './src/core'),
+        },
     },
     module: {
         rules: [
@@ -71,29 +74,31 @@ const config = {
             },
         ],
     },
-    optimization: isProduction() ?  {
-        splitChunks: {
-            cacheGroups: {
-                core: {
-                    name: 'core',
-                    test: /[\\/]src[\\/]core[\\/]/,
-                    chunks: 'all',
-                },
-                react: {
-                    test: /[\\/]node_modules[\\/](react|react-dom|styled-components)[\\/]/,
-                    name: 'react',
-                    chunks: 'all',
-                    priority: 20,
-                },
-                vendor: {
-                    name: 'vendor',
-                    test: /[\\/]node_modules[\\/]/,
-                    chunks: 'all',
-                    priority: 10,
-                },
-            },
-        },
-    } : {},
+    optimization: isProduction()
+        ? {
+              splitChunks: {
+                  cacheGroups: {
+                      core: {
+                          name: 'core',
+                          test: /[\\/]src[\\/]core[\\/]/,
+                          chunks: 'all',
+                      },
+                      react: {
+                          test: /[\\/]node_modules[\\/](react|react-dom|styled-components)[\\/]/,
+                          name: 'react',
+                          chunks: 'all',
+                          priority: 20,
+                      },
+                      vendor: {
+                          name: 'vendor',
+                          test: /[\\/]node_modules[\\/]/,
+                          chunks: 'all',
+                          priority: 10,
+                      },
+                  },
+              },
+          }
+        : {},
     plugins: [
         new CleanWebpackPlugin(),
         new WebpackBar(),

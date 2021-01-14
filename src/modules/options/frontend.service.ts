@@ -1,8 +1,8 @@
 import {injectable} from 'tsyringe';
-import {TabsService} from '../../core/browser/tabs.service';
-import {GitHubClient} from '../../core/github/github.client';
-import {Logster} from '../../core/logster.service';
-import {StorageService} from '../../core/storage.service';
+import {TabsService} from '@core/browser/tabs.service';
+import {GitHubClient} from '@core/github/github.client';
+import {Logster} from '@core/logster.service';
+import {StorageService} from '@core/storage.service';
 
 @injectable()
 export class FrontendService {

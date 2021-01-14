@@ -8,7 +8,7 @@ export type TabOptions = chrome.tabs.CreateProperties;
 export class TabsService {
     constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser) {}
 
-    public createTab(url: string, inputOptions: TabOptions = {}): Promise<Tab> {
+    createTab(url: string, inputOptions: TabOptions = {}): Promise<Tab> {
         const options: TabOptions = {
             active: true,
             selected: true,
@@ -20,14 +20,14 @@ export class TabsService {
         });
     }
 
-    public getSelectedTab(): Promise<Tab> {
+    getSelectedTab(): Promise<Tab> {
         return new Promise<Tab>((resolve) => {
             this.browser.tabs.query({active: true}, (r) => resolve(r[0]));
         });
     }
 
     /** Removes current tab and creates a new one. chrome.tabs.update has issues with omnibox */
-    public async redirectSelectedTab(url: string): Promise<void> {
+    async redirectSelectedTab(url: string): Promise<void> {
         const tab = await this.getSelectedTab();
         if (!tab || tab.id === undefined) {
             throw new Error('Could not redirect tab');
@@ -37,11 +37,11 @@ export class TabsService {
         await this.createTab(url);
     }
 
-    public removeTab(tabId: number): Promise<void> {
+    removeTab(tabId: number): Promise<void> {
         return new Promise((resolve) => this.browser.tabs.remove([tabId], resolve));
     }
 
-    public rejectOnTabClosed(tab: Tab): Promise<void> {
+    rejectOnTabClosed(tab: Tab): Promise<void> {
         return new Promise((_, reject) => {
             const listener = (closedTabId: number) => {
                 if (closedTabId === tab.id) {

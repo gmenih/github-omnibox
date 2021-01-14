@@ -12,12 +12,14 @@ export class RuntimeService {
         return new Promise((resolve) => this.browser.runtime.openOptionsPage(resolve));
     }
 
-    onRuntimeMessage<T>(): Observable<[T, MessageSender]> {
+    onRuntimeMessage<T>(once = false): Observable<[T, MessageSender]> {
         return new Observable<[T, MessageSender]>((sub) => {
             const listener = (message: T, sender: MessageSender) => {
                 sub.next([message, sender]);
-                // sub.complete();
-                // this.browser.runtime.onMessage.removeListener(listener);
+                if (once) {
+                    sub.complete();
+                    this.browser.runtime.onMessage.removeListener(listener);
+                }
             };
 
             this.browser.runtime.onMessage.addListener(listener);

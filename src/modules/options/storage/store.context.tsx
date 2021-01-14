@@ -1,7 +1,7 @@
 import React, {createContext, FC, useContext, useEffect, useMemo, useState} from 'react';
 import {container} from 'tsyringe';
-import {Logster} from '../../../core/logster.service';
-import {Storage, StorageService} from '../../../core/storage.service';
+import {Logster} from '@core/logster.service';
+import {Storage, StorageService} from '@core/storage.service';
 import {FrontendService} from '../frontend.service';
 
 interface StorageContext {

@@ -1,16 +1,16 @@
-import {SearchTermCommand} from './types/search-term';
+import {SearchCommand, SearchTermType} from './types/search-term';
 
 /**
  * Handles `@username` commands
  */
-export const atCommand: SearchTermCommand = {
+export const atCommand: SearchCommand = {
+    type: SearchTermType.API,
     pattern: /@(?<scope>[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38})/i,
-    action: (matches) => {
+    handler: (matches) => {
         const {scope} = matches.groups ?? {};
         if (scope) {
             return {
                 term: `user:${scope}`,
-                replaceMatch: true,
             };
         }
 
@@ -21,12 +21,12 @@ export const atCommand: SearchTermCommand = {
 /**
  * Parses # command to search for PRs
  */
-export const prCommand: SearchTermCommand = {
+export const prCommand: SearchCommand = {
+    type: SearchTermType.API,
     pattern: /^#/,
-    action: () => {
+    handler: () => {
         return {
             term: 'type:pr',
-            replaceMatch: true,
         };
     },
 };

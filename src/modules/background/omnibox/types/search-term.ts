@@ -1,18 +1,27 @@
 export type FormatterFn = (suggestion: string) => string;
 
-export interface SearchTermBuildResponse {
+export type HandlerFn = (matches: RegExpExecArray) => any;
+
+export enum SearchTermType {
+    Internal,
+    FromCache,
+    API,
+}
+
+export interface SearchTermArguments {
+    resultType: 'REPO' | 'ISSUE';
+}
+
+export interface SearchTerm {
     formatter: FormatterFn;
     term: string;
-    requiresApi: boolean;
+    type: SearchTermType;
+    arguments: SearchTermArguments;
 }
 
-export interface SearchTermActionResponse {
-    term: string;
-    replaceMatch?: boolean;
-}
-
-export interface SearchTermCommand {
-    pattern: RegExp;
+export interface SearchCommand {
     formatter?: FormatterFn;
-    action: (matches: RegExpExecArray) => SearchTermActionResponse | undefined;
+    handler: HandlerFn;
+    pattern: RegExp;
+    type: SearchTermType;
 }

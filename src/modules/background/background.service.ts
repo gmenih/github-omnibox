@@ -1,8 +1,8 @@
 import {injectable} from 'tsyringe';
-import {RuntimeService} from '../../core/browser/runtime.service';
-import {GitHubClient} from '../../core/github/github.client';
-import {Logster} from '../../core/logster.service';
-import {StorageService} from '../../core/storage.service';
+import {RuntimeService} from '@core/browser/runtime.service';
+import {GitHubClient} from '@core/github/github.client';
+import {Logster} from '@core/logster.service';
+import {StorageService} from '@core/storage.service';
 import {AuthMessage} from '../content-script/types/message';
 import {OmniboxService} from './omnibox/omnibox.service';
 
@@ -19,7 +19,7 @@ export class BackgroundService {
         private readonly runtime: RuntimeService,
     ) {}
 
-    public async bootstrap() {
+    async bootstrap() {
         this.log.info('Bootstrap!');
         this.omniboxService.registerHandlers();
 
@@ -36,7 +36,10 @@ export class BackgroundService {
                 this.storage.addRepositories(userData.repositories);
 
                 for (const org of organizations) {
-                    const repos = await this.githubClient.fetchOrganizationRepositories(org, PAGE_SIZE);
+                    const repos = await this.githubClient.fetchOrganizationRepositories(
+                        org,
+                        PAGE_SIZE,
+                    );
                     this.storage.addRepositories(repos);
                 }
             }
@@ -52,7 +55,10 @@ export class BackgroundService {
 
         this.runtime.onRuntimeMessage<AuthMessage>().subscribe(async ([message]) => {
             this.log.info(`Got an auth message, attempting to authorize`);
-            const authToken = await this.githubClient.fetchAuthorizationToken(message.code, message.state);
+            const authToken = await this.githubClient.fetchAuthorizationToken(
+                message.code,
+                message.state,
+            );
             this.storage.saveToken(authToken);
             this.log.info(`Should be authorized`);
         });

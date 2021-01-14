@@ -1,9 +1,9 @@
 {
     "include": [
-        "./core/**/*",
+        "core/**/*"
     ],
     "compilerOptions": {
-        "baseUrl": "./",
+        "baseUrl": ".",
         "outDir": "./dist/out-tsc",
         "forceConsistentCasingInFileNames": true,
         "strict": true,
@@ -22,6 +22,11 @@
         "lib": [
             "ES2020",
             "DOM"
-        ]
-    }
+        ],
+        "paths": {
+            "@core/*": [
+                "core/*"
+            ]
+        }
+    },
 }

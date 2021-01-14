@@ -2,7 +2,15 @@ import {GraphQLClient} from 'graphql-request';
 import {injectable, singleton} from 'tsyringe';
 import {Logster} from '../logster.service';
 import {StorageService} from '../storage.service';
-import {CLIENT_ID, CLIENT_SECRET, DEFAULT_FIRST_REPOS, DEFAULT_SCOPES, GITHUB_API, GITHUB_OAUTH_URL, GITHUB_TOKEN_URL} from './constants';
+import {
+    CLIENT_ID,
+    CLIENT_SECRET,
+    DEFAULT_FIRST_REPOS,
+    DEFAULT_SCOPES,
+    GITHUB_API,
+    GITHUB_OAUTH_URL,
+    GITHUB_TOKEN_URL,
+} from './constants';
 import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
 import {
     GitHubOrgRepositoriesResponse,
@@ -40,7 +48,7 @@ export class GitHubClient {
         });
     }
 
-    public generateOAuthPageURL(state: string, scopes: string[] = DEFAULT_SCOPES): string {
+    generateOAuthPageURL(state: string, scopes: string[] = DEFAULT_SCOPES): string {
         this.logster.info('Generating OAuth URL');
         const query = toQueryString({
             client_id: CLIENT_ID,
@@ -51,7 +59,7 @@ export class GitHubClient {
         return `${GITHUB_OAUTH_URL}?${query}`;
     }
 
-    public async fetchAuthorizationToken(code: string, state: string): Promise<string> {
+    async fetchAuthorizationToken(code: string, state: string): Promise<string> {
         this.logster.info('Fetching auth token');
         const query = toQueryString({
             client_id: CLIENT_ID,
@@ -78,7 +86,7 @@ export class GitHubClient {
         throw new Error('Failed to authorize');
     }
 
-    public async fetchUserData(pageSize = 100): Promise<GithubUserData> {
+    async fetchUserData(pageSize = 100): Promise<GithubUserData> {
         const userData: GithubUserData = {repositories: [], displayName: '', username: ''};
         let repoCur: string | null = null;
         do {
@@ -89,7 +97,11 @@ export class GitHubClient {
                             viewer {
                                 username: login
                                 name
-                                repositories(after: $repoCur, first: $pageSize, affiliations: [OWNER, COLLABORATOR]) {
+                                repositories(
+                                    after: $repoCur
+                                    first: $pageSize
+                                    affiliations: [OWNER, COLLABORATOR]
+                                ) {
                                     nodes {
                                         name
                                         url
@@ -112,7 +124,9 @@ export class GitHubClient {
 
                 userData.displayName = response.viewer.name;
                 userData.username = response.viewer.username;
-                userData.repositories.push(...this.mapRepositories(response.viewer.repositories.nodes));
+                userData.repositories.push(
+                    ...this.mapRepositories(response.viewer.repositories.nodes),
+                );
 
                 repoCur = null;
                 if (response.viewer.repositories.nodes.length >= pageSize) {
@@ -126,7 +140,7 @@ export class GitHubClient {
         return userData;
     }
 
-    public async fetchUserOrganizations(pageSize = 100): Promise<GitHubOrganizationData[]> {
+    async fetchUserOrganizations(pageSize = 100): Promise<GitHubOrganizationData[]> {
         const organizations: GitHubOrganizationData[] = [];
         let orgCursor: string | null = null;
         do {
@@ -166,7 +180,10 @@ export class GitHubClient {
         return organizations;
     }
 
-    public async fetchOrganizationRepositories(org: GitHubOrganizationData, pageSize = 100): Promise<GithubRepository[]> {
+    async fetchOrganizationRepositories(
+        org: GitHubOrganizationData,
+        pageSize = 100,
+    ): Promise<GithubRepository[]> {
         const repositories: GithubRepository[] = [];
         let repoCur: string | null = null;
         do {
@@ -197,21 +214,31 @@ export class GitHubClient {
                     },
                 );
 
-                repositories.push(...this.mapRepositories(response.viewer.organization.repositories.nodes, org.name));
+                repositories.push(
+                    ...this.mapRepositories(
+                        response.viewer.organization.repositories.nodes,
+                        org.name,
+                    ),
+                );
 
                 repoCur = null;
                 if (response.viewer.organization.repositories.nodes.length >= pageSize) {
                     repoCur = response.viewer.organization.repositories.pageInfo.endCursor;
                 }
             } catch (error) {
-                throw new Error(`Could not fetch organization repositories! Error: ${error.toString()}`);
+                throw new Error(
+                    `Could not fetch organization repositories! Error: ${error.toString()}`,
+                );
             }
         } while (repoCur);
 
         return repositories;
     }
 
-    public async searchRepositories(searchTerm: string, pageSize: number = DEFAULT_FIRST_REPOS): Promise<GithubRepository[]> {
+    async searchRepositories(
+        searchTerm: string,
+        pageSize: number = DEFAULT_FIRST_REPOS,
+    ): Promise<GithubRepository[]> {
         if (!searchTerm) {
             throw new Error('searchTerm must be set!');
         }

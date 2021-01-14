@@ -35,7 +35,9 @@ const StyledButton = styled.button`
     ${(props) => props.theme};
 `;
 
-const getButtonTypeStyle: (type?: ButtonType) => FlattenSimpleInterpolation = (type = ButtonType.primary) => {
+const getButtonTypeStyle: (type?: ButtonType) => FlattenSimpleInterpolation = (
+    type = ButtonType.primary,
+) => {
     return {
         [ButtonType.primary]: css({
             background: '#2ccc40',
@@ -52,7 +54,9 @@ const getButtonTypeStyle: (type?: ButtonType) => FlattenSimpleInterpolation = (t
     }[type];
 };
 
-const getButtonSizeStyle: (type?: ButtonSize) => FlattenSimpleInterpolation = (size = ButtonSize.normal) => {
+const getButtonSizeStyle: (type?: ButtonSize) => FlattenSimpleInterpolation = (
+    size = ButtonSize.normal,
+) => {
     return {
         [ButtonSize.normal]: css({
             fontSize: '1rem',

@@ -10,10 +10,12 @@ export const GithubAuthorization: FC = () => {
 
     return (
         <Section title={'\u{1F91F} GitHub authorization'} isExpanded={false} isExpandable={true}>
-            The easiest way to authorize. Just click the button below, and allow this extension to search in your name.
+            The easiest way to authorize. Just click the button below, and allow this extension to
+            search in your name.
             <Alert type={AlertType.warning}>
-                Note; your organization owners might have restricted access to third party apps (e.g. this extension). Repositories from
-                such organizations will now show up in search results if you use this authorization method.
+                Note; your organization owners might have restricted access to third party apps
+                (e.g. this extension). Repositories from such organizations will now show up in
+                search results if you use this authorization method.
             </Alert>
             <CenteredContent>
                 <Button size={ButtonSize.large} onClick={() => service.createOAuthTab()}>

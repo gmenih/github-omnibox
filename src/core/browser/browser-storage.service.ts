@@ -19,7 +19,10 @@ export class BrowserStorageService<T> {
     private chromeStorage: chrome.storage.StorageArea;
     private readonly logster: Logster = new Logster('BrowserStorageService');
 
-    constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser, @inject(BROWSER_STORAGE_TYPE) storageType: 'local') {
+    constructor(
+        @inject(BROWSER_TOKEN) private readonly browser: Browser,
+        @inject(BROWSER_STORAGE_TYPE) storageType: 'local',
+    ) {
         this.chromeStorage = this.browser.storage[storageType];
         this.onStorageChange();
         this.loadInitialValue();
@@ -44,24 +47,28 @@ export class BrowserStorageService<T> {
     }
 
     private onStorageChange() {
-        this.browser.storage.onChanged.addListener(async (changes: Record<string, chrome.storage.StorageChange>) => {
-            const storage = await this.getStorage();
+        this.browser.storage.onChanged.addListener(
+            async (changes: Record<string, chrome.storage.StorageChange>) => {
+                const storage = await this.getStorage();
 
-            const source: Partial<T> = {};
-            for (const [key, change] of Object.entries(changes)) {
-                if (!deepEqual(change.newValue, storage[key as keyof T])) {
-                    source[key as keyof T] = change.newValue;
+                const source: Partial<T> = {};
+                for (const [key, change] of Object.entries(changes)) {
+                    if (!deepEqual(change.newValue, storage[key as keyof T])) {
+                        source[key as keyof T] = change.newValue;
+                    }
                 }
-            }
 
-            this.storageChanged$.next({...storage, ...source});
-        });
+                this.storageChanged$.next({...storage, ...source});
+            },
+        );
     }
 
     private async loadInitialValue() {
-        const storage = await this.getStorage();
-        this.store = storage;
-        this.storageChanged$.next(storage);
+        setTimeout(async () => {
+            const storage = await this.getStorage();
+            this.store = storage;
+            this.storageChanged$.next(storage);
+        }, 2000);
     }
 
     private async setItem(object: Partial<T>) {

@@ -5,19 +5,19 @@ import {container, injectable} from 'tsyringe';
 export class Logster {
     constructor(private source?: string) {}
 
-    public debug(...args: any[]) {
+    debug(...args: any[]) {
         console.debug(...this.logMessage(args));
     }
 
-    public info(...args: any[]) {
+    info(...args: any[]) {
         console.log(...this.logMessage(args));
     }
 
-    public error(...args: any[]) {
+    error(...args: any[]) {
         console.error(...this.logMessage(args));
     }
 
-    public warn(...args: any[]) {
+    warn(...args: any[]) {
         console.warn(...this.logMessage(args));
     }
 

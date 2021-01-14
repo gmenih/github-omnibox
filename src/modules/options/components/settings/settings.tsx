@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from 'react';
-import {GithubRepository} from '../../../../core/github/types/repository';
+import {GithubRepository} from '@core/github/types/repository';
 import {useStorage} from '../../storage/store.context';
 import {Section} from '../section/section';
 
@@ -23,7 +23,10 @@ export const Settings: FunctionComponent = () => {
     ));
 
     return (
-        <Section title={`\u{1F44B} Hello, ${storage.displayName}!`} controls={<span>log out</span>} type={'big'}>
+        <Section
+            title={`\u{1F44B} Hello, ${storage.displayName}!`}
+            controls={<span>log out</span>}
+            type={'big'}>
             <div className="orgs">
                 <h4>Organizations</h4>
                 {`We have found ${storage.repositories.length} repositories to search in, in these organizations`}
