@@ -1,0 +1,36 @@
+{
+    "manifest_version": 2,
+    "author": "{{{htmlWebpackPlugin.options.pkg.author}}}",
+    "name": "{{htmlWebpackPlugin.options.pkg.full_name}}",
+    "version": "{{htmlWebpackPlugin.options.pkg.version}}",
+    "description": "{{htmlWebpackPlugin.options.pkg.description}}",
+    "permissions": [
+        "storage",
+        "tabs",
+        "https://github.com/login/oauth/access_token*"
+    ],
+    "background": {
+        "scripts": [
+            "./js/background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://github.com/gmenih341/github-omnibox*"],
+            "js": ["./js/content-script.js"],
+            "run_at": "document_start"
+        }
+    ],
+   
+    "browser_action": {
+     
+        "default_title": "Github repo"
+    },
+    "options_ui": {
+        "page": "options_page.html",
+        "open_in_tab": true
+    },
+    "omnibox": {
+        "keyword": "ghr"
+    }
+}

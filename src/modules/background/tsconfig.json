@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "../out-tsc/background",
+    },
+    "files": [
+        "index.ts",
+    ],
+    "include": [
+        "**/*"
+    ]
+}
