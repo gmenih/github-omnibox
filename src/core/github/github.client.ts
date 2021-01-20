@@ -5,13 +5,14 @@ import {StorageService} from '../storage.service';
 import {
     CLIENT_ID,
     CLIENT_SECRET,
-    DEFAULT_FIRST_REPOS,
     DEFAULT_SCOPES,
     GITHUB_API,
     GITHUB_OAUTH_URL,
+    DEFAULT_FIRST_RESULTS,
     GITHUB_TOKEN_URL,
 } from './constants';
 import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
+import {GitHubPullRequest, PullRequestSearchResponse} from './types/pull-request';
 import {
     GitHubOrgRepositoriesResponse,
     GithubRepository,
@@ -19,6 +20,7 @@ import {
     GitHubUserOrgsResponse,
     OrganizationNode,
     RepositoryNode,
+    SearchRepositoriesResponse,
 } from './types/repository';
 import {SearchResponse} from './types/search';
 import {toQueryString} from './utils';
@@ -237,14 +239,14 @@ export class GitHubClient {
 
     async searchRepositories(
         searchTerm: string,
-        pageSize: number = DEFAULT_FIRST_REPOS,
+        pageSize: number = DEFAULT_FIRST_RESULTS,
     ): Promise<GithubRepository[]> {
         if (!searchTerm) {
             throw new Error('searchTerm must be set!');
         }
 
         try {
-            const response: SearchResponse = await this.gqlClient.request(
+            const response: SearchRepositoriesResponse = await this.gqlClient.request(
                 /* GraphQL */ `
                     query searchRepos($searchTerm: String!, $pageSize: Int!) {
                         search(query: $searchTerm, first: $pageSize, type: REPOSITORY) {
@@ -272,6 +274,58 @@ export class GitHubClient {
                     return {
                         name: edge.node.name,
                         owner: edge.node.owner.login,
+                        url: edge.node.url,
+                    };
+                },
+            );
+        } catch (err) {
+            throw new Error('Failed to search repositories!');
+        }
+    }
+
+    async searchPullRequests(
+        searchTerm: string,
+        pageSize: number = DEFAULT_FIRST_RESULTS,
+    ): Promise<GitHubPullRequest[]> {
+        if (!searchTerm) {
+            throw new Error('searchTerm must be set!');
+        }
+
+        try {
+            const response: PullRequestSearchResponse = await this.gqlClient.request(
+                /* GraphQL */ `
+                    query($searchTerm: String!, $pageSize: Int!) {
+                        search(query: $searchTerm, first: $pageSize, type: ISSUE) {
+                            edges {
+                                node {
+                                    ... on PullRequest {
+                                        title
+                                        number
+                                        url
+                                        author {
+                                            login
+                                        }
+                                        repository {
+                                            nameWithOwner
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                `,
+                {
+                    pageSize,
+                    searchTerm,
+                },
+            );
+            return response.search.edges.map(
+                (edge): GitHubPullRequest => {
+                    return {
+                        author: edge.node.author.login,
+                        title: edge.node.title,
+                        number: +edge.node.number,
+                        repository: edge.node.repository.nameWithOwner,
                         url: edge.node.url,
                     };
                 },

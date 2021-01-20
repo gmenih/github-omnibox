@@ -1,5 +1,5 @@
 import deepEqual from 'deep-equal';
-import {Observable, Subject} from 'rxjs';
+import {Observable, Subject, BehaviorSubject} from 'rxjs';
 import {inject, injectable, registry} from 'tsyringe';
 import {Logster} from '../logster.service';
 import {Browser, BROWSER_TOKEN} from './browser.provider';
@@ -64,11 +64,9 @@ export class BrowserStorageService<T> {
     }
 
     private async loadInitialValue() {
-        setTimeout(async () => {
-            const storage = await this.getStorage();
-            this.store = storage;
-            this.storageChanged$.next(storage);
-        }, 2000);
+        const storage = await this.getStorage();
+        this.store = storage;
+        this.storageChanged$.next(storage);
     }
 
     private async setItem(object: Partial<T>) {

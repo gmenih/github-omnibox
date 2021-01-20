@@ -32,42 +32,33 @@ export class SuggestionService {
                 this.searchGitHubApi.cancel();
                 return new Promise((resolve) => this.searchGitHubApi(searchTerm, 5)?.then(resolve));
             case SearchTermType.FromCache:
-                return this.searchByFuseCache(searchTerm);
+                return this.searchFuseCollection(searchTerm);
             case SearchTermType.Internal:
             default:
                 return this.suggestInternal(searchTerm);
-                break;
         }
     }
 
-    private async searchByFuseCache(searchTerm: SearchTerm): Promise<SuggestResult[]> {
-        console.log('searching in fuse');
+    private async searchFuseCollection(searchTerm: SearchTerm): Promise<SuggestResult[]> {
+        console.log('searching in fuse', searchTerm);
         const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
-        const results: SuggestResult[] = [];
 
-        for (const result of fuseResults) {
-            results.push({
-                content: result.item.url,
-                description: result.item.owner + '/' + result.item.name,
-                deletable: true,
-            });
-        }
-
-        return results;
+        return fuseResults.map((fuseResult) => ({
+            content: fuseResult.item.url,
+            description: fuseResult.item.owner + '/' + fuseResult.item.name,
+            deletable: true,
+        }));
     }
 
     private searchGitHubApi = debounce(
         async (searchTerm: SearchTerm, limit = 5): Promise<SuggestResult[]> => {
             this.logster.info('Searching', searchTerm.term);
-            const suggestions = await this.githubClient.searchRepositories(searchTerm.term, limit);
 
-            return suggestions.map(
-                (s): SuggestResult => ({
-                    content: s.url,
-                    description: searchTerm.formatter(`${s.owner}/${s.name}`),
-                    deletable: true,
-                }),
-            );
+            if (searchTerm.arguments.resultType === 'REPO') {
+                return this.searchRepositories(searchTerm);
+            }
+
+            return this.searchPullRequests(searchTerm);
         },
         500,
         {leading: true},
@@ -76,5 +67,27 @@ export class SuggestionService {
     private async suggestInternal(searchTerm: SearchTerm): Promise<SuggestResult[]> {
         console.log('nothing internal yet');
         return [];
+    }
+
+    private async searchRepositories(searchTerm: SearchTerm): Promise<SuggestResult[]> {
+        const repositories = await this.githubClient.searchRepositories(searchTerm.term, 5);
+        return repositories.map(
+            (s): SuggestResult => ({
+                content: s.url,
+                description: `${s.owner}/${s.name}`,
+                deletable: true,
+            }),
+        );
+    }
+
+    private async searchPullRequests(searchTerm: SearchTerm): Promise<SuggestResult[]> {
+        const repositories = await this.githubClient.searchPullRequests(searchTerm.term, 5);
+        return repositories.map(
+            (s): SuggestResult => ({
+                content: s.url,
+                description: `#${s.number}: ${s.title} by ${s.author} in ${s.repository}`,
+                deletable: true,
+            }),
+        );
     }
 }

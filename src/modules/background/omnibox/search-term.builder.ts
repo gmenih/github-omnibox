@@ -1,4 +1,4 @@
-import {FormatterFn, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
+import {SearchCommand, SearchTerm, SearchTermArguments, SearchTermType} from './types/search-term';
 
 export function searchTermFactory(...commands: SearchCommand[]) {
     return (): SearchTermBuilder => new SearchTermBuilder(commands);
@@ -7,25 +7,29 @@ export function searchTermFactory(...commands: SearchCommand[]) {
 const BASE_COMMAND: SearchCommand = {
     pattern: /.+/,
     type: SearchTermType.FromCache,
-    handler: (m) => m[0],
+    handler: (m) => ({term: m[0]}),
 };
 
 export class SearchTermBuilder {
     constructor(private readonly commands: SearchCommand[]) {}
 
-    buildSearchTerm(_input: string): SearchTerm {
+    async buildSearchTerm(_input: string): Promise<SearchTerm> {
         let input = _input;
         let type = SearchTermType.Internal;
         const terms: string[] = [];
-        const formatters: FormatterFn[] = [];
+        let termArguments: SearchTermArguments = {
+            resultType: 'REPO',
+        };
 
         for (const command of [...this.commands, BASE_COMMAND]) {
             const matches = command.pattern.exec(input);
             if (matches) {
-                const response = command.handler(matches);
+                const response = await command.handler(matches);
                 if (response) {
                     response.term && terms.push(response.term);
-                    command.formatter && formatters.push(command.formatter);
+                    if (Object.keys(response.arguments ?? {}).length > 0) {
+                        termArguments = {...termArguments, ...response.arguments};
+                    }
 
                     type = command.type > type ? command.type : type;
                     input = input.replace(matches[0], '').trim();
@@ -34,21 +38,9 @@ export class SearchTermBuilder {
         }
 
         return {
-            formatter: this.buildFormatter(formatters),
             term: terms.join(' '),
-            arguments: {resultType: 'REPO'},
+            arguments: termArguments,
             type,
-        };
-    }
-
-    private buildFormatter(formatters: FormatterFn[]): FormatterFn {
-        return (suggestion) => {
-            let s = suggestion;
-            formatters.forEach((fn) => {
-                s = fn(s);
-            });
-
-            return s;
         };
     }
 }

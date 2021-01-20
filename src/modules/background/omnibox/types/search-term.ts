@@ -1,6 +1,11 @@
-export type FormatterFn = (suggestion: string) => string;
+export interface HandlerResult {
+    term?: string;
+    arguments?: SearchTermArguments;
+}
 
-export type HandlerFn = (matches: RegExpExecArray) => any;
+export type HandlerFn = (
+    matches: RegExpExecArray,
+) => HandlerResult | Promise<HandlerResult> | Promise<undefined> | undefined;
 
 export enum SearchTermType {
     Internal,
@@ -9,18 +14,16 @@ export enum SearchTermType {
 }
 
 export interface SearchTermArguments {
-    resultType: 'REPO' | 'ISSUE';
+    resultType: 'REPO' | 'PR';
 }
 
 export interface SearchTerm {
-    formatter: FormatterFn;
     term: string;
     type: SearchTermType;
     arguments: SearchTermArguments;
 }
 
 export interface SearchCommand {
-    formatter?: FormatterFn;
     handler: HandlerFn;
     pattern: RegExp;
     type: SearchTermType;

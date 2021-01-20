@@ -25,9 +25,9 @@ export class OmniboxService {
 
     registerHandlers() {
         console.log('listening');
-        this.storage
-            .onKeysChanged('repositories')
-            .subscribe(({repositories}) => this.suggestionService.setCollection(repositories));
+        this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
+            this.suggestionService.setCollection(repositories ?? []);
+        });
 
         const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
 
@@ -37,7 +37,7 @@ export class OmniboxService {
     }
 
     private async onInputChanged(text: string, suggest: SuggestFn) {
-        const searchTerm = this.searchTermBuilder.buildSearchTerm(text);
+        const searchTerm = await this.searchTermBuilder.buildSearchTerm(text);
 
         this.suggestionService.getSuggestions(searchTerm).then(suggest);
     }

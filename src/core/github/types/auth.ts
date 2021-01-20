@@ -1,3 +1,5 @@
+import {GithubRepository} from './repository';
+
 export interface AuthorizationTokenResponse {
     access_token: string;
 }

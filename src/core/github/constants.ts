@@ -1,5 +1,5 @@
 export const DEFAULT_FIRST_LOGINS = 100;
-export const DEFAULT_FIRST_REPOS = 5;
+export const DEFAULT_FIRST_RESULTS = 5;
 export const DEFAULT_SCOPES: string[] = ['repo:status', 'read:org'];
 export const GITHUB_API = 'https://api.github.com/graphql';
 export const GITHUB_OAUTH_URL = 'https://github.com/login/oauth/authorize';

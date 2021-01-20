@@ -2,20 +2,36 @@ export interface Owner {
     login: string;
 }
 
-export interface Node {
-    name: string;
-    url: string;
-    owner: Owner;
+export interface Edge<TNode> {
+    node: TNode;
 }
 
-export interface Edge {
-    node: Node;
+export interface Search<TNode> {
+    edges: Edge<TNode>[];
 }
 
-export interface Search {
-    edges: Edge[];
+export interface SearchResponse<TNode> {
+    search: Search<TNode>;
 }
 
-export interface SearchResponse {
-    search: Search;
-}
+// search(query: $searchTerm, first: $pageSize, type: ISSUE) {
+//     edges {
+//         node {
+//             ... on PullRequest {
+//                 title
+//                 number
+//                 author {
+//                     login
+//                 }
+//                 repository {
+//                     url
+//                     name
+//                     owner {
+//                         login
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+// }

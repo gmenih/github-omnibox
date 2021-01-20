@@ -1,3 +1,5 @@
+import {SearchResponse} from './search';
+
 export interface OrganizationNode {
     name: string;
 }
@@ -6,9 +8,12 @@ export interface RepositoryNode {
     name: string;
     url: string;
     owner: {
+        login: string;
         name: string;
     };
 }
+
+export type SearchRepositoriesResponse = SearchResponse<RepositoryNode>;
 
 export interface GitHubUserDataResponse {
     viewer: {

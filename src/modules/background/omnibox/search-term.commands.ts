@@ -1,3 +1,5 @@
+import {container} from 'tsyringe';
+import {StorageService} from '../../../core/storage.service';
 import {SearchCommand, SearchTermType} from './types/search-term';
 
 /**
@@ -24,9 +26,14 @@ export const atCommand: SearchCommand = {
 export const prCommand: SearchCommand = {
     type: SearchTermType.API,
     pattern: /^#/,
-    handler: () => {
+    handler: async () => {
+        const storage = container.resolve(StorageService);
+        const username = (await storage.getStorage()).username;
         return {
-            term: 'type:pr',
+            term: `involves:${username} is:open`,
+            arguments: {
+                resultType: 'PR',
+            },
         };
     },
 };
