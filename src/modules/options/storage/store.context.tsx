@@ -1,7 +1,6 @@
+import {Storage, StorageService} from '@core/storage.service';
 import React, {createContext, FC, useContext, useEffect, useMemo, useState} from 'react';
 import {container} from 'tsyringe';
-import {Logster} from '@core/logster.service';
-import {Storage, StorageService} from '@core/storage.service';
 import {FrontendService} from '../frontend.service';
 
 interface StorageContext {
@@ -29,17 +28,14 @@ interface StorageProviderProps {
 
 export const StorageProvider: FC<StorageProviderProps> = ({storageService, children}) => {
     const [storageState, setStorage] = useState<Storage>();
-    const logger = useMemo(() => new Logster('FrontStorage'), []);
     const service = useMemo(() => container.resolve(FrontendService), []);
 
     useEffect(() => {
-        (async () => {
-            const storage = await storageService.getStorage();
-            setStorage(() => storage);
-        })();
         const subscription = storageService.onKeysChanged().subscribe((storage) => {
             setStorage(() => storage);
         });
+
+        storageService.getStorage().then(setStorage);
 
         return () => subscription.unsubscribe();
     }, [storageService]);

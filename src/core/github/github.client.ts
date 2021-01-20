@@ -5,10 +5,10 @@ import {StorageService} from '../storage.service';
 import {
     CLIENT_ID,
     CLIENT_SECRET,
+    DEFAULT_FIRST_RESULTS,
     DEFAULT_SCOPES,
     GITHUB_API,
     GITHUB_OAUTH_URL,
-    DEFAULT_FIRST_RESULTS,
     GITHUB_TOKEN_URL,
 } from './constants';
 import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
@@ -22,7 +22,6 @@ import {
     RepositoryNode,
     SearchRepositoriesResponse,
 } from './types/repository';
-import {SearchResponse} from './types/search';
 import {toQueryString} from './utils';
 
 @injectable()
