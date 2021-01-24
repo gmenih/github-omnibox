@@ -1,16 +1,16 @@
 import {GraphQLClient} from 'graphql-request';
 import {injectable, singleton} from 'tsyringe';
-import {Logster} from '../logster.service';
-import {StorageService} from '../storage.service';
+import {Logster} from '../logster/logster.service';
+import {StorageService} from '../storage/storage.service';
 import {
     CLIENT_ID,
     CLIENT_SECRET,
     DEFAULT_FIRST_RESULTS,
-    DEFAULT_SCOPES,
-    GITHUB_API,
+    GITHUB_SCOPES,
+    GITHUB_BASE_URL,
     GITHUB_OAUTH_URL,
     GITHUB_TOKEN_URL,
-} from './constants';
+} from './github.const';
 import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
 import {GitHubPullRequest, PullRequestSearchResponse} from './types/pull-request';
 import {
@@ -22,25 +22,18 @@ import {
     RepositoryNode,
     SearchRepositoriesResponse,
 } from './types/repository';
-import {toQueryString} from './utils';
+import {toQueryString} from '../utils/url.utils';
 
 @injectable()
 @singleton()
 export class GitHubClient {
-    private static lastCreated?: number;
     private gqlClient!: GraphQLClient;
-    private readonly logster: Logster = new Logster('GithubClient');
+    private readonly log: Logster = new Logster('GithubClient');
 
     constructor(private readonly storage: StorageService) {
         this.storage.onKeysChanged('token').subscribe(({token}) => {
             if (token) {
-                if (GitHubClient.lastCreated && Date.now() - GitHubClient.lastCreated < 5) {
-                    this.logster.warn('Detected repeat creation');
-                    debugger;
-                }
-                GitHubClient.lastCreated = Date.now();
-                this.logster.info(`Creating GithubClient for token "${token}"`);
-                this.gqlClient = new GraphQLClient(GITHUB_API, {
+                this.gqlClient = new GraphQLClient(GITHUB_BASE_URL, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -49,8 +42,8 @@ export class GitHubClient {
         });
     }
 
-    generateOAuthPageURL(state: string, scopes: string[] = DEFAULT_SCOPES): string {
-        this.logster.info('Generating OAuth URL');
+    generateOAuthPageURL(state: string, scopes: string[] = GITHUB_SCOPES): string {
+        this.log.debug('Generating OAuth Page URL');
         const query = toQueryString({
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
@@ -61,7 +54,7 @@ export class GitHubClient {
     }
 
     async fetchAuthorizationToken(code: string, state: string): Promise<string> {
-        this.logster.info('Fetching auth token');
+        this.log.debug('Fetching authorization token');
         const query = toQueryString({
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
@@ -76,12 +69,12 @@ export class GitHubClient {
             });
             const data: AuthorizationTokenResponse = await response.json();
             if (data && data.access_token) {
-                this.logster.info('Authorization token received!');
+                this.log.info('Authorization token received!');
                 return data.access_token;
             }
-            this.logster.error('Access token missing in response!');
+            this.log.error('Access token missing in response!');
         } catch (err) {
-            this.logster.error('Failed to fetch authorization! Error:', err);
+            this.log.error('Failed to fetch authorization! Error:', err);
         }
 
         throw new Error('Failed to authorize');

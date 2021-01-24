@@ -3,6 +3,7 @@ import styled, {createGlobalStyle, DefaultTheme, GlobalStyleComponent} from 'sty
 import {useStorage} from '../storage/store.context';
 import {COLOR_BLACK, COLOR_WHITE} from '../style.constants';
 import {GithubAuthorization} from './github-authorization/github-authorization';
+import {Section} from './section/section';
 import {Settings} from './settings/settings';
 
 const GlobalStyles: GlobalStyleComponent<any, DefaultTheme> = createGlobalStyle`
@@ -37,6 +38,12 @@ export const App: FunctionComponent = () => {
 
             {loggedIn ? <Settings /> : null}
             <GithubAuthorization />
+
+            <Section title="Privacy" isExpandable={true} isExpanded={false}>
+                <p>{`
+                    This extension collects no data directly. It only communicates with GitHub's API directly, so GitHub's privacy policy applies.
+                `}</p>
+            </Section>
         </AppGrid>
     );
 };

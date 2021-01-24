@@ -1,7 +1,7 @@
 import {injectable, inject} from 'tsyringe';
-import {RuntimeService} from '@core/browser/runtime.service';
-import {Logster} from '@core/logster.service';
-import {WINDOW_TOKEN} from '@core/window.provider';
+import {RuntimeService} from '@core/browser';
+import {Logster} from '@core/logster';
+import {WINDOW_TOKEN} from '@core/window';
 import {AuthMessage} from './types/message';
 
 @injectable()

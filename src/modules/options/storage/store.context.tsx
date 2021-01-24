@@ -1,4 +1,4 @@
-import {Storage, StorageService} from '@core/storage.service';
+import {Storage, StorageService} from '@core/storage';
 import React, {createContext, FC, useContext, useEffect, useMemo, useState} from 'react';
 import {container} from 'tsyringe';
 import {FrontendService} from '../frontend.service';

@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from 'react';
-import {GithubRepository} from '@core/github/types/repository';
+import {GithubRepository} from '@core/github';
 import {useStorage} from '../../storage/store.context';
 import {Section} from '../section/section';
 

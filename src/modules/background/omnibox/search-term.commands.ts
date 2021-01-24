@@ -1,5 +1,5 @@
 import {container} from 'tsyringe';
-import {StorageService} from '../../../core/storage.service';
+import {StorageService} from '../../../core/storage';
 import {SearchCommand, SearchTermType} from './types/search-term';
 
 /**

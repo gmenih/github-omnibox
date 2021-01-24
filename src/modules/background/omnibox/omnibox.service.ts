@@ -1,6 +1,6 @@
-import {BrowserOmniboxService, EnteredDisposition, SuggestFn} from '@core/browser/omnibox.service';
+import {BrowserOmniboxService, EnteredDisposition, SuggestFn} from '@core/browser';
 import {TabsService} from '@core/browser/tabs.service';
-import {StorageService} from '@core/storage.service';
+import {StorageService} from '@core/storage';
 import * as debounce from 'lodash/debounce';
 import {injectable, registry} from 'tsyringe';
 import {SearchTermBuilder, searchTermFactory} from './search-term.builder';

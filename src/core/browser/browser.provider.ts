@@ -8,7 +8,7 @@ const browserFactory: FactoryFunction<typeof chrome> = (): typeof chrome => {
         return window.chrome;
     }
 
-    throw new Error('Running outside extension context!');
+    throw new Error('Not running in an extension context!');
 };
 
 export type Browser = typeof chrome;

@@ -1,5 +1,5 @@
 import {container} from 'tsyringe';
-import {StorageService} from '@core/storage.service';
+import {StorageService} from '@core/storage';
 
 export function createStorageService(): StorageService {
     const storage = container.resolve(StorageService);

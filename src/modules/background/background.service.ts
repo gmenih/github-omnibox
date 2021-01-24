@@ -1,8 +1,8 @@
 import {injectable} from 'tsyringe';
-import {RuntimeService} from '@core/browser/runtime.service';
-import {GitHubClient} from '@core/github/github.client';
-import {Logster} from '@core/logster.service';
-import {StorageService} from '@core/storage.service';
+import {RuntimeService} from '@core/browser';
+import {GitHubClient} from '@core/github';
+import {Logster} from '@core/logster';
+import {StorageService} from '@core/storage';
 import {AuthMessage} from '../content-script/types/message';
 import {OmniboxService} from './omnibox/omnibox.service';
 

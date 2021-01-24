@@ -2,9 +2,9 @@ import deepEqual from 'deep-equal';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
-import {BrowserStorageService} from './browser/browser-storage.service';
-import {GithubRepository} from './github/types/repository';
-import {Logster} from './logster.service';
+import {BrowserStorageService} from '../browser/browser-storage.service';
+import {GithubRepository} from '../github/types/repository';
+import {Logster} from '../logster/logster.service';
 
 export interface Storage {
     displayName: string;

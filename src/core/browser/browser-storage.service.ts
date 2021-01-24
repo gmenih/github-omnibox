@@ -1,18 +1,10 @@
 import deepEqual from 'deep-equal';
-import {Observable, Subject, BehaviorSubject} from 'rxjs';
-import {inject, injectable, registry} from 'tsyringe';
-import {Logster} from '../logster.service';
+import {Observable, Subject} from 'rxjs';
+import {inject, injectable} from 'tsyringe';
+import {Logster} from '../logster/logster.service';
 import {Browser, BROWSER_TOKEN} from './browser.provider';
 
-const BROWSER_STORAGE_TYPE = Symbol('storage-token');
-
 @injectable()
-@registry([
-    {
-        token: BROWSER_STORAGE_TYPE,
-        useValue: 'local',
-    },
-])
 export class BrowserStorageService<T> {
     store?: T;
     private storageChanged$: Subject<T> = new Subject();
@@ -21,7 +13,7 @@ export class BrowserStorageService<T> {
 
     constructor(
         @inject(BROWSER_TOKEN) private readonly browser: Browser,
-        @inject(BROWSER_STORAGE_TYPE) storageType: 'local',
+        storageType: 'local' = 'local',
     ) {
         this.chromeStorage = this.browser.storage[storageType];
         this.onStorageChange();
