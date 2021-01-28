@@ -36,7 +36,7 @@ export class OmniboxService {
             this.log.debug('Setting repositories');
             this.quickSuggestor.setCollection(repositories ?? []);
         });
-        
+
         const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
 
         this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));

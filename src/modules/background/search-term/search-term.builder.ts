@@ -2,7 +2,7 @@ import {container} from 'tsyringe';
 import {StorageService} from '@core/storage';
 import {ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
 
-export function searchTermFactory (...commands: SearchCommand[]) {
+export function searchTermFactory(...commands: SearchCommand[]) {
     return (): SearchTermBuilder =>
         new SearchTermBuilder(commands, container.resolve(StorageService));
 }
@@ -17,9 +17,9 @@ export class SearchTermBuilder {
     constructor(
         private readonly commands: SearchCommand[],
         private readonly storageService: StorageService,
-    ) { }
+    ) {}
 
-    async buildSearchTerm (_input: string): Promise<SearchTerm> {
+    async buildSearchTerm(_input: string): Promise<SearchTerm> {
         let input = _input;
         let type = SearchTermType.Internal;
         let resultType: ResultType = ResultType.Repository;
@@ -50,7 +50,7 @@ export class SearchTermBuilder {
         };
     }
 
-    private replaceVariables (term: string, replacements: Record<string, string>): string {
+    private replaceVariables(term: string, replacements: Record<string, string>): string {
         let val = term;
         for (const [variable, replacement] of Object.entries(replacements)) {
             val = val.replace(`!%%${variable.toUpperCase()}%%`, replacement);

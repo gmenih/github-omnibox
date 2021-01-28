@@ -10,7 +10,7 @@ import {ResultType, SearchTerm} from '../../search-term/types/search-term';
 export class GithubSuggestor {
     private readonly log = new Logster('GithubSuggestor');
 
-    constructor(private readonly githubClient: GitHubClient) { }
+    constructor(private readonly githubClient: GitHubClient) {}
 
     public suggest = debounce(
         async (searchTerm: SearchTerm): Promise<SuggestResult[]> => {
@@ -29,7 +29,7 @@ export class GithubSuggestor {
         {leading: true},
     );
 
-    private async searchRepositories (searchTerm: SearchTerm): Promise<SuggestResult[]> {
+    private async searchRepositories(searchTerm: SearchTerm): Promise<SuggestResult[]> {
         const repositories = await this.githubClient.searchRepositories(searchTerm.term, 5);
         return repositories.map(
             (s): SuggestResult => ({
@@ -40,7 +40,7 @@ export class GithubSuggestor {
         );
     }
 
-    private async searchPullRequests (searchTerm: SearchTerm): Promise<SuggestResult[]> {
+    private async searchPullRequests(searchTerm: SearchTerm): Promise<SuggestResult[]> {
         const repositories = await this.githubClient.searchPullRequests(searchTerm.term, 5);
         return repositories.map(
             (s): SuggestResult => ({
