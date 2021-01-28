@@ -11,11 +11,8 @@ export class BrowserStorageService<T> {
     private chromeStorage: chrome.storage.StorageArea;
     private readonly logster: Logster = new Logster('BrowserStorageService');
 
-    constructor(
-        @inject(BROWSER_TOKEN) private readonly browser: Browser,
-        storageType: 'local' = 'local',
-    ) {
-        this.chromeStorage = this.browser.storage[storageType];
+    constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser) {
+        this.chromeStorage = this.browser.storage['local'];
         this.onStorageChange();
         this.loadInitialValue();
     }

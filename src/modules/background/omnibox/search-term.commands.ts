@@ -1,9 +1,7 @@
-import {container} from 'tsyringe';
-import {StorageService} from '../../../core/storage';
-import {SearchCommand, SearchTermType} from './types/search-term';
+import {ResultType, SearchCommand, SearchTermType} from '../search-term/types/search-term';
 
 /**
- * Handles `@username` commands
+ * @<username> searcher for a username
  */
 export const atCommand: SearchCommand = {
     type: SearchTermType.API,
@@ -21,19 +19,29 @@ export const atCommand: SearchCommand = {
 };
 
 /**
- * Parses # command to search for PRs
+ * # searcher for PRs
  */
 export const prCommand: SearchCommand = {
+    pattern: /#/,
     type: SearchTermType.API,
-    pattern: /^#/,
-    handler: async () => {
-        const storage = container.resolve(StorageService);
-        const username = (await storage.getStorage()).username;
-        return {
-            term: `involves:${username} is:open`,
-            arguments: {
-                resultType: 'PR',
-            },
-        };
-    },
+    resultType: ResultType.PullRequest,
+    handler: () => ({
+        term: `involves:!%%USER%% is:open`,
+    }),
+};
+
+/**
+ * ! searches globally
+ */
+export const globalCommand: SearchCommand = {
+    type: SearchTermType.API,
+    pattern: /!/,
+    // only set the type to API, so we don't search in cache
+    handler: () => ({}),
+};
+
+export const helpCommand: SearchCommand = {
+    type: SearchTermType.Internal,
+    pattern: /\? ?(\w+)/,
+    handler: (matches) => ({term: matches[1] ?? 'help'}),
 };

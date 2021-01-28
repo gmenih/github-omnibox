@@ -3,32 +3,40 @@ import {TabsService} from '@core/browser/tabs.service';
 import {StorageService} from '@core/storage';
 import * as debounce from 'lodash/debounce';
 import {injectable, registry} from 'tsyringe';
-import {SearchTermBuilder, searchTermFactory} from './search-term.builder';
-import {atCommand, prCommand} from './search-term.commands';
+import {Logster} from '@core/logster';
+import {SearchTermBuilder, searchTermFactory} from '../search-term/search-term.builder';
+import {atCommand, globalCommand, prCommand} from './search-term.commands';
 import {SuggestionService} from './suggestion.service';
+import {QuickSuggestor} from './suggestor/quick.suggestor';
 
 @registry([
     {
         token: SearchTermBuilder,
-        useFactory: searchTermFactory(prCommand, atCommand),
+        useFactory: searchTermFactory(prCommand, atCommand, globalCommand),
     },
 ])
 @injectable()
 export class OmniboxService {
+    private readonly log = new Logster('OmniboxService');
+
     constructor(
         private readonly omnibox: BrowserOmniboxService,
         private readonly storage: StorageService,
         private readonly tabsService: TabsService,
         private readonly searchTermBuilder: SearchTermBuilder,
         private readonly suggestionService: SuggestionService,
+        private readonly quickSuggestor: QuickSuggestor,
     ) {}
 
-    registerHandlers() {
-        console.log('listening');
+    async registerHandlers() {
+        const repositories = (await this.storage.getStorage()).repositories ?? [];
+        this.log.info('listening', repositories);
+        this.quickSuggestor.setCollection(repositories);
         this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
-            this.suggestionService.setCollection(repositories ?? []);
+            this.log.debug('Setting repositories');
+            this.quickSuggestor.setCollection(repositories ?? []);
         });
-
+        
         const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
 
         this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
@@ -39,6 +47,8 @@ export class OmniboxService {
     private async onInputChanged(text: string, suggest: SuggestFn) {
         const searchTerm = await this.searchTermBuilder.buildSearchTerm(text);
 
+        // await does not work here, because the methods inside are debounced
+        // and will return undefined before getting the results sometimes
         this.suggestionService.getSuggestions(searchTerm).then(suggest);
     }
 

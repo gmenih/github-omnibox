@@ -2,20 +2,10 @@ import deepEqual from 'deep-equal';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
-import {BrowserStorageService} from '../browser/browser-storage.service';
+import {BrowserStorageService} from '../browser';
 import {GithubRepository} from '../github/types/repository';
 import {Logster} from '../logster/logster.service';
-
-export interface Storage {
-    displayName: string;
-    loggedIn: boolean;
-    optionsShown?: number;
-    organizations: string[];
-    lastRepoRefreshDate: string;
-    repositories: GithubRepository[];
-    token?: string;
-    username: string;
-}
+import {Storage} from './types/storage';
 
 const DAY_MS = 86400000;
 
