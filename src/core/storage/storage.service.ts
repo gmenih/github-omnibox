@@ -67,7 +67,7 @@ export class StorageService {
     }
 
     async addRepositories(repositories: GithubRepository[]) {
-        const existingRepositories = (await this.getStorage()).repositories;
+        const existingRepositories = (await this.getStorage()).repositories ?? [];
         const filteredUrls = existingRepositories.map((repo) => repo.url);
         const repositoriesToAdd = repositories.filter((repo) => !filteredUrls.includes(repo.url));
         if (repositoriesToAdd.length > 0) {
