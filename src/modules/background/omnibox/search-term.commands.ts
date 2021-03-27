@@ -20,6 +20,7 @@ export const atCommand: SearchCommand = {
 
 /**
  * # searcher for PRs
+ * Currently unused.. need to figure out how to solve the involve
  */
 export const prCommand: SearchCommand = {
     pattern: /#/,
@@ -42,6 +43,7 @@ export const globalCommand: SearchCommand = {
 
 export const helpCommand: SearchCommand = {
     type: SearchTermType.Internal,
-    pattern: /\? ?(\w+)/,
+    pattern: /^\?/,
+    termMatch: 'full',
     handler: (matches) => ({term: matches[1] ?? 'help'}),
 };

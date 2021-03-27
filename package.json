@@ -1,9 +1,14 @@
 {
-  "name": "repo-omnibox",
+  "name": "github-omnibox",
   "version": "2.0.0",
-  "full_name": "OmniGit",
-  "description": "A browser extension that suggests your GitHub repos in Omnibox",
+  "full_name": "GitHub Omnibox",
+  "description": "A browser extension that suggests your GitHub repositories in Omnibox",
   "main": "webpack/config.js",
+  "author": {
+    "email": "gregor@menih.si",
+    "name": "Gregor Menih",
+    "url": "https://github.com/gmenih341"
+  },
   "scripts": {
     "build:dev": "npm run build:watch -- --progress",
     "build:prod": "NODE_ENV=production webpack --progress",
@@ -63,6 +68,7 @@
   "dependencies": {
     "deep-equal": "2.0.5",
     "fuse.js": "6.4.6",
+    "graphql": "15.5.0",
     "graphql-request": "3.4.0",
     "lodash.debounce": "4.0.8",
     "react": "17.0.2",

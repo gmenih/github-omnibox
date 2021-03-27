@@ -14,6 +14,7 @@ const SectionTitle = styled.div`
     align-items: center;
     border-bottom: 1px solid ${COLOR_GRAY[1]};
     padding: ${SPACER_SMALL}px ${SPACER}px;
+    cursor: pointer;
 
     &.big {
         padding: 20px ${SPACER}px;

@@ -2,17 +2,17 @@ import {BrowserOmniboxService, EnteredDisposition, SuggestFn} from '@core/browse
 import {TabsService} from '@core/browser/tabs.service';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
-import * as debounce from 'lodash/debounce';
+import debounce from 'lodash/debounce';
 import {injectable, registry} from 'tsyringe';
 import {SearchTermBuilder, searchTermFactory} from '../search-term/search-term.builder';
-import {atCommand, globalCommand, prCommand} from './search-term.commands';
+import {atCommand, globalCommand} from './search-term.commands';
 import {SuggestionService} from './suggestion.service';
 import {QuickSuggestor} from './suggestor/quick.suggestor';
 
 @registry([
     {
         token: SearchTermBuilder,
-        useFactory: searchTermFactory(prCommand, atCommand, globalCommand),
+        useFactory: searchTermFactory(atCommand, globalCommand),
     },
 ])
 @injectable()
@@ -64,7 +64,7 @@ export class OmniboxService {
 
     private onInputStarted() {
         this.omnibox.setDefaultSuggestion({
-            description: 'Simple command line supported - type `?` for more',
+            description: 'Simple command line supported - type `?` for help',
         });
     }
 
