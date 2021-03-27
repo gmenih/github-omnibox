@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const {join} = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const DotEnvPlugin = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
 const path = require('path');
 const pkg = require('./package.json');
-const {join} = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const sharp = require('sharp');
+const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 
 const MODULES_DIR = path.resolve(__dirname, './src/modules');
+const iconSizes = [16, 32, 64];
 
 /**
  * @param {string} moduleName
@@ -19,7 +22,10 @@ function moduleTsRule(moduleName) {
         {
             test: /\.tsx?$/,
             loader: 'ts-loader',
-            include: [path.resolve(MODULES_DIR, `./${moduleName}`), path.resolve(__dirname, './src/core')],
+            include: [
+                path.resolve(MODULES_DIR, `./${moduleName}`),
+                path.resolve(__dirname, './src/core'),
+            ],
             options: {
                 instance: moduleName,
                 configFile: path.resolve(MODULES_DIR, `./${moduleName}/tsconfig.json`),
@@ -112,6 +118,15 @@ const config = {
             inject: false,
             minify: false,
             pkg,
+        }),
+        new CopyWebpackPlugin({
+            patterns: iconSizes.map((size) => ({
+                from: 'src/assets/repo-icon.png',
+                to: `assets/icon-${size}.png`,
+                transform: (content) => {
+                    return sharp(content).resize(size, size).png().toBuffer();
+                },
+            })),
         }),
     ],
 };
