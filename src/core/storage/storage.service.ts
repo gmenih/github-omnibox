@@ -66,6 +66,14 @@ export class StorageService {
         });
     }
 
+    setErrors(errors: string[]) {
+        this.updateStorage({errors});
+    }
+
+    clearErrors() {
+        this.updateStorage({errors: []});
+    }
+
     async addRepositories(repositories: GithubRepository[]) {
         const existingRepositories = (await this.getStorage()).repositories ?? [];
         const filteredUrls = existingRepositories.map((repo) => repo.url);

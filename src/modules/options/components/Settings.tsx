@@ -1,7 +1,7 @@
-import React, {FunctionComponent} from 'react';
 import {GithubRepository} from '@core/github';
-import {useStorage} from '../../storage/store.context';
-import {Section} from '../section/section';
+import React, {FunctionComponent} from 'react';
+import {useStorage} from '../storage/store.context';
+import {Section} from './Section';
 
 function groupCountRepositories(repositories: GithubRepository[]): Array<[string, number]> {
     const m: Map<string, number> = new Map();
@@ -16,6 +16,7 @@ function groupCountRepositories(repositories: GithubRepository[]): Array<[string
 
 export const Settings: FunctionComponent = () => {
     const storage = useStorage();
+
     const organizations = groupCountRepositories(storage.repositories).map(([org, count]) => (
         <li key={org}>
             {org === storage.username ? <strong>{org}</strong> : org} ({count})
@@ -28,15 +29,12 @@ export const Settings: FunctionComponent = () => {
             controls={<span>log out</span>}
             type={'big'}>
             <div className="orgs">
-                <h4>Organizations</h4>
-                {`We have found ${storage.repositories.length} repositories to search in, in these organizations`}
-                <button>Refresh</button>
+                <p>
+                    We found <strong>{storage.repositories.length}</strong> repositories to search
+                    for.
+                </p>
+                <h4>Your organizations</h4>
                 <ul>{organizations}</ul>
-            </div>
-            <div className="ignore-regex">
-                <h4>Ignore regex</h4>
-                <p>Enter any pattern you wish to ignore </p>
-                <input />
             </div>
         </Section>
     );

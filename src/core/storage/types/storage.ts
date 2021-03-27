@@ -8,5 +8,6 @@ export interface Storage {
     lastRepoRefreshDate: string;
     repositories: GithubRepository[];
     token?: string;
+    errors?: string[];
     username: string;
 }

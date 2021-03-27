@@ -2,8 +2,9 @@ import React, {ChangeEvent, FormEvent, FunctionComponent, useState} from 'react'
 import styled from 'styled-components';
 import {useFrontendService} from '../../storage/store.context';
 import {COLOR_GRAY, SPACER_SMALL} from '../../style.constants';
-import {Button, ButtonType} from '../button/button';
-import {CenteredContent} from '../section/section';
+import {CenteredContent} from '../Section';
+import {Alert} from './Alert';
+import {Button, ButtonType} from './Button';
 
 const TokenInput = styled.input`
     flex-grow: 1;
@@ -28,17 +29,29 @@ export const TokenAuthorization: FunctionComponent = () => {
     const onFormSubmit = (e: FormEvent) => {
         e.preventDefault();
         service.setTokenValue(token);
+        setToken('');
     };
+
+    const infoMessage = `
+        This is the recommended method. It ensures that GitHub Omnibox can find all repositories you have
+        access to. OAuth is easier, but you will need to ask for explicit permissions from each organization
+        you belong to, to allow this extension from accessing it's repositories via OAuth.
+    `;
 
     return (
         <div>
-            <div>Or use your personal access token</div>
-            You can use your personal access token (generated in{' '}
-            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">
-                GitHub Settings
-            </a>
-            ). To support searching, you need to give it the <code>repo</code> scope, and{' '}
-            <code>read:org</code>, if you also want to search in your organizations&apos; repos.
+            <h3>Personal Access Token</h3>
+            <p>
+                Generate a{' '}
+                <a
+                    href="https://github.com/settings/tokens"
+                    rel="noopener noreferrer"
+                    target="_blank">
+                    Personal Access Token
+                </a>{' '}
+                with <code>repo:status</code> and <code>read:org</code> scopes.
+            </p>
+            <Alert type="info">{infoMessage}</Alert>
             <form onSubmit={onFormSubmit}>
                 <CenteredContent>
                     <TokenInput

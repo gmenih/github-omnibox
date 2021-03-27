@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import React, {ReactNode, useState} from 'react';
-import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../../style.constants';
+import styled from 'styled-components';
+import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../style.constants';
 
 const SectionContainer = styled.section`
     border-radius: 3px;
@@ -19,7 +19,7 @@ const SectionTitle = styled.div`
         padding: 20px ${SPACER}px;
     }
 
-    h1 {
+    h2 {
         font-size: 1.2rem;
         padding: 0;
         margin: 0;
@@ -36,11 +36,23 @@ const SectionContent = styled.main`
     padding: ${SPACER}px;
     font-size: 1rem;
     overflow: auto;
+
+    h3 {
+        margin-top: 0;
+    }
+
+    hr {
+        margin: 15px 0;
+        border: none;
+        border-bottom: 1px solid #b6bfc8;
+    }
+
     code {
         background: #ededed;
         font-weight: bold;
         padding: ${SPACER_SMALL / 2}px;
     }
+
     a,
     a:visited,
     a:active,
@@ -51,6 +63,7 @@ const SectionContent = styled.main`
             text-decoration: underline;
         }
     }
+
     &:not(:last-child) {
         margin-bottom: ${SPACER}px;
     }
@@ -73,7 +86,7 @@ export interface SectionProps {
 }
 
 export function Section({title, children, controls, type, isExpanded, isExpandable}: SectionProps) {
-    const [expanded, setExpanded] = useState(isExpandable ? isExpanded ?? true : false);
+    const [expanded, setExpanded] = useState(isExpandable !== false ? isExpanded ?? true : false);
     const onTitleClick = () => {
         if (isExpandable) {
             setExpanded(!expanded);
@@ -83,10 +96,10 @@ export function Section({title, children, controls, type, isExpanded, isExpandab
     return (
         <SectionContainer>
             <SectionTitle className={type} onClick={onTitleClick}>
-                <h1>{title}</h1>
+                <h2>{title}</h2>
                 {controls && <div className="controls">{controls}</div>}
             </SectionTitle>
-            {expanded !== true && <SectionContent>{children}</SectionContent>}
+            {expanded === true && <SectionContent>{children}</SectionContent>}
         </SectionContainer>
     );
 }

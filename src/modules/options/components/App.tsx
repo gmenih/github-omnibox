@@ -2,9 +2,10 @@ import React, {FunctionComponent} from 'react';
 import styled, {createGlobalStyle, DefaultTheme, GlobalStyleComponent} from 'styled-components';
 import {useStorage} from '../storage/store.context';
 import {COLOR_BLACK, COLOR_WHITE} from '../style.constants';
-import {GithubAuthorization} from './github-authorization/github-authorization';
-import {Section} from './section/section';
-import {Settings} from './settings/settings';
+import {Alert} from './GitHubAuthentication/Alert';
+import {GitHubAuthentication} from './GitHubAuthentication/GithubAuthentication';
+import {Section} from './Section';
+import {Settings} from './Settings';
 
 const GlobalStyles: GlobalStyleComponent<any, DefaultTheme> = createGlobalStyle`
     html,
@@ -16,6 +17,7 @@ const GlobalStyles: GlobalStyleComponent<any, DefaultTheme> = createGlobalStyle`
         color: ${COLOR_BLACK};
         background: ${COLOR_WHITE};
     }
+
     div {
         box-sizing: border-box;
     }
@@ -29,20 +31,28 @@ const AppGrid = styled.div`
 const AppTitle = styled.h1``;
 
 export const App: FunctionComponent = () => {
-    const {loggedIn} = useStorage();
+    const {loggedIn, errors} = useStorage();
+    const privacyMessage = `
+        This extension stores all of your data in your browser's local storage, which
+        can only be accessed by the extension itself. Nothing leaves your computer,
+        other than requests to GitHub's API.
+    `;
 
     return (
         <AppGrid>
             <GlobalStyles />
             <AppTitle>{'\u{1F50D}'} GitHub Omnibox search</AppTitle>
 
+            {errors?.map((e) => (
+                <Alert key={e} type="error">
+                    {e}
+                </Alert>
+            ))}
             {loggedIn ? <Settings /> : null}
-            <GithubAuthorization />
+            <GitHubAuthentication />
 
             <Section title="Privacy" isExpandable={true} isExpanded={false}>
-                <p>{`
-                    This extension collects no data directly. It only communicates with GitHub's API directly, so GitHub's privacy policy applies.
-                `}</p>
+                <p>{privacyMessage}</p>
             </Section>
         </AppGrid>
     );
