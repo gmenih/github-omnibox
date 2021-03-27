@@ -1,3 +1,4 @@
+import {EXTENSION_NAME} from '@core/core.consts';
 import React, {FunctionComponent} from 'react';
 import styled, {createGlobalStyle, DefaultTheme, GlobalStyleComponent} from 'styled-components';
 import {useStorage} from '../storage/store.context';
@@ -41,7 +42,9 @@ export const App: FunctionComponent = () => {
     return (
         <AppGrid>
             <GlobalStyles />
-            <AppTitle>{'\u{1F50D}'} GitHub Omnibox search</AppTitle>
+            <AppTitle>
+                {'\u{1F50D}'} {EXTENSION_NAME}
+            </AppTitle>
 
             {errors?.map((e) => (
                 <Alert key={e} type="error">

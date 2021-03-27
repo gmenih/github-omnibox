@@ -19,7 +19,7 @@ export const Settings: FunctionComponent = () => {
 
     const organizations = groupCountRepositories(storage.repositories).map(([org, count]) => (
         <li key={org}>
-            {org === storage.username ? <strong>{org}</strong> : org} ({count})
+            {org === storage.username ? <strong>{org}</strong> : org} ({count} repositories)
         </li>
     ));
 

@@ -32,17 +32,18 @@ export const StorageProvider: FC<StorageProviderProps> = ({storageService, child
 
     useEffect(() => {
         const subscription = storageService.onKeysChanged().subscribe(async () => {
+            // always get the full storage; onKeysChanged will only return a partial
             storageService.getStorage().then((storage) => setStorage(() => storage));
         });
 
         storageService.getStorage().then(setStorage);
 
         return () => subscription.unsubscribe();
-    }, [storageService]);
+    }, []);
 
     return (
         <StorageContext.Provider value={{storage: storageState as Storage, service}}>
-            {storageState ? children : null}
+            {storageState && children}
         </StorageContext.Provider>
     );
 };
