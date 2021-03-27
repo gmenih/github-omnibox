@@ -35,7 +35,7 @@ const isProduction = () => process.env.NODE_ENV === 'production';
 const config = {
     mode: isProduction() ? 'production' : 'development',
     // only thing that works in a web extension
-    devtool: !isProduction() ? 'cheap-source-map' : undefined,
+    devtool: isProduction() ? undefined : 'cheap-source-map',
     entry: {
         background: path.join(__dirname, './src/modules/background/index.ts'),
         options: path.join(__dirname, './src/modules/options/index.tsx'),
