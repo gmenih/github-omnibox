@@ -62,10 +62,6 @@ const config = {
                 loader: 'handlebars-loader',
             },
             {
-                test: /\.gql$/,
-                loader: 'raw-loader',
-            },
-            {
                 test: /\.(png|jpg|jpeg)$/,
                 loader: 'file-loader',
                 options: {
