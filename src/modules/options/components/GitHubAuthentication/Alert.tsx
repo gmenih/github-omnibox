@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from 'react';
 import styled, {css, SimpleInterpolation} from 'styled-components';
-import {SPACER_SMALL} from '../../style.constants';
+import {SPACER_SMALL} from '../../style.const';
 
 export enum AlertType {
     warning = 'warning',

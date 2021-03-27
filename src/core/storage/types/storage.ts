@@ -2,7 +2,7 @@ import {GithubRepository} from '../../github';
 
 export interface Storage {
     displayName: string;
-    loggedIn: boolean;
+    isLoggedIn: boolean;
     optionsShown?: number;
     organizations: string[];
     lastRepoRefreshDate: string;

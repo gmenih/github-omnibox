@@ -1,8 +1,8 @@
-import {EXTENSION_NAME} from '@core/core.consts';
+import {EXTENSION_NAME} from '@core/core.const';
 import React, {FunctionComponent} from 'react';
 import styled, {createGlobalStyle, DefaultTheme, GlobalStyleComponent} from 'styled-components';
 import {useStorage} from '../storage/store.context';
-import {COLOR_BLACK, COLOR_WHITE} from '../style.constants';
+import {COLOR_BLACK, COLOR_WHITE} from '../style.const';
 import {Alert} from './GitHubAuthentication/Alert';
 import {GitHubAuthentication} from './GitHubAuthentication/GithubAuthentication';
 import {Section} from './Section';
@@ -32,7 +32,7 @@ const AppGrid = styled.div`
 const AppTitle = styled.h1``;
 
 export const App: FunctionComponent = () => {
-    const {loggedIn, errors} = useStorage();
+    const {isLoggedIn, errors} = useStorage();
     const privacyMessage = `
         This extension stores all of your data in your browser's local storage, which
         can only be accessed by the extension itself. Nothing leaves your computer,
@@ -51,7 +51,7 @@ export const App: FunctionComponent = () => {
                     {e}
                 </Alert>
             ))}
-            {loggedIn ? <Settings /> : null}
+            {isLoggedIn ? <Settings /> : null}
             <GitHubAuthentication />
 
             <Section title="Privacy" isExpandable={true} isExpanded={false}>

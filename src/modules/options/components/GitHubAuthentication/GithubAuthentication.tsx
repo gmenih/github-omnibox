@@ -27,12 +27,12 @@ const OAuth: FC<OAuthProps> = ({onAuthTrigger}) => (
 
 export const GitHubAuthentication: FC = () => {
     const service = useFrontendService();
-    const {loggedIn} = useStorage();
+    const {isLoggedIn} = useStorage();
 
     return (
         <Section
             title={'\u{1F91F} GitHub Authentication'}
-            isExpanded={!loggedIn}
+            isExpanded={!isLoggedIn}
             isExpandable={true}>
             <TokenAuthorization />
             <hr />

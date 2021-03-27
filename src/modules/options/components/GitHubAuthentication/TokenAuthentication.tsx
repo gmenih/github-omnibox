@@ -1,8 +1,8 @@
 import React, {ChangeEvent, FormEvent, FunctionComponent, useState} from 'react';
 import styled from 'styled-components';
-import {EXTENSION_NAME} from '@core/core.consts';
+import {EXTENSION_NAME} from '@core/core.const';
 import {useFrontendService} from '../../storage/store.context';
-import {COLOR_GRAY, SPACER_SMALL} from '../../style.constants';
+import {COLOR_GRAY, SPACER_SMALL} from '../../style.const';
 import {CenteredContent} from '../Section';
 import {Alert} from './Alert';
 import {Button, ButtonType} from './Button';

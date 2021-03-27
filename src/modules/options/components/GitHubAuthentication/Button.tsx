@@ -1,6 +1,6 @@
 import styled, {css, FlattenSimpleInterpolation} from 'styled-components';
 import React, {ButtonHTMLAttributes, FunctionComponent} from 'react';
-import {SPACER, SPACER_BIG, SPACER_SMALL} from '../../style.constants';
+import {SPACER, SPACER_BIG, SPACER_SMALL} from '../../style.const';
 
 export enum ButtonType {
     primary,

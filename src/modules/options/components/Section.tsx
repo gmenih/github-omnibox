@@ -1,6 +1,6 @@
 import React, {ReactNode, useState} from 'react';
 import styled from 'styled-components';
-import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../style.constants';
+import {COLOR_GRAY, SPACER, SPACER_SMALL} from '../style.const';
 
 const SectionContainer = styled.section`
     border-radius: 3px;

@@ -47,7 +47,7 @@ export class StorageService {
     saveLoginData(username: string, displayName: string, organizations: string[]) {
         this.updateStorage({
             displayName: displayName,
-            loggedIn: true,
+            isLoggedIn: true,
             organizations: organizations || [],
             username: username,
         });
