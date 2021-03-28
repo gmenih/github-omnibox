@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "prettier": "prettier --write ./src/**/*.{ts,tsx}",
     "lint": "eslint ./src/**/*.{ts,tsx} --fix",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "semver": "semver"
   },
   "devDependencies": {
     "@types/chrome": "0.0.133",
