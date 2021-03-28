@@ -83,6 +83,14 @@ export class StorageService {
         }
     }
 
+    async resetStorage() {
+        const resetObj = Object.fromEntries(
+            Object.entries(this.browserStorage.store ?? {}).map(([key]) => [key, null]),
+        );
+
+        return this.updateStorage(resetObj);
+    }
+
     /** Moves repo to the top so it will appear on the top of */
     increaseRepositoryFrequency(repoUrl: string) {
         this.logster.info(`Increasing repo frequency for "${repoUrl}"`);
