@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import 'bulma/bulma.sass';
+import './style.scss';
 
 import React from 'react';
 import ReactDOM from 'react-dom';

@@ -68,6 +68,10 @@ const config = {
                 loader: 'handlebars-loader',
             },
             {
+                test: /\.(sass|scss)$/,
+                use: ['style-loader', 'css-loader', 'sass-loader'],
+            },
+            {
                 test: /\.(png|jpg|jpeg)$/,
                 loader: 'file-loader',
                 options: {
@@ -78,6 +82,11 @@ const config = {
     },
     optimization: isProduction()
         ? {
+              removeEmptyChunks: true,
+              usedExports: true,
+              minimize: true,
+              mergeDuplicateChunks: true,
+              nodeEnv: 'production',
               splitChunks: {
                   cacheGroups: {
                       core: {
@@ -86,7 +95,7 @@ const config = {
                           chunks: 'all',
                       },
                       react: {
-                          test: /[\\/]node_modules[\\/](react|react-dom|styled-components)[\\/]/,
+                          test: /[\\/]node_modules[\\/](react|react-dom|bulma)[\\/]/,
                           name: 'react',
                           chunks: 'all',
                           priority: 20,

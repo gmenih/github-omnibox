@@ -1,0 +1,18 @@
+@import "bulma/bulma.sass";
+
+.box-heading {
+    @extend .panel-heading;
+
+    margin: -$box-padding;
+
+    & + * {
+        margin-top: $box-padding * 2;
+    }
+}
+
+.box.is-primary {
+    .box-heading {
+        @extend .has-background-primary;
+        @extend .has-text-white;
+    }
+}

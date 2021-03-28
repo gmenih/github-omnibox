@@ -27,14 +27,18 @@ export const Settings: FunctionComponent = () => {
         <Section
             title={`\u{1F44B} Hello, ${storage.displayName}!`}
             controls={<span>log out</span>}
-            type={'big'}>
+            type="primary">
             <div className="orgs">
-                <p>
+                <div className="block">
                     We found <strong>{storage.repositories.length}</strong> repositories to search
                     for.
-                </p>
-                <h4>Your organizations</h4>
-                <ul>{organizations}</ul>
+                </div>
+                <div className="block">
+                    <h4 className="is-size-5">Your organizations</h4>
+                </div>
+                <div className="block">
+                    <ul>{organizations}</ul>
+                </div>
             </div>
         </Section>
     );
