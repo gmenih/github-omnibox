@@ -9,6 +9,9 @@ const pkg = require('./package.json');
 const sharp = require('sharp');
 const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const PurgeCSSPlugin = require('purgecss-webpack-plugin');
+const glob = require('glob');
 
 const MODULES_DIR = path.resolve(__dirname, './src/modules');
 const iconSizes = [16, 32, 64];
@@ -41,7 +44,7 @@ const isProduction = () => process.env.NODE_ENV === 'production';
 const config = {
     mode: isProduction() ? 'production' : 'development',
     // only thing that works in a web extension
-    devtool: isProduction() ? undefined : 'cheap-source-map',
+    devtool: isProduction() ? false : 'cheap-source-map',
     entry: {
         background: path.join(__dirname, './src/modules/background/index.ts'),
         options: path.join(__dirname, './src/modules/options/index.tsx'),
@@ -69,7 +72,8 @@ const config = {
             },
             {
                 test: /\.(sass|scss)$/,
-                use: ['style-loader', 'css-loader', 'sass-loader'],
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+                sideEffects: true,
             },
             {
                 test: /\.(png|jpg|jpeg)$/,
@@ -82,35 +86,20 @@ const config = {
     },
     optimization: isProduction()
         ? {
-              removeEmptyChunks: true,
-              usedExports: true,
               minimize: true,
-              mergeDuplicateChunks: true,
-              nodeEnv: 'production',
-              splitChunks: {
-                  cacheGroups: {
-                      core: {
-                          name: 'core',
-                          test: /[\\/]src[\\/]core[\\/]/,
-                          chunks: 'all',
-                      },
-                      react: {
-                          test: /[\\/]node_modules[\\/](react|react-dom|bulma)[\\/]/,
-                          name: 'react',
-                          chunks: 'all',
-                          priority: 20,
-                      },
-                      vendor: {
-                          name: 'vendor',
-                          test: /[\\/]node_modules[\\/]/,
-                          chunks: 'all',
-                          priority: 10,
-                      },
-                  },
-              },
+              mangleExports: true,
           }
         : {},
     plugins: [
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+        }),
+        new PurgeCSSPlugin({
+            paths: glob.sync(`./src/**/*`, {nodir: true}),
+            safelist: {
+                greedy: [/box-heading/, /is-(primary|danger|info)/],
+            },
+        }),
         new CleanWebpackPlugin(),
         new WebpackBar(),
         new DotEnvPlugin({path: './src/.env'}),

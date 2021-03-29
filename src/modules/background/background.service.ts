@@ -25,7 +25,6 @@ export class BackgroundService {
 
         this.storage.onKeysChanged('token').subscribe(async ({token}) => {
             if (token) {
-                await this.storage.resetStorage();
                 try {
                     const userData = await this.githubClient.fetchUserData(PAGE_SIZE);
                     const organizations = await this.githubClient.fetchUserOrganizations(PAGE_SIZE);
