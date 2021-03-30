@@ -5,14 +5,22 @@ import {StorageService} from '@core/storage';
 import debounce from 'lodash/debounce';
 import {injectable, registry} from 'tsyringe';
 import {SearchTermBuilder, searchTermFactory} from '../search-term/search-term.builder';
-import {atCommand, globalCommand} from './search-term.commands';
+import {
+    searchForPullRequestsCommand,
+    searchGloballyCommand,
+    searchInUserScopeCommand,
+} from './search-term.commands';
 import {SuggestionService} from './suggestion.service';
 import {QuickSuggestor} from './suggestor/quick.suggestor';
 
 @registry([
     {
         token: SearchTermBuilder,
-        useFactory: searchTermFactory(atCommand, globalCommand),
+        useFactory: searchTermFactory(
+            searchForPullRequestsCommand,
+            searchInUserScopeCommand,
+            searchGloballyCommand,
+        ),
     },
 ])
 @injectable()

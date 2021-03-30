@@ -3,7 +3,7 @@ import {ResultType, SearchCommand, SearchTermType} from '../search-term/types/se
 /**
  * @<username> searcher for a username
  */
-export const atCommand: SearchCommand = {
+export const searchInUserScopeCommand: SearchCommand = {
     type: SearchTermType.API,
     pattern: /@(?<scope>[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38})/i,
     handler: (matches) => {
@@ -22,7 +22,7 @@ export const atCommand: SearchCommand = {
  * # searcher for PRs
  * Currently unused.. need to figure out how to solve the involve
  */
-export const prCommand: SearchCommand = {
+export const searchForPullRequestsCommand: SearchCommand = {
     pattern: /#/,
     type: SearchTermType.API,
     resultType: ResultType.PullRequest,
@@ -34,7 +34,7 @@ export const prCommand: SearchCommand = {
 /**
  * ! searches globally
  */
-export const globalCommand: SearchCommand = {
+export const searchGloballyCommand: SearchCommand = {
     type: SearchTermType.API,
     pattern: /!/,
     // only set the type to API, so we don't search in cache

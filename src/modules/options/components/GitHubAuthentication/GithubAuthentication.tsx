@@ -37,6 +37,7 @@ export const GitHubAuthentication: FC = () => {
             isExpandable={true}>
             <TokenAuthorization />
             <hr />
+            {JSON.stringify(isLoggedIn)}
             <OAuth onAuthTrigger={() => service.createOAuthTab()} />
         </Section>
     );

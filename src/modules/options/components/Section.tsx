@@ -1,10 +1,10 @@
-import React, {ReactNode, useState} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 
 export interface SectionProps {
     title: string;
     children: ReactNode;
     controls?: ReactNode;
-    type?: 'primary';
+    type?: 'info';
     isExpandable?: boolean;
     isExpanded?: boolean;
 }
@@ -16,6 +16,10 @@ export function Section({title, children, controls, type, isExpanded, isExpandab
             setExpanded(!expanded);
         }
     };
+
+    useEffect(() => {
+        setExpanded(isExpanded !== false);
+    }, [isExpanded]);
 
     return (
         <div className={`box${type ? ` is-${type}` : ''}`}>

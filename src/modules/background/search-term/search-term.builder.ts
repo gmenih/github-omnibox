@@ -23,12 +23,13 @@ export class SearchTermBuilder {
     async buildSearchTerm(_input: string): Promise<SearchTerm> {
         let input = _input;
         let type = SearchTermType.Internal;
+        // lets search for repositories by default
         let resultType: ResultType = ResultType.Repository;
         const storage = await this.storageService.getStorage();
         const terms: string[] = [];
 
         for (const command of this.commands) {
-            const matches = command.pattern.exec(input);
+            const matches = command.pattern.exec(command.termMatch === 'full' ? _input : input);
             if (matches) {
                 const response = command.handler(matches);
                 if (response) {

@@ -10,9 +10,13 @@
     }
 }
 
-.box.is-primary {
+.box.is-info {
     .box-heading {
-        @extend .has-background-primary;
+        @extend .has-background-info;
         @extend .has-text-white;
     }
+}
+
+.ml-auto {
+    margin-left: auto;
 }
