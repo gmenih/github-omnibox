@@ -25,22 +25,30 @@ export class BackgroundService {
 
         this.storage.onKeysChanged('token').subscribe(async ({token}) => {
             if (token) {
-                const userData = await this.githubClient.fetchUserData(PAGE_SIZE);
-                const organizations = await this.githubClient.fetchUserOrganizations(PAGE_SIZE);
-                this.storage.saveLoginData(
-                    userData.username,
-                    userData.displayName,
-                    organizations.map((o) => o.name),
-                );
-
-                this.storage.addRepositories(userData.repositories);
-
-                for (const org of organizations) {
-                    const repos = await this.githubClient.fetchOrganizationRepositories(
-                        org,
-                        PAGE_SIZE,
+                try {
+                    const userData = await this.githubClient.fetchUserData(PAGE_SIZE);
+                    const organizations = await this.githubClient.fetchUserOrganizations(PAGE_SIZE);
+                    this.storage.saveLoginData(
+                        userData.username,
+                        userData.displayName,
+                        organizations.map((o) => o.name),
                     );
-                    this.storage.addRepositories(repos);
+                    this.storage.clearErrors();
+
+                    this.storage.addRepositories(userData.repositories);
+
+                    for (const org of organizations) {
+                        const repos = await this.githubClient.fetchOrganizationRepositories(
+                            org,
+                            PAGE_SIZE,
+                        );
+                        this.storage.addRepositories(repos);
+                    }
+                } catch (err) {
+                    this.log.error('Failed to validate token:', err);
+                    this.storage.setErrors([
+                        'Failed to fetch user data! Please make sure you are authenticated correctly!',
+                    ]);
                 }
             }
         });

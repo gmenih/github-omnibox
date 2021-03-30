@@ -47,7 +47,7 @@ export class StorageService {
     saveLoginData(username: string, displayName: string, organizations: string[]) {
         this.updateStorage({
             displayName: displayName,
-            loggedIn: true,
+            isLoggedIn: true,
             organizations: organizations || [],
             username: username,
         });
@@ -66,6 +66,14 @@ export class StorageService {
         });
     }
 
+    setErrors(errors: string[]) {
+        this.updateStorage({errors});
+    }
+
+    clearErrors() {
+        this.updateStorage({errors: []});
+    }
+
     async addRepositories(repositories: GithubRepository[]) {
         const existingRepositories = (await this.getStorage()).repositories ?? [];
         const filteredUrls = existingRepositories.map((repo) => repo.url);
@@ -73,6 +81,14 @@ export class StorageService {
         if (repositoriesToAdd.length > 0) {
             this.saveRepositories([...existingRepositories, ...repositoriesToAdd]);
         }
+    }
+
+    async resetStorage() {
+        const resetObj = Object.fromEntries(
+            Object.entries(this.browserStorage.store ?? {}).map(([key]) => [key, null]),
+        );
+
+        return this.updateStorage(resetObj);
     }
 
     /** Moves repo to the top so it will appear on the top of */

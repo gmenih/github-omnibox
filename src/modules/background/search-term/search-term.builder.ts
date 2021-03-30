@@ -1,5 +1,5 @@
-import {container} from 'tsyringe';
 import {StorageService} from '@core/storage';
+import {container} from 'tsyringe';
 import {ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
 
 export function searchTermFactory(...commands: SearchCommand[]) {
@@ -14,19 +14,22 @@ const BASE_COMMAND: SearchCommand = {
 };
 
 export class SearchTermBuilder {
-    constructor(
-        private readonly commands: SearchCommand[],
-        private readonly storageService: StorageService,
-    ) {}
+    private readonly commands: SearchCommand[];
+
+    constructor(commands: SearchCommand[], private readonly storageService: StorageService) {
+        this.commands = commands.concat(BASE_COMMAND);
+    }
 
     async buildSearchTerm(_input: string): Promise<SearchTerm> {
         let input = _input;
         let type = SearchTermType.Internal;
+        // lets search for repositories by default
         let resultType: ResultType = ResultType.Repository;
+        const storage = await this.storageService.getStorage();
         const terms: string[] = [];
 
-        for (const command of [...this.commands, BASE_COMMAND]) {
-            const matches = command.pattern.exec(input);
+        for (const command of this.commands) {
+            const matches = command.pattern.exec(command.termMatch === 'full' ? _input : input);
             if (matches) {
                 const response = command.handler(matches);
                 if (response) {
@@ -40,7 +43,7 @@ export class SearchTermBuilder {
         }
 
         const finalTerm = this.replaceVariables(terms.join(' '), {
-            USER: (await this.storageService.getStorage()).username,
+            USER: storage.username,
         });
 
         return {

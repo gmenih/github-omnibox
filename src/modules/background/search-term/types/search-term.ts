@@ -6,8 +6,11 @@ export interface HandlerResult {
 export type HandlerFn = (matches: RegExpExecArray) => HandlerResult | undefined;
 
 export enum SearchTermType {
+    // This is when we want to search for internal functions, like help (mostly unsued)
     Internal,
+    // For searching in our FuseJS "cache"
     Quick,
+    // For actually making API calls to GitHub
     API,
 }
 
@@ -35,19 +38,20 @@ export interface SearchCommand {
      * Currently only 'USER' is supported.
      */
     handler: HandlerFn;
+
     /**
      * Pattern that will be matched against the input, to check if this command
      * should be handled. The matching array will be passed to the handler function.
      */
     pattern: RegExp;
     /**
-     * Where the rults of this command will be
+     * What the results of this command will be
      */
     type: SearchTermType;
     /**
-     * If 'Full', it will match the pattern again the full input. Otherwise, it
-     * only matches it against the "current" input, after being parsed by
-     * previous commands.
+     * If 'full', it will match the pattern again the full input. Otherwise, it
+     * only matches it against the remainder of the input, as any part that has
+     * already been parsed will be removed from matching
      */
     termMatch?: 'full';
 }

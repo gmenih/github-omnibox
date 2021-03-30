@@ -27,17 +27,3 @@ export class Logster {
 }
 
 container.register(Storage, Storage);
-
-// export function logsterRegistry(registrations?: Parameters<typeof registry>[0]): ClassDecorator {
-//     return (target) => {
-//         registry([
-//             {
-//                 token: Logster,
-//                 useFactory: () => {
-//                     return new Logster(target.name);
-//                 },
-//             },
-//             ...(registrations ?? []),
-//         ])(target);
-//     };
-// }

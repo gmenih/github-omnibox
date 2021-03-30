@@ -1,0 +1,22 @@
+@import "bulma/bulma.sass";
+
+.box-heading {
+    @extend .panel-heading;
+
+    margin: -$box-padding;
+
+    & + * {
+        margin-top: $box-padding * 2;
+    }
+}
+
+.box.is-info {
+    .box-heading {
+        @extend .has-background-info;
+        @extend .has-text-white;
+    }
+}
+
+.ml-auto {
+    margin-left: auto;
+}

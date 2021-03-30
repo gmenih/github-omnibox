@@ -20,7 +20,12 @@ export class FrontendService {
         this.tabsService.createTab(url);
     }
 
-    setTokenValue(token: string) {
-        this.storageService.saveToken(token);
+    async logOut() {
+        await this.storageService.resetStorage();
+    }
+
+    async setTokenValue(token: string) {
+        await this.storageService.resetStorage();
+        await this.storageService.saveToken(token);
     }
 }

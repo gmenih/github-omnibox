@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const {join} = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const DotEnvPlugin = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
 const path = require('path');
 const pkg = require('./package.json');
-const {join} = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const sharp = require('sharp');
+const webpack = require('webpack');
 const WebpackBar = require('webpackbar');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const PurgeCSSPlugin = require('purgecss-webpack-plugin');
+const glob = require('glob');
 
 const MODULES_DIR = path.resolve(__dirname, './src/modules');
+const iconSizes = [16, 32, 64];
 
 /**
  * @param {string} moduleName
@@ -19,7 +25,10 @@ function moduleTsRule(moduleName) {
         {
             test: /\.tsx?$/,
             loader: 'ts-loader',
-            include: [path.resolve(MODULES_DIR, `./${moduleName}`), path.resolve(__dirname, './src/core')],
+            include: [
+                path.resolve(MODULES_DIR, `./${moduleName}`),
+                path.resolve(__dirname, './src/core'),
+            ],
             options: {
                 instance: moduleName,
                 configFile: path.resolve(MODULES_DIR, `./${moduleName}/tsconfig.json`),
@@ -35,7 +44,7 @@ const isProduction = () => process.env.NODE_ENV === 'production';
 const config = {
     mode: isProduction() ? 'production' : 'development',
     // only thing that works in a web extension
-    devtool: !isProduction() ? 'cheap-source-map' : undefined,
+    devtool: isProduction() ? false : 'cheap-source-map',
     entry: {
         background: path.join(__dirname, './src/modules/background/index.ts'),
         options: path.join(__dirname, './src/modules/options/index.tsx'),
@@ -62,8 +71,9 @@ const config = {
                 loader: 'handlebars-loader',
             },
             {
-                test: /\.gql$/,
-                loader: 'raw-loader',
+                test: /\.(sass|scss)$/,
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+                sideEffects: true,
             },
             {
                 test: /\.(png|jpg|jpeg)$/,
@@ -76,30 +86,20 @@ const config = {
     },
     optimization: isProduction()
         ? {
-              splitChunks: {
-                  cacheGroups: {
-                      core: {
-                          name: 'core',
-                          test: /[\\/]src[\\/]core[\\/]/,
-                          chunks: 'all',
-                      },
-                      react: {
-                          test: /[\\/]node_modules[\\/](react|react-dom|styled-components)[\\/]/,
-                          name: 'react',
-                          chunks: 'all',
-                          priority: 20,
-                      },
-                      vendor: {
-                          name: 'vendor',
-                          test: /[\\/]node_modules[\\/]/,
-                          chunks: 'all',
-                          priority: 10,
-                      },
-                  },
-              },
+              minimize: true,
+              mangleExports: true,
           }
         : {},
     plugins: [
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+        }),
+        new PurgeCSSPlugin({
+            paths: glob.sync(`./src/**/*`, {nodir: true}),
+            safelist: {
+                greedy: [/box-heading/, /is-(primary|danger|info)/],
+            },
+        }),
         new CleanWebpackPlugin(),
         new WebpackBar(),
         new DotEnvPlugin({path: './src/.env'}),
@@ -116,6 +116,15 @@ const config = {
             inject: false,
             minify: false,
             pkg,
+        }),
+        new CopyWebpackPlugin({
+            patterns: iconSizes.map((size) => ({
+                from: 'src/assets/repo-icon.png',
+                to: `assets/icon-${size}.png`,
+                transform: (content) => {
+                    return sharp(content).resize(size, size).png().toBuffer();
+                },
+            })),
         }),
     ],
 };
