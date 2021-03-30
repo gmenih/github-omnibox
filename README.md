@@ -12,6 +12,7 @@ A browser extension that allows you to search GitHub repositories in your browse
 
 ## Preview
 
+
 > Search your local, or global repositories
 
 ![Firefox search bar][FirefoxSearchBar]
