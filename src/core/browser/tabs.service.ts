@@ -33,8 +33,8 @@ export class TabsService {
             throw new Error('Could not redirect tab');
         }
 
-        await this.removeTab(tab.id);
         await this.createTab(url);
+        await this.removeTab(tab.id);
     }
 
     removeTab(tabId: number): Promise<void> {

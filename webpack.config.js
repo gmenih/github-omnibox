@@ -48,7 +48,6 @@ const config = {
     entry: {
         background: path.join(__dirname, './src/modules/background/index.ts'),
         options: path.join(__dirname, './src/modules/options/index.tsx'),
-        'content-script': path.join(__dirname, './src/modules/content-script/index.ts'),
     },
     output: {
         path: join(__dirname, './dist'),
@@ -64,7 +63,6 @@ const config = {
     module: {
         rules: [
             ...moduleTsRule('background'),
-            ...moduleTsRule('content-script'),
             ...moduleTsRule('options'),
             {
                 test: /\.hbs$/,

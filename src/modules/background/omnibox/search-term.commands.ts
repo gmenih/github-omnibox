@@ -1,7 +1,8 @@
 import {ResultType, SearchCommand, SearchTermType} from '../search-term/types/search-term';
 
 /**
- * @<username> searcher for a username
+ * Allows scoping search by user when entering `@<username>`.
+ * E.g.: `@gmenih341` will only show repositories from user `gmenih341`
  */
 export const searchInUserScopeCommand: SearchCommand = {
     type: SearchTermType.API,
@@ -19,8 +20,9 @@ export const searchInUserScopeCommand: SearchCommand = {
 };
 
 /**
- * # searcher for PRs
- * Currently unused.. need to figure out how to solve the involve
+ * Allows searching for pull requests. Currently unused due to `involves` issue.
+ * TODO: Fix involves issue so it works well with other commands.
+ * Also figure out targeting closed PRs?
  */
 export const searchForPullRequestsCommand: SearchCommand = {
     pattern: /#/,
@@ -32,7 +34,7 @@ export const searchForPullRequestsCommand: SearchCommand = {
 };
 
 /**
- * ! searches globally
+ * Allows searching globally by adding `!` into your search command
  */
 export const searchGloballyCommand: SearchCommand = {
     type: SearchTermType.API,

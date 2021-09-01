@@ -15,7 +15,7 @@ export const TokenAuthorization: FunctionComponent = () => {
 
     const infoMessage = `
         This is the recommended method. It ensures that ${EXTENSION_NAME} can find all repositories you have
-        access to. OAuth is easier, but you will need to ask for explicit permissions from each organization
+        access to. OAuth is quicker, but you will need to ask for explicit permissions from each organization
         you belong to, to allow this extension from accessing it's repositories via OAuth.
     `;
 

@@ -7,8 +7,8 @@ import {SearchTerm} from '../../search-term/types/search-term';
 
 @injectable()
 @singleton()
-export class QuickSuggestor {
-    private readonly log: Logster = new Logster('QuickSuggestor');
+export class QuickSuggester {
+    private readonly log: Logster = new Logster('QuickSuggester');
 
     private readonly fuse: Fuse<GithubRepository> = new Fuse([], {
         keys: [

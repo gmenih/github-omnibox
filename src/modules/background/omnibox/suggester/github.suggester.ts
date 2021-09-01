@@ -7,8 +7,8 @@ import {ResultType, SearchTerm} from '../../search-term/types/search-term';
 
 @injectable()
 @singleton()
-export class GithubSuggestor {
-    private readonly log = new Logster('GithubSuggestor');
+export class GithubSuggester {
+    private readonly log = new Logster('GithubSuggester');
 
     constructor(private readonly githubClient: GitHubClient) {}
 

@@ -11,7 +11,7 @@ import {
     searchInUserScopeCommand,
 } from './search-term.commands';
 import {SuggestionService} from './suggestion.service';
-import {QuickSuggestor} from './suggestor/quick.suggestor';
+import {QuickSuggester} from './suggester/quick.suggester';
 
 @registry([
     {
@@ -33,16 +33,16 @@ export class OmniboxService {
         private readonly tabsService: TabsService,
         private readonly searchTermBuilder: SearchTermBuilder,
         private readonly suggestionService: SuggestionService,
-        private readonly quickSuggestor: QuickSuggestor,
+        private readonly quickSuggester: QuickSuggester,
     ) {}
 
     async registerHandlers() {
         const repositories = (await this.storage.getStorage()).repositories ?? [];
-        this.log.info('listening', repositories);
-        this.quickSuggestor.setCollection(repositories);
+
+        this.quickSuggester.setCollection(repositories);
         this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
-            this.log.debug('Setting repositories');
-            this.quickSuggestor.setCollection(repositories ?? []);
+            this.log.debug('Updating repositories');
+            this.quickSuggester.setCollection(repositories ?? []);
         });
 
         const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
@@ -77,6 +77,7 @@ export class OmniboxService {
     }
 
     private urlModifier(disposition: chrome.omnibox.OnInputEnteredDisposition): string {
+        // TODO: allow configuring this
         switch (disposition) {
             case 'newBackgroundTab':
                 return '/pulls';

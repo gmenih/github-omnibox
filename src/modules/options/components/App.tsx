@@ -18,7 +18,7 @@ export const App: FunctionComponent = () => {
         <div className="container">
             <div className="section">
                 <h1 className="title">{EXTENSION_NAME}</h1>
-                <div className="subtitle">Your GitHub repositories at your fingertips.</div>
+                <div className="subtitle">GitHub repositories at your fingertips.</div>
                 {errors?.map((e) => (
                     <Alert key={e} type="danger">
                         {e}

@@ -15,9 +15,9 @@ const OAuth: FC<OAuthProps> = ({onAuthTrigger}) => (
             <p>Simply authenticate with your GitHub account and start using the extension.</p>
         </div>
         <Alert type="warning">
-            Your organization owners might have restricted access to third party apps (e.g. this
-            extension). Repositories from such organizations will now show up in search results if
-            you use this authorization method.
+            Your organization owners will need to grant access to this extension, otherwise
+            repositories owned by the organization will not show up in this extension. It is usually
+            easier to use Personal Access Token authentication above, as it has no such limits.
         </Alert>
         <br />
         <button className="button is-primary is-large is-light" onClick={onAuthTrigger}>
@@ -37,7 +37,6 @@ export const GitHubAuthentication: FC = () => {
             isExpandable={true}>
             <TokenAuthorization />
             <hr />
-            {JSON.stringify(isLoggedIn)}
             <OAuth onAuthTrigger={() => service.createOAuthTab()} />
         </Section>
     );
