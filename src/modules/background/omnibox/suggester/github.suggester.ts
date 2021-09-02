@@ -12,7 +12,7 @@ export class GithubSuggester {
 
     constructor(private readonly githubClient: GitHubClient) {}
 
-    public suggest = debounce(
+    suggest = debounce(
         async (searchTerm: SearchTerm): Promise<SuggestResult[]> => {
             this.suggest.cancel();
             this.log.info('Searching', searchTerm.term, searchTerm);

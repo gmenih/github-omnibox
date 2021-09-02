@@ -1,5 +1,4 @@
 import {SuggestResult} from '@core/browser';
-import {Logster} from '@core/logster';
 import {injectable} from 'tsyringe';
 import {SearchTerm, SearchTermType} from '../search-term/types/search-term';
 import {GithubSuggester} from './suggester/github.suggester';

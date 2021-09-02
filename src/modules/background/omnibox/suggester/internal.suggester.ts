@@ -11,7 +11,7 @@ function makeSuggestion(description: string, content = ''): SuggestResult {
 
 @injectable()
 export class InternalSuggester {
-    public suggest(searchTerm: SearchTerm): SuggestResult[] {
+    suggest(searchTerm: SearchTerm): SuggestResult[] {
         switch (searchTerm.term) {
             case 'help':
                 return [

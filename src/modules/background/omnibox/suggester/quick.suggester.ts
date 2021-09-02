@@ -24,7 +24,7 @@ export class QuickSuggester {
         this.fuse.setCollection(repositories);
     }
 
-    public async suggest(searchTerm: SearchTerm): Promise<SuggestResult[]> {
+    async suggest(searchTerm: SearchTerm): Promise<SuggestResult[]> {
         this.log.info('Quick searching', searchTerm);
         const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
         this.log.info('Results', fuseResults);
