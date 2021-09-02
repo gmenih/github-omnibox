@@ -31,6 +31,8 @@ export class BackgroundService {
             if (token) {
                 await this.fetchAndStoreUserData();
                 this.alarms.createPeriodicAlarm(ALARM_NAME, ALARM_PERIOD);
+            } else {
+                this.alarms.clearAll();
             }
         });
 

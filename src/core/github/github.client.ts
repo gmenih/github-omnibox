@@ -2,13 +2,14 @@ import {GraphQLClient} from 'graphql-request';
 import {injectable, singleton} from 'tsyringe';
 import {Logster} from '../logster/logster.service';
 import {StorageService} from '../storage/storage.service';
+import {toQueryString} from '../utils/url.utils';
 import {
     CLIENT_ID,
     CLIENT_SECRET,
     DEFAULT_FIRST_RESULTS,
-    GITHUB_SCOPES,
     GITHUB_BASE_URL,
     GITHUB_OAUTH_URL,
+    GITHUB_SCOPES,
     GITHUB_TOKEN_URL,
 } from './github.const';
 import {AuthorizationTokenResponse, GitHubOrganizationData, GithubUserData} from './types/auth';
@@ -22,7 +23,6 @@ import {
     RepositoryNode,
     SearchRepositoriesResponse,
 } from './types/repository';
-import {toQueryString} from '../utils/url.utils';
 
 @injectable()
 @singleton()
@@ -87,7 +87,7 @@ export class GitHubClient {
             try {
                 const response: GitHubUserDataResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query($pageSize: Int!, $repoCur: String) {
+                        query ($pageSize: Int!, $repoCur: String) {
                             viewer {
                                 username: login
                                 name
@@ -141,7 +141,7 @@ export class GitHubClient {
             try {
                 const response: GitHubUserOrgsResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query($pageSize: Int!, $orgCursor: String) {
+                        query ($pageSize: Int!, $orgCursor: String) {
                             viewer {
                                 organizations(after: $orgCursor, first: $pageSize) {
                                     nodes {
@@ -184,7 +184,7 @@ export class GitHubClient {
             try {
                 const response: GitHubOrgRepositoriesResponse = await this.gqlClient.request(
                     /* GraphQL */ `
-                        query($orgName: String!, $pageSize: Int!, $repoCur: String) {
+                        query ($orgName: String!, $pageSize: Int!, $repoCur: String) {
                             viewer {
                                 organization(login: $orgName) {
                                     repositories(after: $repoCur, first: $pageSize) {
@@ -261,15 +261,13 @@ export class GitHubClient {
                     searchTerm,
                 },
             );
-            return response.search.edges.map(
-                (edge): GithubRepository => {
-                    return {
-                        name: edge.node.name,
-                        owner: edge.node.owner.login,
-                        url: edge.node.url,
-                    };
-                },
-            );
+            return response.search.edges.map((edge): GithubRepository => {
+                return {
+                    name: edge.node.name,
+                    owner: edge.node.owner.login,
+                    url: edge.node.url,
+                };
+            });
         } catch (err) {
             throw new Error('Failed to search repositories!');
         }
@@ -286,7 +284,7 @@ export class GitHubClient {
         try {
             const response: PullRequestSearchResponse = await this.gqlClient.request(
                 /* GraphQL */ `
-                    query($searchTerm: String!, $pageSize: Int!) {
+                    query ($searchTerm: String!, $pageSize: Int!) {
                         search(query: $searchTerm, first: $pageSize, type: ISSUE) {
                             edges {
                                 node {
@@ -311,17 +309,15 @@ export class GitHubClient {
                     searchTerm,
                 },
             );
-            return response.search.edges.map(
-                (edge): GitHubPullRequest => {
-                    return {
-                        author: edge.node.author.login,
-                        title: edge.node.title,
-                        number: +edge.node.number,
-                        repository: edge.node.repository.nameWithOwner,
-                        url: edge.node.url,
-                    };
-                },
-            );
+            return response.search.edges.map((edge): GitHubPullRequest => {
+                return {
+                    author: edge.node.author.login,
+                    title: edge.node.title,
+                    number: +edge.node.number,
+                    repository: edge.node.repository.nameWithOwner,
+                    url: edge.node.url,
+                };
+            });
         } catch (err) {
             throw new Error('Failed to search repositories!');
         }

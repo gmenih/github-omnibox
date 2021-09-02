@@ -23,4 +23,8 @@ export class AlarmsService {
             this.browser.alarms.onAlarm.addListener(alarmHandler);
         });
     }
+
+    clearAll() {
+        this.browser.alarms.clearAll();
+    }
 }
