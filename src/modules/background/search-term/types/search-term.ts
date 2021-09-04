@@ -4,6 +4,7 @@ export interface HandlerResult {
 }
 
 export type HandlerFn = (matches: RegExpExecArray) => HandlerResult | undefined;
+export type PostHandlersFn = (terms: string[]) => string[];
 
 export enum SearchTermType {
     // This is when we want to search for internal functions, like help (mostly unsued)
@@ -40,6 +41,13 @@ export interface SearchCommand {
     handler: HandlerFn;
 
     /**
+     * After all handlers have been execute, we can optionally run this function,
+     * to fix terms if necessary. E.g.: for searching pull requests, we need this
+     * to be able to add `involves` when there are no other search terms.
+     */
+    postHandlers?: PostHandlersFn;
+
+    /**
      * Pattern that will be matched against the input, to check if this command
      * should be handled. The matching array will be passed to the handler function.
      */
@@ -47,11 +55,11 @@ export interface SearchCommand {
     /**
      * What the results of this command will be
      */
-    type: SearchTermType;
+    searchType: SearchTermType;
     /**
-     * If 'full', it will match the pattern again the full input. Otherwise, it
-     * only matches it against the remainder of the input, as any part that has
-     * already been parsed will be removed from matching
+     * If 'full', it will match the pattern against the full input. Otherwise, it
+     * only matches it against whatever is left in the input - anything that has already
+     * been parsed will be removed from matching
      */
-    termMatch?: 'full';
+    matchFull?: boolean;
 }

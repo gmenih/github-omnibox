@@ -1,64 +1,51 @@
-import {StorageService} from '@core/storage';
-import {container} from 'tsyringe';
+import {injectable, injectAll, registry} from 'tsyringe';
+import {Logster} from '../../../core/logster';
+import {BaseCommand} from './commands/base.command';
+import {GlobalSearchCommand} from './commands/global.command';
+import {PullRequestCommand} from './commands/pull-request.command';
+import {UserScopeCommand} from './commands/user-scope.command';
 import {ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
 
-export function searchTermFactory(...commands: SearchCommand[]) {
-    return (): SearchTermBuilder =>
-        new SearchTermBuilder(commands, container.resolve(StorageService));
-}
+const SEARCH_COMMAND = Symbol.for('tsy-search-command');
 
-const BASE_COMMAND: SearchCommand = {
-    pattern: /.+/,
-    type: SearchTermType.Quick,
-    handler: (m) => ({term: m[0]}),
-};
-
+@registry([
+    {token: SEARCH_COMMAND, useClass: GlobalSearchCommand},
+    {token: SEARCH_COMMAND, useClass: UserScopeCommand},
+    {token: SEARCH_COMMAND, useClass: PullRequestCommand},
+    // This one must always be last!
+    {token: SEARCH_COMMAND, useClass: BaseCommand},
+])
+@injectable()
 export class SearchTermBuilder {
-    private readonly commands: SearchCommand[];
+    constructor(@injectAll(SEARCH_COMMAND) private readonly commands: SearchCommand[]) {}
 
-    constructor(commands: SearchCommand[], private readonly storageService: StorageService) {
-        this.commands = commands.concat(BASE_COMMAND);
-    }
-
-    async buildSearchTerm(_input: string): Promise<SearchTerm> {
-        let input = _input;
-        let type = SearchTermType.Internal;
+    async buildSearchTerm(rawInput: string): Promise<SearchTerm> {
+        let processingInput = rawInput;
         // lets search for repositories by default
         let resultType: ResultType = ResultType.Repository;
-        const storage = await this.storageService.getStorage();
+        let searchType = SearchTermType.Internal;
+
         const terms: string[] = [];
 
         for (const command of this.commands) {
-            const matches = command.pattern.exec(command.termMatch === 'full' ? _input : input);
+            const matches = command.pattern.exec(command.matchFull ? rawInput : processingInput);
             if (matches) {
+                resultType = command.resultType ?? resultType;
+                searchType = command.searchType > searchType ? command.searchType : searchType;
+
                 const response = command.handler(matches);
                 if (response) {
                     response.term && terms.push(response.term);
-
-                    resultType = command.resultType ?? resultType;
-                    type = command.type > type ? command.type : type;
-                    input = input.replace(matches[0], '').trim();
                 }
+
+                processingInput = processingInput.replace(matches[0], '').trim();
             }
         }
 
-        const finalTerm = this.replaceVariables(terms.join(' '), {
-            USER: storage.username,
-        });
-
         return {
-            term: finalTerm,
+            term: terms.join(' '),
             resultType,
-            type,
+            type: searchType,
         };
-    }
-
-    private replaceVariables(term: string, replacements: Record<string, string>): string {
-        let val = term;
-        for (const [variable, replacement] of Object.entries(replacements)) {
-            val = val.replace(`!%%${variable.toUpperCase()}%%`, replacement);
-        }
-
-        return val;
     }
 }

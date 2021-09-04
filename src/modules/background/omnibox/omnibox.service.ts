@@ -3,26 +3,11 @@ import {TabsService} from '@core/browser/tabs.service';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
 import debounce from 'lodash/debounce';
-import {injectable, registry} from 'tsyringe';
-import {SearchTermBuilder, searchTermFactory} from '../search-term/search-term.builder';
-import {
-    searchForPullRequestsCommand,
-    searchGloballyCommand,
-    searchInUserScopeCommand,
-} from './search-term.commands';
-import {SuggestionService} from './suggestion.service';
+import {injectable} from 'tsyringe';
+import {SearchTermBuilder} from '../search-term/search-term.builder';
 import {QuickSuggester} from './suggester/quick.suggester';
+import {SuggestionService} from './suggestion.service';
 
-@registry([
-    {
-        token: SearchTermBuilder,
-        useFactory: searchTermFactory(
-            searchForPullRequestsCommand,
-            searchInUserScopeCommand,
-            searchGloballyCommand,
-        ),
-    },
-])
 @injectable()
 export class OmniboxService {
     private readonly log = new Logster('OmniboxService');
