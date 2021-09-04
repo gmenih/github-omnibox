@@ -69,7 +69,7 @@ export class GitHubClient {
             });
             const data: AuthorizationTokenResponse = await response.json();
             if (data && data.access_token) {
-                this.log.info('Authorization token received!');
+                this.log.debug('Authorization token received!');
                 return data.access_token;
             }
             this.log.error('Access token missing in response!');

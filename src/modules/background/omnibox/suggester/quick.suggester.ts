@@ -20,14 +20,13 @@ export class QuickSuggester {
     });
 
     setCollection(repositories: GithubRepository[]) {
-        this.log.info('Repositories change. Length:', repositories.length);
+        this.log.debug('Repositories change. Length:', repositories.length);
         this.fuse.setCollection(repositories);
     }
 
     async suggest(searchTerm: SearchTerm): Promise<SuggestResult[]> {
-        this.log.info('Quick searching', searchTerm);
+        this.log.debug('Quick searching');
         const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
-        this.log.info('Results', fuseResults);
 
         return fuseResults.map((fuseResult) => ({
             content: fuseResult.item.url,

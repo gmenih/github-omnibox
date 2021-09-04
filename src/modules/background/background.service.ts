@@ -24,7 +24,7 @@ export class BackgroundService {
     ) {}
 
     async bootstrap() {
-        this.log.info('Bootstrap!');
+        this.log.debug('Bootstrap!');
         this.omniboxService.registerHandlers();
 
         this.storage.onKeysChanged('token').subscribe(async ({token}) => {
@@ -38,24 +38,24 @@ export class BackgroundService {
 
         this.storage.onKeysChanged('optionsShown').subscribe(async ({optionsShown}) => {
             if (!optionsShown) {
-                this.log.info('Opening options page');
+                this.log.debug('Opening options page');
                 await this.runtime.openOptionsPage();
                 this.storage.setOptionsShownDate();
             }
         });
 
         this.runtime.onRuntimeMessage<AuthMessage>().subscribe(async ([message]) => {
-            this.log.info(`Got an auth message, attempting to authorize`);
+            this.log.debug(`Got an auth message, attempting to authorize`);
             const authToken = await this.githubClient.fetchAuthorizationToken(
                 message.code,
                 message.state,
             );
             this.storage.saveToken(authToken);
-            this.log.info(`Should be authorized`);
+            this.log.debug(`Should be authorized`);
         });
 
         this.alarms.onAlarmTriggered(ALARM_NAME).subscribe(async () => {
-            this.log.info('Re-fetching user data.');
+            this.log.debug('Re-fetching user data.');
             await this.fetchAndStoreUserData();
         });
     }

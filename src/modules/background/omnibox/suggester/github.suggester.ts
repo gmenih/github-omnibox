@@ -15,7 +15,7 @@ export class GithubSuggester {
     suggest = debounce(
         async (searchTerm: SearchTerm): Promise<SuggestResult[]> => {
             this.suggest.cancel();
-            this.log.info('Searching', searchTerm.term, searchTerm);
+            this.log.debug('Searching', searchTerm.term, searchTerm);
 
             switch (searchTerm.resultType) {
                 case ResultType.PullRequest:

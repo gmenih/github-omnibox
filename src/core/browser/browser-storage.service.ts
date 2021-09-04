@@ -18,7 +18,7 @@ export class BrowserStorageService<T> {
     }
 
     async updateStorage(updateObj: Partial<T>) {
-        this.logster.info('Updating browser storage', updateObj);
+        this.logster.debug('Updating browser storage');
 
         await this.setItem(updateObj);
     }

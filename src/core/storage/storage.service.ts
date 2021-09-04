@@ -24,22 +24,20 @@ export class StorageService {
     onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>>;
     onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>> {
         return this.browserStorage.onChange().pipe(
-            map(
-                (value: Partial<Storage>): Pick<Storage, TKey> => {
-                    if (keys.length === 0) {
-                        return value as Pick<Storage, TKey>;
-                    }
-                    const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [
-                        key,
-                        value[key],
-                    ]);
-                    const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>(
-                        Object.fromEntries<any>(entries)
-                    );
+            map((value: Partial<Storage>): Pick<Storage, TKey> => {
+                if (keys.length === 0) {
+                    return value as Pick<Storage, TKey>;
+                }
+                const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [
+                    key,
+                    value[key],
+                ]);
+                const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>(
+                    Object.fromEntries<any>(entries)
+                );
 
-                    return partialObject;
-                },
-            ),
+                return partialObject;
+            }),
             distinctUntilChanged((a, b) => deepEqual(a, b)),
         );
     }
@@ -93,11 +91,11 @@ export class StorageService {
 
     /** Moves repo to the top so it will appear on the top of */
     increaseRepositoryFrequency(repoUrl: string) {
-        this.logster.info(`Increasing repo frequency for "${repoUrl}"`);
+        this.logster.debug(`Increasing repo frequency for "${repoUrl}"`);
         const repositories = this.browserStorage.store?.repositories ?? [];
         const targetRepo = repositories.find((r) => r.url === repoUrl);
         if (!targetRepo) {
-            this.logster.info('Repo not found - nothing to do.');
+            this.logster.debug('Repo not found - nothing to do.');
             return;
         }
 
