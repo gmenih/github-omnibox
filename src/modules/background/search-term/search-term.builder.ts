@@ -1,10 +1,15 @@
 import {injectable, injectAll, registry} from 'tsyringe';
-import {Logster} from '../../../core/logster';
 import {BaseCommand} from './commands/base.command';
 import {GlobalSearchCommand} from './commands/global.command';
 import {PullRequestCommand} from './commands/pull-request.command';
 import {UserScopeCommand} from './commands/user-scope.command';
-import {ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
+import {
+    PostHandlersFn,
+    ResultType,
+    SearchCommand,
+    SearchTerm,
+    SearchTermType,
+} from './types/search-term';
 
 const SEARCH_COMMAND = Symbol.for('tsy-search-command');
 
@@ -26,24 +31,33 @@ export class SearchTermBuilder {
         let searchType = SearchTermType.Internal;
 
         const terms: string[] = [];
+        const postHandlers: PostHandlersFn[] = [];
 
         for (const command of this.commands) {
             const matches = command.pattern.exec(command.matchFull ? rawInput : processingInput);
             if (matches) {
-                resultType = command.resultType ?? resultType;
-                searchType = command.searchType > searchType ? command.searchType : searchType;
-
                 const response = command.handler(matches);
                 if (response) {
                     response.term && terms.push(response.term);
                 }
 
+                if (typeof command.postHandlers === 'function') {
+                    postHandlers.push(command.postHandlers);
+                }
+
+                resultType = command.resultType ?? resultType;
+                searchType = command.searchType > searchType ? command.searchType : searchType;
                 processingInput = processingInput.replace(matches[0], '').trim();
             }
         }
 
+        let finalTerms = [...terms];
+        for (const postHandler of postHandlers) {
+            finalTerms = postHandler(terms);
+        }
+
         return {
-            term: terms.join(' '),
+            term: finalTerms.join(' '),
             resultType,
             type: searchType,
         };
