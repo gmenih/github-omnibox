@@ -28,13 +28,8 @@ export class StorageService {
                 if (keys.length === 0) {
                     return value as Pick<Storage, TKey>;
                 }
-                const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [
-                    key,
-                    value[key],
-                ]);
-                const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>(
-                    Object.fromEntries<any>(entries)
-                );
+                const entries: [TKey, any][] = (keys || []).map((key: TKey): [TKey, any] => [key, value[key]]);
+                const partialObject: Pick<Storage, TKey> = <Pick<Storage, TKey>>Object.fromEntries<any>(entries);
 
                 return partialObject;
             }),
@@ -99,10 +94,7 @@ export class StorageService {
             return;
         }
 
-        const newRepositories = [
-            targetRepo,
-            ...repositories.filter((r) => r.url !== targetRepo.url),
-        ];
+        const newRepositories = [targetRepo, ...repositories.filter((r) => r.url !== targetRepo.url)];
         this.updateStorage({repositories: newRepositories});
     }
 
@@ -118,9 +110,7 @@ export class StorageService {
             return true;
         }
 
-        const lastRefreshTimestamp = new Date(
-            this.browserStorage.store?.lastRepoRefreshDate ?? 0,
-        ).getTime();
+        const lastRefreshTimestamp = new Date(this.browserStorage.store?.lastRepoRefreshDate ?? 0).getTime();
         const now = Date.now();
         const delta = now - lastRefreshTimestamp;
         return delta > now - DAY_MS;

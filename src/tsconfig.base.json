@@ -1,6 +1,7 @@
 {
     "include": [
-        "core/**/*"
+        "**/*",
+        "../node_modules/**/*"
     ],
     "compilerOptions": {
         "baseUrl": ".",

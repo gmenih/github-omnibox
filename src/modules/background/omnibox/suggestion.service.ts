@@ -1,5 +1,6 @@
 import {SuggestResult} from '@core/browser';
 import {injectable} from 'tsyringe';
+import {defer, Observable} from 'rxjs';
 import {SearchTerm, SearchTermType} from '../search-term/types/search-term';
 import {GithubSuggester} from './suggester/github.suggester';
 import {InternalSuggester} from './suggester/internal.suggester';
@@ -13,17 +14,17 @@ export class SuggestionService {
         private readonly internalSuggester: InternalSuggester,
     ) {}
 
-    async getSuggestions(searchTerm: SearchTerm): Promise<SuggestResult[]> {
-        switch (searchTerm.type) {
-            case SearchTermType.API:
-                return new Promise((resolve) =>
-                    this.githubSuggester.suggest(searchTerm)?.then(resolve),
-                );
-            case SearchTermType.Quick:
-                return this.quickSuggester.suggest(searchTerm);
-            case SearchTermType.Internal:
-            default:
-                return this.internalSuggester.suggest(searchTerm);
-        }
+    getSuggestions$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
+        return defer(() => {
+            switch (searchTerm.type) {
+                case SearchTermType.API:
+                    return this.githubSuggester.suggest$(searchTerm);
+                case SearchTermType.Quick:
+                    return this.quickSuggester.suggest$(searchTerm);
+                case SearchTermType.Internal:
+                default:
+                    return this.internalSuggester.suggest$(searchTerm);
+            }
+        });
     }
 }

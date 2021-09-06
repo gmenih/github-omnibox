@@ -3,7 +3,7 @@ export interface HandlerResult {
     resultType?: ResultType;
 }
 
-export type HandlerFn = (matches: RegExpExecArray) => HandlerResult | undefined;
+export type HandlerFn = (matches: RegExpExecArray) => HandlerResult;
 export type PostHandlersFn = (terms: string[]) => string[];
 
 export enum SearchTermType {
@@ -35,10 +35,8 @@ export interface SearchCommand {
      * Handler function which should return an object of @type {HandlerResult}.
      * The `term` key should can be a string that should be added to the end of
      * the final term.
-     * Term also supports some variables, which are set in the builder.
-     * Currently only 'USER' is supported.
      */
-    handler: HandlerFn;
+    handler?: HandlerFn;
 
     /**
      * After all handlers have been execute, we can optionally run this function,

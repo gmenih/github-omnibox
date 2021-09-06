@@ -1,4 +1,5 @@
 import Fuse from 'fuse.js';
+import {Observable, of} from 'rxjs';
 import {injectable, singleton} from 'tsyringe';
 import {SuggestResult} from '@core/browser';
 import {GithubRepository} from '@core/github';
@@ -24,14 +25,16 @@ export class QuickSuggester {
         this.fuse.setCollection(repositories);
     }
 
-    async suggest(searchTerm: SearchTerm): Promise<SuggestResult[]> {
+    suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         this.log.debug('Quick searching');
         const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
 
-        return fuseResults.map((fuseResult) => ({
-            content: fuseResult.item.url,
-            description: fuseResult.item.owner + '/' + fuseResult.item.name,
-            deletable: true,
-        }));
+        return of(
+            fuseResults.map((fuseResult) => ({
+                content: fuseResult.item.url,
+                description: fuseResult.item.owner + '/' + fuseResult.item.name,
+                deletable: true,
+            })),
+        );
     }
 }

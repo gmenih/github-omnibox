@@ -2,11 +2,5 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "outDir": "../out-tsc/content-script",
-    },
-    "files": [
-        "index.ts",
-    ],
-    "include": [
-        "**/*"
-    ]
+    }
 }

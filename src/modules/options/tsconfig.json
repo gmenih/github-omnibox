@@ -3,11 +3,5 @@
     "compilerOptions": {
         "outDir": "../out-tsc/options",
         "jsx": "react"
-    },
-    "files": [
-        "index.tsx",
-    ],
-    "include": [
-        "**/*.d.ts"
-    ]
+    }
 }

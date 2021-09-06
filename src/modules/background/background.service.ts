@@ -3,7 +3,10 @@ import {AlarmsService} from '@core/browser/alarms.service';
 import {GitHubClient} from '@core/github';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
+import {forkJoin, Observable} from 'rxjs';
+import {filter, mergeMap, switchMap, tap} from 'rxjs/operators';
 import {injectable} from 'tsyringe';
+import {GitHubAuthClient} from '../../core/github/github-auth.client';
 import {AuthMessage} from '../content-script/types/message';
 import {OmniboxService} from './omnibox/omnibox.service';
 
@@ -18,6 +21,7 @@ export class BackgroundService {
     constructor(
         private readonly alarms: AlarmsService,
         private readonly githubClient: GitHubClient,
+        private readonly githubAuth: GitHubAuthClient,
         private readonly omniboxService: OmniboxService,
         private readonly runtime: RuntimeService,
         private readonly storage: StorageService,
@@ -27,14 +31,13 @@ export class BackgroundService {
         this.log.debug('Bootstrap!');
         this.omniboxService.registerHandlers();
 
-        this.storage.onKeysChanged('token').subscribe(async ({token}) => {
-            if (token) {
-                await this.fetchAndStoreUserData();
-                this.alarms.createPeriodicAlarm(ALARM_NAME, ALARM_PERIOD);
-            } else {
-                this.alarms.clearAll();
-            }
-        });
+        this.storage
+            .onKeysChanged('token')
+            .pipe(
+                filter(({token}) => !!token),
+                switchMap(() => this.fetchAndStoreUserData()),
+            )
+            .subscribe();
 
         this.storage.onKeysChanged('optionsShown').subscribe(async ({optionsShown}) => {
             if (!optionsShown) {
@@ -44,44 +47,38 @@ export class BackgroundService {
             }
         });
 
-        this.runtime.onRuntimeMessage<AuthMessage>().subscribe(async ([message]) => {
-            this.log.debug(`Got an auth message, attempting to authorize`);
-            const authToken = await this.githubClient.fetchAuthorizationToken(
-                message.code,
-                message.state,
-            );
-            this.storage.saveToken(authToken);
-            this.log.debug(`Should be authorized`);
-        });
+        this.runtime
+            .onRuntimeMessage<AuthMessage>()
+            .pipe(switchMap(([{code, state}]) => this.githubAuth.fetchAuthorizationToken(code, state)))
+            .subscribe((authToken) => {
+                this.storage.saveToken(authToken);
+                this.log.debug(`Should be authorized`);
+            });
 
-        this.alarms.onAlarmTriggered(ALARM_NAME).subscribe(async () => {
-            this.log.debug('Re-fetching user data.');
-            await this.fetchAndStoreUserData();
-        });
+        this.alarms
+            .onAlarmTriggered(ALARM_NAME)
+            .pipe(switchMap(() => this.fetchAndStoreUserData()))
+            .subscribe();
     }
 
-    private async fetchAndStoreUserData() {
-        try {
-            const userData = await this.githubClient.fetchUserData(PAGE_SIZE);
-            const organizations = await this.githubClient.fetchUserOrganizations(PAGE_SIZE);
-            this.storage.saveLoginData(
-                userData.username,
-                userData.displayName,
-                organizations.map((o) => o.name),
-            );
-            this.storage.clearErrors();
-
-            this.storage.addRepositories(userData.repositories);
-
-            for (const org of organizations) {
-                const repos = await this.githubClient.fetchOrganizationRepositories(org, PAGE_SIZE);
-                this.storage.addRepositories(repos);
-            }
-        } catch (err) {
-            this.log.error('Failed to validate token:', err);
-            this.storage.setErrors([
-                'Failed to fetch user data! Please make sure you are authenticated correctly!',
-            ]);
-        }
+    private fetchAndStoreUserData(): Observable<any> {
+        return this.githubClient.fetchUserData$(PAGE_SIZE).pipe(
+            switchMap((userData) =>
+                this.githubClient.fetchUserOrganizations$(PAGE_SIZE).pipe(
+                    tap((orgs) => {
+                        this.storage.saveLoginData(
+                            userData.username,
+                            userData.displayName,
+                            orgs.map((o) => o.name),
+                        );
+                        this.storage.addRepositories(userData.repositories);
+                    }),
+                    mergeMap((orgs) => forkJoin(orgs.map((o) => this.githubClient.fetchOrganizationRepositories$(o)))),
+                    tap((orgRepos) => {
+                        this.storage.addRepositories(orgRepos.flat(1));
+                    }),
+                ),
+            ),
+        );
     }
 }

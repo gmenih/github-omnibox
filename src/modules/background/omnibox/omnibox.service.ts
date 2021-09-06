@@ -42,7 +42,7 @@ export class OmniboxService {
 
         // await does not work here, because the methods inside are debounced
         // and will return undefined before getting the results sometimes
-        this.suggestionService.getSuggestions(searchTerm).then(suggest);
+        this.suggestionService.getSuggestions$(searchTerm).subscribe(suggest);
     }
 
     private async onInputEntered(url: string, disposition: EnteredDisposition) {

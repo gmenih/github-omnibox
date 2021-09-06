@@ -28,7 +28,6 @@ export const Settings: FunctionComponent = () => {
     const confirmLogOut: MouseEventHandler<Element> = (e) => {
         e.preventDefault();
         setShowLogOutModal(true);
-        console.log('showing modal');
     };
 
     const logOutConfirm: MouseEventHandler = (e) => {
@@ -46,8 +45,7 @@ export const Settings: FunctionComponent = () => {
         <Section title={`\u{1F44B} Hello, ${storage.displayName}!`} type="info">
             <div className="orgs">
                 <div className="block">
-                    We found <strong>{storage.repositories.length}</strong> repositories to search
-                    for.
+                    We found <strong>{storage.repositories.length}</strong> repositories to search for.
                 </div>
                 <div className="block">
                     <h4 className="is-size-5">Your organizations</h4>
@@ -69,22 +67,18 @@ export const Settings: FunctionComponent = () => {
                         <div className="box">
                             <div className="block is-size-3">Are you sure you want to log out?</div>
                             <div className="block">
-                                This will clear all storage this extension keeps, so you will no
-                                longer be able to search for repositories.
+                                This will clear all storage this extension keeps, so you will no longer be able to
+                                search for repositories.
                             </div>
                             <div className="block">
                                 <div className="field is-grouped">
                                     <div className="control">
-                                        <button
-                                            onClick={logOutConfirm}
-                                            className="button is-danger">
+                                        <button onClick={logOutConfirm} className="button is-danger">
                                             Confirm
                                         </button>
                                     </div>
                                     <div className="control">
-                                        <button
-                                            onClick={logOutCancel}
-                                            className="button is-link is-light">
+                                        <button onClick={logOutCancel} className="button is-link is-light">
                                             Cancel
                                         </button>
                                     </div>
@@ -92,10 +86,7 @@ export const Settings: FunctionComponent = () => {
                             </div>
                         </div>
                     </div>
-                    <div
-                        onClick={logOutCancel}
-                        className="modal-close is-large"
-                        aria-label="close"></div>
+                    <div onClick={logOutCancel} className="modal-close is-large" aria-label="close"></div>
                 </div>
             )}
         </Section>
