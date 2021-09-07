@@ -22,19 +22,21 @@ export class OmniboxService {
     ) {}
 
     async registerHandlers() {
-        const repositories = (await this.storage.getStorage()).repositories ?? [];
+        this.storage.getStorage().subscribe((storage) => {
+            const repositories = storage.repositories ?? [];
 
-        this.quickSuggester.setCollection(repositories);
-        this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
-            this.log.debug('Updating repositories');
-            this.quickSuggester.setCollection(repositories ?? []);
+            this.quickSuggester.setCollection(repositories);
+            this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
+                this.log.debug('Updating repositories');
+                this.quickSuggester.setCollection(repositories ?? []);
+            });
+
+            const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
+
+            this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
+            this.omnibox.listenInputEntered(this.onInputEntered.bind(this));
+            this.omnibox.listenInputStarted(this.onInputStarted.bind(this));
         });
-
-        const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
-
-        this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
-        this.omnibox.listenInputEntered(this.onInputEntered.bind(this));
-        this.omnibox.listenInputStarted(this.onInputStarted.bind(this));
     }
 
     private async onInputChanged(text: string, suggest: SuggestFn) {

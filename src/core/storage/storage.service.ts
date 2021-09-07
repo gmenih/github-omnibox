@@ -1,5 +1,5 @@
 import deepEqual from 'deep-equal';
-import {Observable} from 'rxjs';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
 import {BrowserStorageService} from '../browser';
@@ -13,10 +13,20 @@ const DAY_MS = 86400000;
 @singleton()
 export class StorageService {
     private readonly logster: Logster = new Logster('StorageService');
+    private storage$?: BehaviorSubject<Storage>;
 
-    constructor(private readonly browserStorage: BrowserStorageService<Storage>) {}
+    constructor(private readonly browserStorage: BrowserStorageService<Storage>) {
+        this.browserStorage.onChange().subscribe((storage: Storage) => {
+            if (!this.storage$) {
+                this.storage$ = new BehaviorSubject(storage);
+                return;
+            }
 
-    getStorage(): Promise<Storage> {
+            this.storage$.next(storage);
+        });
+    }
+
+    getStorage(): Observable<Storage> {
         return this.browserStorage.getStorage();
     }
 
@@ -67,8 +77,8 @@ export class StorageService {
         this.updateStorage({errors: []});
     }
 
-    async addRepositories(repositories: GithubRepository[]) {
-        const existingRepositories = (await this.getStorage()).repositories ?? [];
+    addRepositories(repositories: GithubRepository[]) {
+        const existingRepositories = this.storage$?.value.repositories ?? [];
         const filteredUrls = existingRepositories.map((repo) => repo.url);
         const repositoriesToAdd = repositories.filter((repo) => !filteredUrls.includes(repo.url));
         if (repositoriesToAdd.length > 0) {
@@ -76,18 +86,16 @@ export class StorageService {
         }
     }
 
-    async resetStorage() {
-        const resetObj = Object.fromEntries(
-            Object.entries(this.browserStorage.store ?? {}).map(([key]) => [key, null]),
-        );
+    resetStorage() {
+        const resetObj = Object.fromEntries(Object.entries(this.storage$?.value ?? {}).map(([key]) => [key, null]));
 
-        return this.updateStorage(resetObj);
+        this.updateStorage(resetObj);
     }
 
-    /** Moves repo to the top so it will appear on the top of */
+    // TODO: make it work properly
     increaseRepositoryFrequency(repoUrl: string) {
         this.logster.debug(`Increasing repo frequency for "${repoUrl}"`);
-        const repositories = this.browserStorage.store?.repositories ?? [];
+        const repositories = this.storage$?.value.repositories ?? [];
         const targetRepo = repositories.find((r) => r.url === repoUrl);
         if (!targetRepo) {
             this.logster.debug('Repo not found - nothing to do.');
@@ -105,12 +113,12 @@ export class StorageService {
     }
 
     shouldRefreshRepos() {
-        const lastRefresh = this.browserStorage.store?.lastRepoRefreshDate;
+        const lastRefresh = this.storage$?.value.lastRepoRefreshDate;
         if (!lastRefresh) {
             return true;
         }
 
-        const lastRefreshTimestamp = new Date(this.browserStorage.store?.lastRepoRefreshDate ?? 0).getTime();
+        const lastRefreshTimestamp = new Date(this.storage$?.value.lastRepoRefreshDate ?? 0).getTime();
         const now = Date.now();
         const delta = now - lastRefreshTimestamp;
         return delta > now - DAY_MS;

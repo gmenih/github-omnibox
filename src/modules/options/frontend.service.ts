@@ -1,15 +1,15 @@
-import {injectable} from 'tsyringe';
 import {TabsService} from '@core/browser';
-import {GitHubClient} from '@core/github';
+import {GitHubAuthClient} from '@core/github/github-auth.client';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
+import {injectable} from 'tsyringe';
 
 @injectable()
 export class FrontendService {
     logger = new Logster('Frontend');
 
     constructor(
-        private readonly githubClient: GitHubClient,
+        private readonly githubClient: GitHubAuthClient,
         private readonly tabsService: TabsService,
         private readonly storageService: StorageService,
     ) {}

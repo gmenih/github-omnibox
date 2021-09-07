@@ -25,10 +25,7 @@ export const TokenAuthorization: FunctionComponent = () => {
             <div className="block">
                 <p>
                     Generate a{' '}
-                    <a
-                        href="https://github.com/settings/tokens"
-                        rel="noopener noreferrer"
-                        target="_blank">
+                    <a href="https://github.com/settings/tokens" rel="noopener noreferrer" target="_blank">
                         Personal Access Token
                     </a>{' '}
                     with <code>repo:status</code> and <code>read:org</code> scopes.

@@ -23,10 +23,10 @@ export class BrowserStorageService<T> {
         await this.setItem(updateObj);
     }
 
-    async getStorage(): Promise<T> {
-        return new Promise((resolve) => {
+    getStorage(): Observable<T> {
+        return new Observable((observer) => {
             this.chromeStorage.get(null, (items) => {
-                resolve(items as T);
+                observer.next(items as T);
             });
         });
     }
@@ -36,10 +36,8 @@ export class BrowserStorageService<T> {
     }
 
     private onStorageChange() {
-        this.browser.storage.onChanged.addListener(
-            async (changes: Record<string, chrome.storage.StorageChange>) => {
-                const storage = await this.getStorage();
-
+        this.browser.storage.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
+            this.getStorage().subscribe((storage) => {
                 const source: Partial<T> = {};
                 for (const [key, change] of Object.entries(changes)) {
                     if (!deepEqual(change.newValue, storage[key as keyof T])) {
@@ -48,14 +46,12 @@ export class BrowserStorageService<T> {
                 }
 
                 this.storageChanged$.next({...storage, ...source});
-            },
-        );
+            });
+        });
     }
 
     private async loadInitialValue() {
-        const storage = await this.getStorage();
-        this.store = storage;
-        this.storageChanged$.next(storage);
+        this.getStorage().subscribe((storage) => this.storageChanged$.next(storage));
     }
 
     private async setItem(object: Partial<T>) {

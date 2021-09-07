@@ -9,32 +9,24 @@ import {GITHUB_BASE_URL} from './github.const';
 @injectable()
 export class RxClient {
     private readonly gqlClient: GraphQLClient = new GraphQLClient(GITHUB_BASE_URL);
-    private token$ = new BehaviorSubject<string | undefined>(undefined);
+    private authToken$ = new BehaviorSubject<string | undefined>(undefined);
 
     constructor(storage: StorageService) {
         storage.onKeysChanged('token').subscribe(({token}) => {
             if (token) {
-                this.token$.next(token);
+                this.authToken$.next(token);
             }
         });
 
-        this.token$.subscribe();
+        this.authToken$.subscribe();
     }
 
     fetch<TResult>(input: RequestInfo, init?: RequestInit): Observable<TResult> {
-        return new Observable((observer) => {
-            fetch(input, init)
-                .then((response) => response.json())
-                .then((result) => {
-                    observer.next(result);
-                    observer.complete();
-                })
-                .catch((err) => observer.error(err));
-        });
+        return from(fetch(input, init)).pipe(switchMap((response) => from(response.json())));
     }
 
     requestGQL<TResult, TVar = any>(gql: RequestDocument, variables: TVar): Observable<TResult> {
-        return this.token$.pipe(
+        return this.authToken$.pipe(
             skipWhile((token) => token === undefined),
             first(),
             switchMap((token) => from(this.gqlClient.request(gql, variables, {authorization: `Bearer ${token}`}))),

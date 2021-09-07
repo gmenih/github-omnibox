@@ -31,12 +31,11 @@ export const StorageProvider: FC<StorageProviderProps> = ({storageService, child
     const service = useMemo(() => container.resolve(FrontendService), []);
 
     useEffect(() => {
-        const subscription = storageService.onKeysChanged().subscribe(async () => {
-            // always get the full storage; onKeysChanged will only return a partial
-            storageService.getStorage().then((storage) => setStorage(() => storage));
+        const subscription = storageService.onKeysChanged().subscribe((storage) => {
+            setStorage(() => storage);
         });
 
-        storageService.getStorage().then(setStorage);
+        storageService.getStorage().subscribe(setStorage);
 
         return () => subscription.unsubscribe();
     }, []);

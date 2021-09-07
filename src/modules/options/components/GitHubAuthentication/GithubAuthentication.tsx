@@ -15,9 +15,9 @@ const OAuth: FC<OAuthProps> = ({onAuthTrigger}) => (
             <p>Simply authenticate with your GitHub account and start using the extension.</p>
         </div>
         <Alert type="warning">
-            Your organization owners will need to grant access to this extension, otherwise
-            repositories owned by the organization will not show up in this extension. It is usually
-            easier to use Personal Access Token authentication above, as it has no such limits.
+            Your organization owners will need to grant access to this extension, otherwise repositories owned by the
+            organization will not show up in this extension. It is usually easier to use Personal Access Token
+            authentication above, as it has no such limits.
         </Alert>
         <br />
         <button className="button is-primary is-large is-light" onClick={onAuthTrigger}>
@@ -31,10 +31,7 @@ export const GitHubAuthentication: FC = () => {
     const {isLoggedIn} = useStorage();
 
     return (
-        <Section
-            title={'\u{1F91F} GitHub Authentication'}
-            isExpanded={!isLoggedIn}
-            isExpandable={true}>
+        <Section title={'\u{1F91F} GitHub Authentication'} isExpanded={!isLoggedIn} isExpandable={true}>
             <TokenAuthorization />
             <hr />
             <OAuth onAuthTrigger={() => service.createOAuthTab()} />
