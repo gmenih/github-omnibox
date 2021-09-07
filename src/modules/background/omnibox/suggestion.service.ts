@@ -1,6 +1,7 @@
 import {SuggestResult} from '@core/browser';
 import {injectable} from 'tsyringe';
 import {defer, Observable} from 'rxjs';
+import {throttleTime} from 'rxjs/operators';
 import {SearchTerm, SearchTermType} from '../search-term/types/search-term';
 import {GithubSuggester} from './suggester/github.suggester';
 import {InternalSuggester} from './suggester/internal.suggester';
@@ -18,7 +19,7 @@ export class SuggestionService {
         return defer(() => {
             switch (searchTerm.type) {
                 case SearchTermType.API:
-                    return this.githubSuggester.suggest$(searchTerm);
+                    return this.githubSuggester.suggest$(searchTerm).pipe(throttleTime(500));
                 case SearchTermType.Quick:
                     return this.quickSuggester.suggest$(searchTerm);
                 case SearchTermType.Internal:

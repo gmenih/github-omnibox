@@ -1,5 +1,7 @@
 import {Observable} from 'rxjs';
+import {filter, map} from 'rxjs/operators';
 import {inject, injectable} from 'tsyringe';
+import {fromBrowserEvent} from '../utils/rx.utils';
 import {Browser, BROWSER_TOKEN} from './browser.provider';
 
 export type Alarm = chrome.alarms.Alarm;
@@ -12,16 +14,11 @@ export class AlarmsService {
         this.browser.alarms.create(alarmName, {periodInMinutes});
     }
 
-    onAlarmTriggered(alarmName: string): Observable<void> {
-        return new Observable<void>((sub) => {
-            const alarmHandler = (alarm: Alarm) => {
-                if (alarm.name === alarmName) {
-                    sub.next();
-                }
-            };
-
-            this.browser.alarms.onAlarm.addListener(alarmHandler);
-        });
+    onAlarmTriggered(alarmName: string): Observable<Alarm> {
+        return fromBrowserEvent(this.browser.alarms.onAlarm).pipe(
+            filter(([alarm]) => alarm.name === alarmName),
+            map(([alarm]) => alarm),
+        );
     }
 
     clearAll() {

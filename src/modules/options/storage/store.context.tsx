@@ -35,7 +35,7 @@ export const StorageProvider: FC<StorageProviderProps> = ({storageService, child
             setStorage(() => storage);
         });
 
-        storageService.getStorage().subscribe(setStorage);
+        storageService.getStorage$().subscribe(setStorage);
 
         return () => subscription.unsubscribe();
     }, []);

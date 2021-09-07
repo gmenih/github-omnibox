@@ -1,5 +1,7 @@
 import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {injectable, inject} from 'tsyringe';
+import {fromBrowserEvent} from '../utils/rx.utils';
 import {BROWSER_TOKEN, Browser} from './browser.provider';
 
 export type MessageSender = chrome.runtime.MessageSender;
@@ -12,18 +14,10 @@ export class RuntimeService {
         return new Promise((resolve) => this.browser.runtime.openOptionsPage(resolve));
     }
 
-    onRuntimeMessage<T>(once = false): Observable<[T, MessageSender]> {
-        return new Observable<[T, MessageSender]>((sub) => {
-            const listener = (message: T, sender: MessageSender) => {
-                sub.next([message, sender]);
-                if (once) {
-                    sub.complete();
-                    this.browser.runtime.onMessage.removeListener(listener);
-                }
-            };
-
-            this.browser.runtime.onMessage.addListener(listener);
-        });
+    onRuntimeMessage<T>(): Observable<[T, MessageSender]> {
+        return fromBrowserEvent(this.browser.runtime.onMessage).pipe(
+            map(([message, sender]) => [message as T, sender]),
+        );
     }
 
     sendMessage<T>(message: T): Promise<void> {

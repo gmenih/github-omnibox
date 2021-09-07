@@ -21,7 +21,7 @@ export class SearchTermBuilder {
 
     constructor(@injectAll(SEARCH_COMMAND) private readonly commands: SearchCommand[]) {}
 
-    async buildSearchTerm(rawInput: string): Promise<SearchTerm> {
+    buildSearchTerm(rawInput: string): SearchTerm {
         let processingInput = rawInput;
         // lets search for repositories by default
         let resultType: ResultType = ResultType.Repository;

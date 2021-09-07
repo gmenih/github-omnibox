@@ -26,7 +26,7 @@ export class StorageService {
         });
     }
 
-    getStorage(): Observable<Storage> {
+    getStorage$(): Observable<Storage> {
         return this.browserStorage.getStorage();
     }
 

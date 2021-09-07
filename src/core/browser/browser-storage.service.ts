@@ -6,7 +6,6 @@ import {Browser, BROWSER_TOKEN} from './browser.provider';
 
 @injectable()
 export class BrowserStorageService<T> {
-    store?: T;
     private storageChanged$: Subject<T> = new Subject();
     private chromeStorage: chrome.storage.StorageArea;
     private readonly logster: Logster = new Logster('BrowserStorageService');

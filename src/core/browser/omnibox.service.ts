@@ -1,5 +1,7 @@
 import {inject, injectable} from 'tsyringe';
+import {Observable} from 'rxjs';
 import {Browser, BROWSER_TOKEN} from './browser.provider';
+import {fromBrowserEvent} from '../utils/rx.utils';
 
 export type EnteredDisposition = chrome.omnibox.OnInputEnteredDisposition;
 export type SuggestFn = (suggestResults: chrome.omnibox.SuggestResult[]) => void;
@@ -12,24 +14,24 @@ export type SuggestResult = chrome.omnibox.SuggestResult;
 export class BrowserOmniboxService {
     constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser) {}
 
-    listenInputChanged(callback: InputChangedCallback) {
-        this.browser.omnibox.onInputChanged.addListener(callback);
+    inputChanged$(): Observable<[string, SuggestFn]> {
+        return fromBrowserEvent(chrome.omnibox.onInputChanged);
     }
 
-    listenInputEntered(callback: InputEnteredCallback) {
-        this.browser.omnibox.onInputEntered.addListener(callback);
+    inputEntered$(): Observable<[string, EnteredDisposition]> {
+        return fromBrowserEvent(this.browser.omnibox.onInputEntered);
     }
 
-    listenInputCancelled(callback: VoidCallback) {
-        this.browser.omnibox.onInputCancelled.addListener(callback);
+    inputCancelled$(): Observable<[]> {
+        return fromBrowserEvent(this.browser.omnibox.onInputCancelled);
     }
 
-    listenDeleteSuggestion(callback: VoidCallback) {
-        this.browser.omnibox.onDeleteSuggestion.addListener(callback);
+    suggestionDeleted$(): Observable<[string]> {
+        return fromBrowserEvent(this.browser.omnibox.onDeleteSuggestion);
     }
 
-    listenInputStarted(callback: VoidCallback) {
-        this.browser.omnibox.onInputStarted.addListener(callback);
+    inputStarted$(): Observable<[]> {
+        return fromBrowserEvent(this.browser.omnibox.onInputStarted);
     }
 
     setDefaultSuggestion(suggestion: chrome.omnibox.Suggestion) {

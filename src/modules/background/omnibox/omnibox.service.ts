@@ -1,8 +1,8 @@
-import {BrowserOmniboxService, EnteredDisposition, SuggestFn} from '@core/browser';
+import {BrowserOmniboxService, EnteredDisposition, SuggestFn, SuggestResult} from '@core/browser';
 import {TabsService} from '@core/browser/tabs.service';
+import {throttleTime, map, switchMap} from 'rxjs/operators';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
-import debounce from 'lodash/debounce';
 import {injectable} from 'tsyringe';
 import {SearchTermBuilder} from '../search-term/search-term.builder';
 import {QuickSuggester} from './suggester/quick.suggester';
@@ -22,7 +22,7 @@ export class OmniboxService {
     ) {}
 
     async registerHandlers() {
-        this.storage.getStorage().subscribe((storage) => {
+        this.storage.getStorage$().subscribe((storage) => {
             const repositories = storage.repositories ?? [];
 
             this.quickSuggester.setCollection(repositories);
@@ -30,21 +30,29 @@ export class OmniboxService {
                 this.log.debug('Updating repositories');
                 this.quickSuggester.setCollection(repositories ?? []);
             });
-
-            const debouncedOnInputChanged = debounce(this.onInputChanged, 70, {leading: true});
-
-            this.omnibox.listenInputChanged(debouncedOnInputChanged.bind(this));
-            this.omnibox.listenInputEntered(this.onInputEntered.bind(this));
-            this.omnibox.listenInputStarted(this.onInputStarted.bind(this));
         });
-    }
 
-    private async onInputChanged(text: string, suggest: SuggestFn) {
-        const searchTerm = await this.searchTermBuilder.buildSearchTerm(text);
+        this.omnibox
+            .inputChanged$()
+            .pipe(
+                switchMap(([input, suggest]) => {
+                    const searchTerm = this.searchTermBuilder.buildSearchTerm(input);
+                    return this.suggestionService
+                        .getSuggestions$(searchTerm)
+                        .pipe(map((suggestions): [SuggestFn, SuggestResult[]] => [suggest, suggestions]));
+                }),
+            )
+            .subscribe(([suggest, suggestions]) => {
+                suggest(suggestions);
+            });
 
-        // await does not work here, because the methods inside are debounced
-        // and will return undefined before getting the results sometimes
-        this.suggestionService.getSuggestions$(searchTerm).subscribe(suggest);
+        this.omnibox.inputEntered$().subscribe(([result, disposition]) => {
+            this.onInputEntered(result, disposition);
+        });
+
+        this.omnibox.inputStarted$().subscribe(() => {
+            this.onInputStarted();
+        });
     }
 
     private async onInputEntered(url: string, disposition: EnteredDisposition) {

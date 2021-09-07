@@ -17,15 +17,15 @@ export class GithubSuggester {
         return defer(() => {
             switch (searchTerm.resultType) {
                 case ResultType.PullRequest:
-                    return this.searchPullRequests(searchTerm);
+                    return this.searchPullRequests$(searchTerm);
                 case ResultType.Repository:
                 default:
-                    return this.searchRepositories(searchTerm);
+                    return this.searchRepositories$(searchTerm);
             }
         }).pipe(debounceTime(500));
     }
 
-    private searchRepositories(searchTerm: SearchTerm): Observable<SuggestResult[]> {
+    private searchRepositories$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         return this.githubClient.searchRepositories$(searchTerm.term, 5).pipe(
             map((repositories) =>
                 repositories.map(
@@ -39,7 +39,7 @@ export class GithubSuggester {
         );
     }
 
-    private searchPullRequests(searchTerm: SearchTerm): Observable<SuggestResult[]> {
+    private searchPullRequests$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         return this.githubClient.searchPullRequests$(searchTerm.term, 5).pipe(
             map((issues) =>
                 issues.map(
