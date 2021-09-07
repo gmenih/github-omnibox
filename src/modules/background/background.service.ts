@@ -32,14 +32,14 @@ export class BackgroundService {
         this.omniboxService.registerHandlers();
 
         this.storage
-            .onKeysChanged('token')
+            .keysChanged$('token')
             .pipe(
                 filter(({token}) => !!token),
                 switchMap(() => this.fetchAndStoreUserData()),
             )
             .subscribe();
 
-        this.storage.onKeysChanged('optionsShown').subscribe(async ({optionsShown}) => {
+        this.storage.keysChanged$('optionsShown').subscribe(async ({optionsShown}) => {
             if (!optionsShown) {
                 this.log.debug('Opening options page');
                 await this.runtime.openOptionsPage();
@@ -56,7 +56,7 @@ export class BackgroundService {
             });
 
         this.alarms
-            .onAlarmTriggered(ALARM_NAME)
+            .alarmTriggered$(ALARM_NAME)
             .pipe(switchMap(() => this.fetchAndStoreUserData()))
             .subscribe();
     }

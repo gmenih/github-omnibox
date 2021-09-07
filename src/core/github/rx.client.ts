@@ -12,7 +12,7 @@ export class RxClient {
     private authToken$ = new BehaviorSubject<string | undefined>(undefined);
 
     constructor(storage: StorageService) {
-        storage.onKeysChanged('token').subscribe(({token}) => {
+        storage.keysChanged$('token').subscribe(({token}) => {
             if (token) {
                 this.authToken$.next(token);
             }

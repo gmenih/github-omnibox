@@ -14,7 +14,7 @@ export class AlarmsService {
         this.browser.alarms.create(alarmName, {periodInMinutes});
     }
 
-    onAlarmTriggered(alarmName: string): Observable<Alarm> {
+    alarmTriggered$(alarmName: string): Observable<Alarm> {
         return fromBrowserEvent(this.browser.alarms.onAlarm).pipe(
             filter(([alarm]) => alarm.name === alarmName),
             map(([alarm]) => alarm),

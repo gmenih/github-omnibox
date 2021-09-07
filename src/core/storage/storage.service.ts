@@ -16,7 +16,7 @@ export class StorageService {
     private storage$?: BehaviorSubject<Storage>;
 
     constructor(private readonly browserStorage: BrowserStorageService<Storage>) {
-        this.browserStorage.onChange().subscribe((storage: Storage) => {
+        this.browserStorage.storageChanged$().subscribe((storage: Storage) => {
             if (!this.storage$) {
                 this.storage$ = new BehaviorSubject(storage);
                 return;
@@ -27,13 +27,13 @@ export class StorageService {
     }
 
     getStorage$(): Observable<Storage> {
-        return this.browserStorage.getStorage();
+        return this.browserStorage.getStorage$();
     }
 
-    onKeysChanged(): Observable<Storage>;
-    onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>>;
-    onKeysChanged<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>> {
-        return this.browserStorage.onChange().pipe(
+    keysChanged$(): Observable<Storage>;
+    keysChanged$<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>>;
+    keysChanged$<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>> {
+        return this.browserStorage.storageChanged$().pipe(
             map((value: Partial<Storage>): Pick<Storage, TKey> => {
                 if (keys.length === 0) {
                     return value as Pick<Storage, TKey>;

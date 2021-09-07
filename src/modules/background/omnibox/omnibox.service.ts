@@ -1,8 +1,9 @@
 import {BrowserOmniboxService, EnteredDisposition, SuggestFn, SuggestResult} from '@core/browser';
 import {TabsService} from '@core/browser/tabs.service';
-import {throttleTime, map, switchMap} from 'rxjs/operators';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
+import {Observable} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {injectable} from 'tsyringe';
 import {SearchTermBuilder} from '../search-term/search-term.builder';
 import {QuickSuggester} from './suggester/quick.suggester';
@@ -26,7 +27,7 @@ export class OmniboxService {
             const repositories = storage.repositories ?? [];
 
             this.quickSuggester.setCollection(repositories);
-            this.storage.onKeysChanged('repositories').subscribe(({repositories}) => {
+            this.storage.keysChanged$('repositories').subscribe(({repositories}) => {
                 this.log.debug('Updating repositories');
                 this.quickSuggester.setCollection(repositories ?? []);
             });
@@ -46,23 +47,23 @@ export class OmniboxService {
                 suggest(suggestions);
             });
 
-        this.omnibox.inputEntered$().subscribe(([result, disposition]) => {
-            this.onInputEntered(result, disposition);
-        });
+        this.omnibox
+            .inputEntered$()
+            .pipe(switchMap(([result, disposition]) => this.onInputEntered$(result, disposition)))
+            .subscribe();
 
         this.omnibox.inputStarted$().subscribe(() => {
             this.onInputStarted();
         });
     }
 
-    private async onInputEntered(url: string, disposition: EnteredDisposition) {
+    private onInputEntered$(url: string, disposition: EnteredDisposition): Observable<void> {
         const isRepoUrl = url.startsWith('https://');
         const realUrl = isRepoUrl
             ? `${url}${this.urlModifier(disposition)}`
             : `https://github.com/search?q=${encodeURIComponent(url)}`;
 
-        await this.tabsService.redirectSelectedTab(realUrl);
-        this.storage.increaseRepositoryFrequency(url);
+        return this.tabsService.redirectSelectedTab$(realUrl);
     }
 
     private onInputStarted() {

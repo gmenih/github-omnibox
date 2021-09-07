@@ -1,19 +1,18 @@
 import deepEqual from 'deep-equal';
-import {Observable, Subject} from 'rxjs';
+import {combineLatest, concat, Observable, of} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {inject, injectable} from 'tsyringe';
 import {Logster} from '../logster/logster.service';
+import {fromBrowserEvent} from '../utils/rx.utils';
 import {Browser, BROWSER_TOKEN} from './browser.provider';
 
 @injectable()
 export class BrowserStorageService<T> {
-    private storageChanged$: Subject<T> = new Subject();
     private chromeStorage: chrome.storage.StorageArea;
     private readonly logster: Logster = new Logster('BrowserStorageService');
 
     constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser) {
         this.chromeStorage = this.browser.storage['local'];
-        this.onStorageChange();
-        this.loadInitialValue();
     }
 
     async updateStorage(updateObj: Partial<T>) {
@@ -22,35 +21,32 @@ export class BrowserStorageService<T> {
         await this.setItem(updateObj);
     }
 
-    getStorage(): Observable<T> {
+    getStorage$(): Observable<T> {
         return new Observable((observer) => {
             this.chromeStorage.get(null, (items) => {
                 observer.next(items as T);
+                observer.complete();
             });
         });
     }
 
-    onChange(): Observable<T> {
-        return this.storageChanged$.asObservable();
-    }
-
-    private onStorageChange() {
-        this.browser.storage.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
-            this.getStorage().subscribe((storage) => {
-                const source: Partial<T> = {};
-                for (const [key, change] of Object.entries(changes)) {
-                    if (!deepEqual(change.newValue, storage[key as keyof T])) {
-                        source[key as keyof T] = change.newValue;
+    storageChanged$(): Observable<T> {
+        return concat(
+            this.getStorage$(),
+            fromBrowserEvent(this.browser.storage.onChanged).pipe(
+                switchMap(([changes]) => combineLatest([of(changes), this.getStorage$()])),
+                map(([changes, storage]) => {
+                    const source: Partial<T> = {};
+                    for (const [key, change] of Object.entries(changes)) {
+                        if (!deepEqual(change.newValue, storage[key as keyof T])) {
+                            source[key as keyof T] = change.newValue;
+                        }
                     }
-                }
 
-                this.storageChanged$.next({...storage, ...source});
-            });
-        });
-    }
-
-    private async loadInitialValue() {
-        this.getStorage().subscribe((storage) => this.storageChanged$.next(storage));
+                    return {...storage, ...source};
+                }),
+            ),
+        );
     }
 
     private async setItem(object: Partial<T>) {

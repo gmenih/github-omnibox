@@ -17,7 +17,7 @@ export class FrontendService {
     createOAuthTab() {
         const url = this.githubClient.generateOAuthPageURL('69-69');
         this.logger.info(`Opening ${url}`);
-        this.tabsService.createTab(url);
+        this.tabsService.createTab$(url);
     }
 
     async logOut() {
