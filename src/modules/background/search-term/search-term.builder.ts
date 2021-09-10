@@ -53,8 +53,6 @@ export class SearchTermBuilder {
             finalTerms = postHandler(terms);
         }
 
-        this.log.debug('Final term:', finalTerms, ResultType[resultType], SearchTermType[searchType]);
-
         return {
             term: finalTerms.join(' '),
             resultType,

@@ -9,10 +9,7 @@ const AUTH_TOKEN_PATH = '/gmenih341/github-omnibox/blob/main/.github/TOKEN.md';
 export class ContentScriptService {
     private readonly logster: Logster = new Logster('ContentScript');
 
-    constructor(
-        @inject(WINDOW_TOKEN) private readonly window: Window,
-        private readonly runtime: RuntimeService,
-    ) {}
+    constructor(@inject(WINDOW_TOKEN) private readonly window: Window, private readonly runtime: RuntimeService) {}
 
     checkForLoginToken() {
         if (this.window.location.pathname === AUTH_TOKEN_PATH) {

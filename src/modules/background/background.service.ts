@@ -35,7 +35,7 @@ export class BackgroundService {
             .keysChanged$('token')
             .pipe(
                 filter(({token}) => !!token),
-                switchMap(() => this.fetchAndStoreUserData()),
+                switchMap(() => this.fetchAndStoreUserData$()),
             )
             .subscribe();
 
@@ -57,11 +57,11 @@ export class BackgroundService {
 
         this.alarms
             .alarmTriggered$(ALARM_NAME)
-            .pipe(switchMap(() => this.fetchAndStoreUserData()))
+            .pipe(switchMap(() => this.fetchAndStoreUserData$()))
             .subscribe();
     }
 
-    private fetchAndStoreUserData(): Observable<any> {
+    private fetchAndStoreUserData$(): Observable<any> {
         return this.githubClient.fetchUserData$(PAGE_SIZE).pipe(
             switchMap((userData) =>
                 this.githubClient.fetchUserOrganizations$(PAGE_SIZE).pipe(
