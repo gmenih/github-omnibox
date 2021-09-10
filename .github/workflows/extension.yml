@@ -32,8 +32,8 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         run: npm run build:prod
-      - name: Store build reult
-        uses: actions/upload-artifacts@v2
+      - name: Store build result
+        uses: actions/upload-artifact@v2
         with:
           name: dist
           path: dist
