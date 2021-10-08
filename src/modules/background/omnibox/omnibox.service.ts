@@ -36,12 +36,16 @@ export class OmniboxService {
         this.omnibox
             .inputChanged$()
             .pipe(
-                switchMap(([input, suggest]) => {
-                    const searchTerm = this.searchTermBuilder.buildSearchTerm(input);
-                    return this.suggestionService
-                        .getSuggestions$(searchTerm)
-                        .pipe(map((suggestions): [SuggestFn, SuggestResult[]] => [suggest, suggestions]));
-                }),
+                switchMap(([input, suggest]) =>
+                    this.storage.getStorage$().pipe(
+                        switchMap((storage) => {
+                            const searchTerm = this.searchTermBuilder.buildSearchTerm(input, storage);
+                            return this.suggestionService
+                                .getSuggestions$(searchTerm)
+                                .pipe(map((suggestions): [SuggestFn, SuggestResult[]] => [suggest, suggestions]));
+                        }),
+                    ),
+                ),
             )
             .subscribe(([suggest, suggestions]) => {
                 suggest(suggestions);

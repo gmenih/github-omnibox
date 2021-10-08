@@ -2,13 +2,16 @@ import {SuggestResult} from '@core/browser';
 import {GitHubClient} from '@core/github';
 import {Logster} from '@core/logster';
 import {defer, Observable} from 'rxjs';
-import {debounceTime, map} from 'rxjs/operators';
+import {map, throttleTime} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
 import {ResultType, SearchTerm} from '../../search-term/types/search-term';
+import {BaseSuggester} from '../types/commands';
+
+const SEARCH_DEBOUNCE_MS = 500;
 
 @injectable()
 @singleton()
-export class GithubSuggester {
+export class GithubSuggester implements BaseSuggester {
     private readonly log = new Logster('GithubSuggester');
 
     constructor(private readonly githubClient: GitHubClient) {}
@@ -22,7 +25,7 @@ export class GithubSuggester {
                 default:
                     return this.searchRepositories$(searchTerm);
             }
-        }).pipe(debounceTime(500));
+        }).pipe(throttleTime(SEARCH_DEBOUNCE_MS));
     }
 
     private searchRepositories$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
@@ -31,7 +34,7 @@ export class GithubSuggester {
                 repositories.map(
                     (repo): SuggestResult => ({
                         content: repo.url,
-                        description: `${repo.owner}/${repo.name}`,
+                        description: `${repo.owner}/${repo.name} <url>${repo.url}</url>`,
                         deletable: true,
                     }),
                 ),
@@ -45,11 +48,26 @@ export class GithubSuggester {
                 issues.map(
                     (issue): SuggestResult => ({
                         content: issue.url,
-                        description: `#${issue.number}: ${issue.title} by ${issue.author} in ${issue.repository}`,
+                        description: `<match>#${issue.number}</match>: ${issue.title.substr(0, 50)} <dim>by ${
+                            issue.author
+                        } in <match>${issue.repository}</match></dim>`,
                         deletable: true,
                     }),
                 ),
             ),
+            map((issues): SuggestResult[] => {
+                if (!issues.length) {
+                    return [
+                        {
+                            content: 'https://github.com/pulls',
+                            description: `No matching results <dim>Open github.com/pulls</dim>`,
+                            deletable: false,
+                        },
+                    ];
+                }
+
+                return issues;
+            }),
         );
     }
 }

@@ -4,7 +4,7 @@ import {GitHubClient} from '@core/github';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
 import {forkJoin, Observable} from 'rxjs';
-import {filter, mergeMap, switchMap, tap} from 'rxjs/operators';
+import {filter, map, mergeMap, switchMap, tap} from 'rxjs/operators';
 import {injectable} from 'tsyringe';
 import {GitHubAuthClient} from '../../core/github/github-auth.client';
 import {AuthMessage} from '../content-script/types/message';
@@ -36,6 +36,7 @@ export class BackgroundService {
             .pipe(
                 filter(({token}) => !!token),
                 switchMap(() => this.fetchAndStoreUserData$()),
+                tap(() => this.alarms.createPeriodicAlarm(ALARM_NAME, ALARM_PERIOD)),
             )
             .subscribe();
 
@@ -61,7 +62,7 @@ export class BackgroundService {
             .subscribe();
     }
 
-    private fetchAndStoreUserData$(): Observable<any> {
+    private fetchAndStoreUserData$(): Observable<void> {
         return this.githubClient.fetchUserData$(PAGE_SIZE).pipe(
             switchMap((userData) =>
                 this.githubClient.fetchUserOrganizations$(PAGE_SIZE).pipe(
@@ -74,7 +75,7 @@ export class BackgroundService {
                         this.storage.addRepositories(userData.repositories);
                     }),
                     mergeMap((orgs) => forkJoin(orgs.map((o) => this.githubClient.fetchOrganizationRepositories$(o)))),
-                    tap((orgRepos) => {
+                    map((orgRepos) => {
                         this.storage.addRepositories(orgRepos.flat(1));
                     }),
                 ),

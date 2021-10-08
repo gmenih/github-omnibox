@@ -1,14 +1,15 @@
-import Fuse from 'fuse.js';
-import {Observable, of} from 'rxjs';
-import {injectable, singleton} from 'tsyringe';
 import {SuggestResult} from '@core/browser';
 import {GithubRepository} from '@core/github';
 import {Logster} from '@core/logster';
+import Fuse from 'fuse.js';
+import {Observable, of} from 'rxjs';
+import {injectable, singleton} from 'tsyringe';
 import {SearchTerm} from '../../search-term/types/search-term';
+import {BaseSuggester} from '../types/commands';
 
 @injectable()
 @singleton()
-export class QuickSuggester {
+export class QuickSuggester implements BaseSuggester {
     private readonly log: Logster = new Logster('QuickSuggester');
 
     private readonly fuse: Fuse<GithubRepository> = new Fuse([], {
@@ -28,13 +29,20 @@ export class QuickSuggester {
     suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         this.log.debug('Quick searching');
         const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
+        const highlightMatch = new RegExp(`(${searchTerm.term})`, 'gi');
 
         return of(
-            fuseResults.map((fuseResult) => ({
-                content: fuseResult.item.url,
-                description: fuseResult.item.owner + '/' + fuseResult.item.name,
-                deletable: true,
-            })),
+            fuseResults.map((fuseResult) => {
+                const repoName = `${fuseResult.item.owner}/${fuseResult.item.name}`.replace(
+                    highlightMatch,
+                    (match) => `<match>${match}</match>`,
+                );
+                return {
+                    content: fuseResult.item.url,
+                    description: `${repoName} <url>${fuseResult.item.url}</url>`,
+                    deletable: true,
+                };
+            }),
         );
     }
 }

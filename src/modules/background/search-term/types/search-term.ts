@@ -1,13 +1,15 @@
+import {Storage} from '@core/storage';
+
 export interface HandlerResult {
     term?: string;
     resultType?: ResultType;
 }
 
-export type HandlerFn = (matches: RegExpExecArray) => HandlerResult;
-export type PostHandlersFn = (terms: string[]) => string[];
+export type HandlerFn = (matches: RegExpExecArray) => HandlerResult | undefined;
+export type PostHandlersFn = (terms: string[], matchedCommands: SearchCommand[], storage: Storage) => string[];
 
 export enum SearchTermType {
-    // This is when we want to search for internal functions, like help (mostly unsued)
+    // This is when we want to search for internal functions, like help (mostly unused)
     Internal,
     // For searching in our FuseJS "cache"
     Quick,

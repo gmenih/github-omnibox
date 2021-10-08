@@ -2,6 +2,7 @@ import {SuggestResult} from '@core/browser';
 import {Observable, of} from 'rxjs';
 import {injectable} from 'tsyringe';
 import {SearchTerm} from '../../search-term/types/search-term';
+import {BaseSuggester} from '../types/commands';
 
 function makeSuggestion(description: string, content = ''): SuggestResult {
     return {
@@ -11,7 +12,7 @@ function makeSuggestion(description: string, content = ''): SuggestResult {
 }
 
 @injectable()
-export class InternalSuggester {
+export class InternalSuggester implements BaseSuggester {
     suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         switch (searchTerm.term) {
             case 'help':

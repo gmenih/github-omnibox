@@ -1,7 +1,8 @@
 import {injectable, injectAll, registry} from 'tsyringe';
 import {Logster} from '../../../core/logster';
+import {Storage} from '../../../core/storage';
 import {BaseCommand} from './commands/base.command';
-import {GlobalSearchCommand} from './commands/global.command';
+import {GlobalScopeCommand} from './commands/global-scope.command';
 import {PullRequestCommand} from './commands/pull-request.command';
 import {UserScopeCommand} from './commands/user-scope.command';
 import {PostHandlersFn, ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
@@ -9,7 +10,7 @@ import {PostHandlersFn, ResultType, SearchCommand, SearchTerm, SearchTermType} f
 const SEARCH_COMMAND = Symbol.for('tsy-search-command');
 
 @registry([
-    {token: SEARCH_COMMAND, useClass: GlobalSearchCommand},
+    {token: SEARCH_COMMAND, useClass: GlobalScopeCommand},
     {token: SEARCH_COMMAND, useClass: UserScopeCommand},
     {token: SEARCH_COMMAND, useClass: PullRequestCommand},
     // This one must always be last!
@@ -21,36 +22,37 @@ export class SearchTermBuilder {
 
     constructor(@injectAll(SEARCH_COMMAND) private readonly commands: SearchCommand[]) {}
 
-    buildSearchTerm(rawInput: string): SearchTerm {
+    buildSearchTerm(rawInput: string, storage: Storage): SearchTerm {
         let processingInput = rawInput;
-        // lets search for repositories by default
         let resultType: ResultType = ResultType.Repository;
         let searchType = SearchTermType.Internal;
 
         const terms: string[] = [];
         const postHandlers: PostHandlersFn[] = [];
+        const matchedCommands: SearchCommand[] = [];
 
         for (const command of this.commands) {
             const matches = command.pattern.exec(command.matchFull ? rawInput : processingInput);
             if (matches) {
                 const response = command.handler?.(matches);
-                if (response) {
-                    response.term && terms.push(response.term);
+                if (response?.term) {
+                    terms.push(response.term);
                 }
 
                 if (typeof command.postHandlers === 'function') {
-                    postHandlers.push(command.postHandlers);
+                    postHandlers.push(command.postHandlers.bind(command));
                 }
 
                 resultType = command.resultType ?? resultType;
                 searchType = command.searchType > searchType ? command.searchType : searchType;
                 processingInput = processingInput.replace(matches[0], '').trim();
+                matchedCommands.push(command);
             }
         }
 
         let finalTerms = [...terms];
         for (const postHandler of postHandlers) {
-            finalTerms = postHandler(terms);
+            finalTerms = postHandler(terms, matchedCommands, storage);
         }
 
         return {
