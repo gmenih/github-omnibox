@@ -27,7 +27,7 @@ export class BackgroundService {
         private readonly storage: StorageService,
     ) {}
 
-    async bootstrap() {
+    bootstrap() {
         this.log.debug('Bootstrap!');
         this.omniboxService.registerHandlers();
 

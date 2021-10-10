@@ -1,6 +1,7 @@
 import {SuggestResult} from '@core/browser';
 import {Observable} from 'rxjs';
 import {injectable} from 'tsyringe';
+import {Logster} from '../../../core/logster';
 import {SearchTerm, SearchTermType} from '../search-term/types/search-term';
 import {GithubSuggester} from './suggester/github.suggester';
 import {InternalSuggester} from './suggester/internal.suggester';
@@ -10,6 +11,7 @@ import {BaseSuggester} from './types/commands';
 @injectable()
 export class SuggestionService {
     private suggesterTypeMap: Map<SearchTermType, BaseSuggester>;
+    private logster = new Logster('SuggestionService');
 
     constructor(
         githubSuggester: GithubSuggester,
@@ -18,12 +20,13 @@ export class SuggestionService {
     ) {
         this.suggesterTypeMap = new Map([
             [SearchTermType.API, githubSuggester],
-            [SearchTermType.Quick, quickSuggester],
             [SearchTermType.Internal, internalSuggester],
+            [SearchTermType.Quick, quickSuggester],
         ]);
     }
 
     getSuggestions$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
+        this.logster.debug(`Searching for`, searchTerm);
         return this.byType(searchTerm.type).suggest$(searchTerm);
     }
 

@@ -8,11 +8,12 @@ export interface HandlerResult {
 export type HandlerFn = (matches: RegExpExecArray) => HandlerResult | undefined;
 export type PostHandlersFn = (terms: string[], matchedCommands: SearchCommand[], storage: Storage) => string[];
 
+// Must be left numbered as the values are compared at some point
 export enum SearchTermType {
+    // For searching in our FuseJS "cache"
+    Quick = 0,
     // This is when we want to search for internal functions, like help (mostly unused)
     Internal,
-    // For searching in our FuseJS "cache"
-    Quick,
     // For actually making API calls to GitHub
     API,
 }

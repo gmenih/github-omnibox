@@ -4,7 +4,7 @@ import {injectable} from 'tsyringe';
 import {SearchTerm} from '../../search-term/types/search-term';
 import {BaseSuggester} from '../types/commands';
 
-function makeSuggestion(description: string, content = ''): SuggestResult {
+function makeSuggestion(description: string, content = '#'): SuggestResult {
     return {
         content,
         description,
@@ -15,14 +15,12 @@ function makeSuggestion(description: string, content = ''): SuggestResult {
 export class InternalSuggester implements BaseSuggester {
     suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         switch (searchTerm.term) {
+            default:
             case 'help':
                 return of([
-                    makeSuggestion('Add "#" to your search, to search for pull requests'),
-                    makeSuggestion('Add "@<username>" to search within a user scope'),
-                    makeSuggestion('Use "!" to search globally'),
-                    makeSuggestion('Or just start typing to search for your repositories only'),
+                    makeSuggestion('Quickly search your repositories <dim>Simply enter some text</dim>', '1'),
+                    makeSuggestion('Find results by a specific user <dim>@&lt;username&gt;</dim>', '2'),
                 ]);
         }
-        return of([]);
     }
 }

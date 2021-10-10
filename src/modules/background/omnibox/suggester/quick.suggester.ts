@@ -7,6 +7,8 @@ import {injectable, singleton} from 'tsyringe';
 import {SearchTerm} from '../../search-term/types/search-term';
 import {BaseSuggester} from '../types/commands';
 
+const SUGGESTION_LIMIT = 15;
+
 @injectable()
 @singleton()
 export class QuickSuggester implements BaseSuggester {
@@ -28,7 +30,7 @@ export class QuickSuggester implements BaseSuggester {
 
     suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         this.log.debug('Quick searching');
-        const fuseResults = this.fuse.search(searchTerm.term, {limit: 5});
+        const fuseResults = this.fuse.search(searchTerm.term, {limit: SUGGESTION_LIMIT});
         const highlightMatch = new RegExp(`(${searchTerm.term})`, 'gi');
 
         return of(

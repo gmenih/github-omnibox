@@ -3,6 +3,7 @@ import {Logster} from '../../../core/logster';
 import {Storage} from '../../../core/storage';
 import {BaseCommand} from './commands/base.command';
 import {GlobalScopeCommand} from './commands/global-scope.command';
+import {HelpCommand} from './commands/help.command';
 import {PullRequestCommand} from './commands/pull-request.command';
 import {UserScopeCommand} from './commands/user-scope.command';
 import {PostHandlersFn, ResultType, SearchCommand, SearchTerm, SearchTermType} from './types/search-term';
@@ -13,6 +14,7 @@ const SEARCH_COMMAND = Symbol.for('tsy-search-command');
     {token: SEARCH_COMMAND, useClass: GlobalScopeCommand},
     {token: SEARCH_COMMAND, useClass: UserScopeCommand},
     {token: SEARCH_COMMAND, useClass: PullRequestCommand},
+    {token: SEARCH_COMMAND, useClass: HelpCommand},
     // This one must always be last!
     {token: SEARCH_COMMAND, useClass: BaseCommand},
 ])
@@ -25,7 +27,7 @@ export class SearchTermBuilder {
     buildSearchTerm(rawInput: string, storage: Storage): SearchTerm {
         let processingInput = rawInput;
         let resultType: ResultType = ResultType.Repository;
-        let searchType = SearchTermType.Internal;
+        let searchType = SearchTermType.Quick;
 
         const terms: string[] = [];
         const postHandlers: PostHandlersFn[] = [];

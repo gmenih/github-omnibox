@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {container, injectable} from 'tsyringe';
+import {injectable} from 'tsyringe';
 
 @injectable()
 export class Logster {
@@ -25,5 +25,3 @@ export class Logster {
         return [`[${this.source}]`, ...args];
     }
 }
-
-container.register(Storage, Storage);
