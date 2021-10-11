@@ -1,16 +1,17 @@
 import {EXTENSION_NAME} from '@core/core.const';
 import React, {ChangeEvent, FormEvent, FunctionComponent, useState} from 'react';
-import {useFrontendService} from '../../storage/store.context';
+import {useFrontendService, useStorage} from '../../storage/store.context';
 import {Alert} from './Alert';
 
 export const TokenAuthorization: FunctionComponent = () => {
     const [token, setToken] = useState('');
     const service = useFrontendService();
+    const {isLoading} = useStorage();
     const onInputChanged = (e: ChangeEvent<HTMLInputElement>) => setToken(e.target.value);
     const onFormSubmit = (e: FormEvent) => {
         e.preventDefault();
         service.setTokenValue(token);
-        setToken('');
+        // setToken('');
     };
 
     const infoMessage = `
@@ -47,7 +48,7 @@ export const TokenAuthorization: FunctionComponent = () => {
                         />
                     </div>
                     <div className="control">
-                        <button type="submit" className="button is-info">
+                        <button type="submit" className="button is-info" disabled={isLoading}>
                             Save token
                         </button>
                     </div>

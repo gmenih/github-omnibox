@@ -1,4 +1,5 @@
 import {TabsService} from '@core/browser';
+import {mergeMap} from 'rxjs/operators';
 import {GitHubAuthClient} from '@core/github/github-auth.client';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
@@ -17,15 +18,17 @@ export class FrontendService {
     createOAuthTab() {
         const url = this.githubClient.generateOAuthPageURL('69-69');
         this.logger.info(`Opening ${url}`);
-        this.tabsService.createTab$(url);
+        this.tabsService.createTab$(url).toPromise();
     }
 
     async logOut() {
-        await this.storageService.resetStorage();
+        await this.storageService.resetStorage$().toPromise();
     }
 
     async setTokenValue(token: string) {
-        await this.storageService.resetStorage();
-        await this.storageService.saveToken(token);
+        await this.storageService
+            .resetStorage$()
+            .pipe(mergeMap(() => this.storageService.saveToken$(token)))
+            .toPromise();
     }
 }

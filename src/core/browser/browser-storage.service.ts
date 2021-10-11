@@ -1,6 +1,6 @@
 import deepEqual from 'deep-equal';
 import {combineLatest, concat, Observable, of} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {inject, injectable} from 'tsyringe';
 import {Logster} from '../logster/logster.service';
 import {fromBrowserEvent} from '../utils/rx.utils';
@@ -15,10 +15,14 @@ export class BrowserStorageService<T> {
         this.chromeStorage = this.browser.storage['local'];
     }
 
-    async updateStorage(updateObj: Partial<T>) {
-        this.logster.debug('Updating browser storage');
-
-        await this.setItem(updateObj);
+    updateStorage$(updateObj: Partial<T>): Observable<Partial<T>> {
+        this.logster.debug(`Updating storage`, updateObj);
+        return new Observable((sub) => {
+            this.chromeStorage.set(updateObj, () => {
+                sub.next(updateObj);
+                sub.complete();
+            });
+        });
     }
 
     getStorage$(): Observable<T> {
@@ -34,7 +38,7 @@ export class BrowserStorageService<T> {
         return concat(
             this.getStorage$(),
             fromBrowserEvent(this.browser.storage.onChanged).pipe(
-                switchMap(([changes]) => combineLatest([of(changes), this.getStorage$()])),
+                mergeMap(([changes]) => combineLatest([of(changes), this.getStorage$()])),
                 map(([changes, storage]) => {
                     const source: Partial<T> = {};
                     for (const [key, change] of Object.entries(changes)) {
@@ -47,11 +51,5 @@ export class BrowserStorageService<T> {
                 }),
             ),
         );
-    }
-
-    private async setItem(object: Partial<T>) {
-        return new Promise((resolve) => {
-            this.chromeStorage.set(object, () => resolve(void 0));
-        });
     }
 }

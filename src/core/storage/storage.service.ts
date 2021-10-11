@@ -1,39 +1,31 @@
 import deepEqual from 'deep-equal';
-import {Observable, BehaviorSubject} from 'rxjs';
-import {distinctUntilChanged, map} from 'rxjs/operators';
+import {concat, Observable, ReplaySubject} from 'rxjs';
+import {distinctUntilChanged, first, map, mergeMap, tap} from 'rxjs/operators';
 import {injectable, singleton} from 'tsyringe';
 import {BrowserStorageService} from '../browser';
 import {GithubRepository} from '../github/types/repository';
 import {Logster} from '../logster/logster.service';
 import {Storage} from './types/storage';
 
-const DAY_MS = 86400000;
+const defaultStorage: Partial<Storage> = {
+    repositories: [],
+    selectHistory: [],
+};
 
 @injectable()
 @singleton()
 export class StorageService {
     private readonly logster: Logster = new Logster('StorageService');
-    private storage$?: BehaviorSubject<Storage>;
+    private readonly storage$: ReplaySubject<Storage> = new ReplaySubject(1, Infinity);
 
     constructor(private readonly browserStorage: BrowserStorageService<Storage>) {
-        this.browserStorage.storageChanged$().subscribe((storage: Storage) => {
-            if (!this.storage$) {
-                this.storage$ = new BehaviorSubject(storage);
-                return;
-            }
-
-            this.storage$.next(storage);
-        });
+        concat(this.browserStorage.getStorage$(), this.browserStorage.storageChanged$())
+            .pipe(map((storage) => ({...defaultStorage, ...storage})))
+            .subscribe(this.storage$);
     }
 
-    getStorage$(): Observable<Storage> {
-        return this.browserStorage.getStorage$();
-    }
-
-    keysChanged$(): Observable<Storage>;
-    keysChanged$<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>>;
     keysChanged$<TKey extends keyof Storage>(...keys: TKey[]): Observable<Pick<Storage, TKey>> {
-        return this.browserStorage.storageChanged$().pipe(
+        return this.getStorage$().pipe(
             map((value: Partial<Storage>): Pick<Storage, TKey> => {
                 if (keys.length === 0) {
                     return value as Pick<Storage, TKey>;
@@ -47,8 +39,8 @@ export class StorageService {
         );
     }
 
-    saveLoginData(username: string, displayName: string, organizations: string[]) {
-        this.updateStorage({
+    saveLoginData$(username: string, displayName: string, organizations: string[]) {
+        return this.updateStorage$({
             displayName: displayName,
             isLoggedIn: true,
             organizations: organizations || [],
@@ -56,75 +48,110 @@ export class StorageService {
         });
     }
 
-    saveToken(token: string) {
-        this.updateStorage({
+    setLoading$(isLoading: boolean) {
+        return this.updateStorage$({isLoading});
+    }
+
+    saveToken$(token: string) {
+        return this.updateStorage$({
             token,
         });
     }
 
-    saveRepositories(repositories: GithubRepository[]) {
-        this.updateStorage({
+    setErrors$(errors: string[]) {
+        return this.updateStorage$({errors});
+    }
+
+    clearErrors$() {
+        return this.updateStorage$({errors: []});
+    }
+
+    addRepositories$(newRepositories: GithubRepository[]) {
+        return this.getStorageOnce$().pipe(
+            mergeMap(({repositories}) => {
+                const uniqueRepositories = new Set<GithubRepository>([...repositories, ...newRepositories]);
+
+                this.logster.debug(`Saving ${repositories.length} repositories`);
+
+                return this.saveRepositories$(Array.from(uniqueRepositories));
+            }),
+        );
+    }
+
+    resetStorage$() {
+        return this.getStorageOnce$().pipe(
+            mergeMap((value) => {
+                const resetObj = Object.fromEntries(Object.entries(value).map(([key]) => [key, null]));
+
+                return this.updateStorage$({...resetObj, ...defaultStorage});
+            }),
+        );
+    }
+
+    addToHistory$(url: string) {
+        return this.getStorageOnce$().pipe(
+            mergeMap(({selectHistory}) => {
+                const targetIndex = selectHistory.findIndex((repo) => repo.url === url);
+
+                if (targetIndex !== -1) {
+                    selectHistory[targetIndex].clicks += 1;
+                } else {
+                    selectHistory.push({
+                        url,
+                        clicks: 1,
+                    });
+                }
+
+                this.logster.debug(`Added ${url} to history`);
+
+                return this.updateStorage$({selectHistory});
+            }),
+        );
+    }
+
+    setOptionsShownDate$() {
+        return this.updateStorage$({
+            optionsShown: Date.now(),
+        });
+    }
+
+    saveRepositories$(repositories: GithubRepository[]) {
+        // this.logster.debug('Setting repositories', repositories.length);
+        return this.updateStorage$({
             repositories,
             lastRepoRefreshDate: new Date().toISOString(),
         });
     }
 
-    setErrors(errors: string[]) {
-        this.updateStorage({errors});
+    sortRepositories$() {
+        return this.getStorageOnce$().pipe(
+            map(({selectHistory, repositories}) => {
+                const historicRepos: GithubRepository[] = selectHistory
+                    .sort((a, b) => b.clicks - a.clicks)
+                    .map((history): GithubRepository | undefined =>
+                        repositories.find((repository) => repository.url === history.url),
+                    )
+                    .filter((repo: GithubRepository | undefined): repo is GithubRepository => !!repo);
+
+                return Array.from(new Set<GithubRepository>([...historicRepos, ...repositories]));
+            }),
+            tap((repositories) => this.logster.debug('Sorted repositories', repositories.length)),
+            mergeMap((repositories) => this.updateStorage$({repositories})),
+        );
     }
 
-    clearErrors() {
-        this.updateStorage({errors: []});
+    getStorage$() {
+        return this.storage$;
     }
 
-    addRepositories(repositories: GithubRepository[]) {
-        const existingRepositories = this.storage$?.value.repositories ?? [];
-        const filteredUrls = existingRepositories.map((repo) => repo.url);
-        const repositoriesToAdd = repositories.filter((repo) => !filteredUrls.includes(repo.url));
-        if (repositoriesToAdd.length > 0) {
-            this.saveRepositories([...existingRepositories, ...repositoriesToAdd]);
-        }
+    private updateStorage$(storage: Partial<Storage>): Observable<Storage> {
+        return this.browserStorage.getStorage$().pipe(
+            mergeMap((prevStorage) => this.browserStorage.updateStorage$({...prevStorage, ...storage})),
+            mergeMap(() => this.browserStorage.getStorage$()),
+        );
     }
 
-    resetStorage() {
-        const resetObj = Object.fromEntries(Object.entries(this.storage$?.value ?? {}).map(([key]) => [key, null]));
-
-        this.updateStorage(resetObj);
-    }
-
-    // TODO: make it work properly
-    increaseRepositoryFrequency(repoUrl: string) {
-        this.logster.debug(`Increasing repo frequency for "${repoUrl}"`);
-        const repositories = this.storage$?.value.repositories ?? [];
-        const targetRepo = repositories.find((r) => r.url === repoUrl);
-        if (!targetRepo) {
-            this.logster.debug('Repo not found - nothing to do.');
-            return;
-        }
-
-        const newRepositories = [targetRepo, ...repositories.filter((r) => r.url !== targetRepo.url)];
-        this.updateStorage({repositories: newRepositories});
-    }
-
-    setOptionsShownDate() {
-        this.updateStorage({
-            optionsShown: Date.now(),
-        });
-    }
-
-    shouldRefreshRepos() {
-        const lastRefresh = this.storage$?.value.lastRepoRefreshDate;
-        if (!lastRefresh) {
-            return true;
-        }
-
-        const lastRefreshTimestamp = new Date(this.storage$?.value.lastRepoRefreshDate ?? 0).getTime();
-        const now = Date.now();
-        const delta = now - lastRefreshTimestamp;
-        return delta > now - DAY_MS;
-    }
-
-    private async updateStorage(storage: Partial<Storage>) {
-        await this.browserStorage.updateStorage(storage);
+    private getStorageOnce$() {
+        return this.getStorage$().pipe(first());
     }
 }

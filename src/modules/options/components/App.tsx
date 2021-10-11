@@ -7,12 +7,7 @@ import {Section} from './Section';
 import {Settings} from './Settings';
 
 export const App: FunctionComponent = () => {
-    const {isLoggedIn, errors} = useStorage();
-    const privacyMessage = `
-        This extension stores all of your data in your browser's local storage, which
-        can only be accessed by the extension itself. Nothing leaves your computer,
-        other than requests to GitHub's API.
-    `;
+    const {isLoggedIn, errors, isLoading} = useStorage();
 
     return (
         <div className="container">
@@ -27,11 +22,23 @@ export const App: FunctionComponent = () => {
             </div>
 
             <div className="section">
-                {isLoggedIn ? <Settings /> : null}
+                {!isLoggedIn && isLoading && <progress className="progress is-small is-primary" max="100" />}
+                {isLoggedIn && <Settings />}
                 <GitHubAuthentication />
 
                 <Section title="Privacy" isExpandable={true} isExpanded={false}>
-                    <p>{privacyMessage}</p>
+                    <p>
+                        {EXTENSION_NAME} stores all of the data it uses in{' '}
+                        <a
+                            rel="noreferrer noopener"
+                            href="https://developer.chrome.com/docs/extensions/reference/storage/#property-local">
+                            <strong>unencrypted</strong> browser storage
+                        </a>
+                        . This includes the authentication token, a list of repositories you have access to, and any
+                        other data required to operate this extension. None of this data ever leaves your browser
+                        though, apart of the authentication token, which is required to authenticate all API requests to
+                        GitHub.
+                    </p>
                 </Section>
             </div>
         </div>

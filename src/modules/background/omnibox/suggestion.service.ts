@@ -26,7 +26,6 @@ export class SuggestionService {
     }
 
     getSuggestions$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
-        this.logster.debug(`Searching for`, searchTerm);
         return this.byType(searchTerm.type).suggest$(searchTerm);
     }
 

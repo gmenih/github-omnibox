@@ -31,11 +31,9 @@ export const StorageProvider: FC<StorageProviderProps> = ({storageService, child
     const service = useMemo(() => container.resolve(FrontendService), []);
 
     useEffect(() => {
-        const subscription = storageService.keysChanged$().subscribe((storage) => {
+        const subscription = storageService.getStorage$().subscribe((storage) => {
             setStorage(() => storage);
         });
-
-        storageService.getStorage$().subscribe(setStorage);
 
         return () => subscription.unsubscribe();
     }, []);

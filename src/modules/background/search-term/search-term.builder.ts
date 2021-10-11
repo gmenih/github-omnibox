@@ -35,21 +35,22 @@ export class SearchTermBuilder {
 
         for (const command of this.commands) {
             const matches = command.pattern.exec(command.matchFull ? rawInput : processingInput);
-            if (matches) {
-                const response = command.handler?.(matches);
-                if (response?.term) {
-                    terms.push(response.term);
-                }
 
-                if (typeof command.postHandlers === 'function') {
-                    postHandlers.push(command.postHandlers.bind(command));
-                }
+            if (!matches) continue;
 
-                resultType = command.resultType ?? resultType;
-                searchType = command.searchType > searchType ? command.searchType : searchType;
-                processingInput = processingInput.replace(matches[0], '').trim();
-                matchedCommands.push(command);
+            const response = command.handler?.(matches);
+            if (response?.term) {
+                terms.push(response.term);
             }
+
+            if (typeof command.postHandlers === 'function') {
+                postHandlers.push(command.postHandlers.bind(command));
+            }
+
+            resultType = command.resultType ?? resultType;
+            searchType = command.searchType > searchType ? command.searchType : searchType;
+            processingInput = processingInput.replace(matches[0], '').trim();
+            matchedCommands.push(command);
         }
 
         let finalTerms = [...terms];

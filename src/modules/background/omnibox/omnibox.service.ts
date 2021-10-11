@@ -3,10 +3,9 @@ import {TabsService} from '@core/browser/tabs.service';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
 import {Observable} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {first, map, mergeMap} from 'rxjs/operators';
 import {injectable} from 'tsyringe';
 import {SearchTermBuilder} from '../search-term/search-term.builder';
-import {QuickSuggester} from './suggester/quick.suggester';
 import {SuggestionService} from './suggestion.service';
 
 @injectable()
@@ -19,26 +18,16 @@ export class OmniboxService {
         private readonly tabsService: TabsService,
         private readonly searchTermBuilder: SearchTermBuilder,
         private readonly suggestionService: SuggestionService,
-        private readonly quickSuggester: QuickSuggester,
     ) {}
 
-    async registerHandlers() {
-        this.storage.getStorage$().subscribe((storage) => {
-            const repositories = storage.repositories ?? [];
-
-            this.quickSuggester.setCollection(repositories);
-            this.storage.keysChanged$('repositories').subscribe(({repositories}) => {
-                this.log.debug('Updating repositories');
-                this.quickSuggester.setCollection(repositories ?? []);
-            });
-        });
-
+    registerHandlers() {
         this.omnibox
             .inputChanged$()
             .pipe(
-                switchMap(([input, suggest]) =>
+                mergeMap(([input, suggest]) =>
                     this.storage.getStorage$().pipe(
-                        switchMap((storage) => {
+                        first(),
+                        mergeMap((storage) => {
                             const searchTerm = this.searchTermBuilder.buildSearchTerm(input, storage);
                             return this.suggestionService
                                 .getSuggestions$(searchTerm)
@@ -53,21 +42,23 @@ export class OmniboxService {
 
         this.omnibox
             .inputEntered$()
-            .pipe(switchMap(([result, disposition]) => this.onInputEntered$(result, disposition)))
+            .pipe(mergeMap(([result, disposition]) => this.onInputEntered$(result, disposition)))
             .subscribe();
 
-        this.omnibox.inputStarted$().subscribe(() => {
-            this.onInputStarted();
-        });
+        // TODO: make it better
+        // this.omnibox.inputStarted$().subscribe(() => {
+        //     this.onInputStarted();
+        // });
     }
 
+    // TODO: handle internal commands
     private onInputEntered$(url: string, disposition: EnteredDisposition): Observable<void> {
         const isRepoUrl = url.startsWith('https://');
         const realUrl = isRepoUrl
             ? `${url}${this.urlModifier(disposition)}`
             : `https://github.com/search?q=${encodeURIComponent(url)}`;
 
-        return this.tabsService.redirectSelectedTab$(realUrl);
+        return this.storage.addToHistory$(url).pipe(mergeMap(() => this.tabsService.redirectSelectedTab$(realUrl)));
     }
 
     private onInputStarted() {

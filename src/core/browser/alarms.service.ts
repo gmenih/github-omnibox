@@ -10,8 +10,14 @@ export type Alarm = chrome.alarms.Alarm;
 export class AlarmsService {
     constructor(@inject(BROWSER_TOKEN) private readonly browser: Browser) {}
 
-    createPeriodicAlarm(alarmName: string, periodInMinutes: number) {
-        this.browser.alarms.create(alarmName, {periodInMinutes});
+    createPeriodicAlarm$(alarmName: string, periodInMinutes: number) {
+        return new Observable(() => {
+            this.browser.alarms.create(alarmName, {periodInMinutes});
+
+            return () => {
+                this.browser.alarms.clear(alarmName);
+            };
+        });
     }
 
     alarmTriggered$(alarmName: string): Observable<Alarm> {

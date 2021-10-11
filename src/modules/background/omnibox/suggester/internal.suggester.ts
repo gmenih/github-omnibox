@@ -4,11 +4,24 @@ import {injectable} from 'tsyringe';
 import {SearchTerm} from '../../search-term/types/search-term';
 import {BaseSuggester} from '../types/commands';
 
-function makeSuggestion(description: string, content = '#'): SuggestResult {
+type InternalCommandPrefix = `__internal`;
+enum Command {
+    Help = 'help',
+    Options = 'options',
+    Refresh = 'refresh',
+}
+
+export type CommandString = `${InternalCommandPrefix}:${Command}`;
+
+function makeSuggestion(description: string, command: Command): SuggestResult {
     return {
-        content,
+        content: `__internal:${command}`,
         description,
     };
+}
+
+export function isInternalCommand(url: string): url is CommandString {
+    return url.startsWith('__internal');
 }
 
 @injectable()
@@ -16,11 +29,29 @@ export class InternalSuggester implements BaseSuggester {
     suggest$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
         switch (searchTerm.term) {
             default:
-            case 'help':
                 return of([
-                    makeSuggestion('Quickly search your repositories <dim>Simply enter some text</dim>', '1'),
-                    makeSuggestion('Find results by a specific user <dim>@&lt;username&gt;</dim>', '2'),
+                    makeSuggestion('Quickly search your repositories <dim>Simply enter some text</dim>', Command.Help),
+                    makeSuggestion('Open settings', Command.Options),
+                    makeSuggestion('Refresh repositories', Command.Refresh),
                 ]);
         }
     }
+
+    // handleEnter$(result: SuggestResult): Observable<void> {
+    //     const command: Command = (result.content as CommandString).replace('__internal:', '') as Command;
+
+    //     switch (command) {
+    //         case Command.Help:
+    //             // TODO;
+    //             break;
+    //         case Command.Options:
+    //             // TODO;
+    //             break;
+    //         case Command.Refresh:
+    //             // TODO;
+    //             break;
+    //     }
+
+    //     return of();
+    // }
 }

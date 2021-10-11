@@ -3,12 +3,13 @@ import {AlarmsService} from '@core/browser/alarms.service';
 import {GitHubClient} from '@core/github';
 import {Logster} from '@core/logster';
 import {StorageService} from '@core/storage';
-import {forkJoin, Observable} from 'rxjs';
-import {filter, map, mergeMap, switchMap, tap} from 'rxjs/operators';
+import {combineLatest, forkJoin, Observable} from 'rxjs';
+import {filter, first, mergeMap, switchMap} from 'rxjs/operators';
 import {injectable} from 'tsyringe';
 import {GitHubAuthClient} from '../../core/github/github-auth.client';
 import {AuthMessage} from '../content-script/types/message';
 import {OmniboxService} from './omnibox/omnibox.service';
+import {QuickSuggester} from './omnibox/suggester/quick.suggester';
 
 const PAGE_SIZE = 100;
 const ALARM_NAME = 'daily-data-import';
@@ -20,9 +21,10 @@ export class BackgroundService {
 
     constructor(
         private readonly alarms: AlarmsService,
-        private readonly githubClient: GitHubClient,
         private readonly githubAuth: GitHubAuthClient,
+        private readonly githubClient: GitHubClient,
         private readonly omniboxService: OmniboxService,
+        private readonly quickSuggester: QuickSuggester,
         private readonly runtime: RuntimeService,
         private readonly storage: StorageService,
     ) {}
@@ -32,52 +34,75 @@ export class BackgroundService {
         this.omniboxService.registerHandlers();
 
         this.storage
+            .keysChanged$('repositories', 'selectHistory')
+            .pipe(
+                filter(({repositories, selectHistory}) => Array.isArray(repositories) && Array.isArray(selectHistory)),
+                switchMap(() => this.storage.sortRepositories$()),
+            )
+            .subscribe(({repositories}) => {
+                this.quickSuggester.setCollection(repositories ?? []);
+            });
+
+        this.storage
             .keysChanged$('token')
             .pipe(
                 filter(({token}) => !!token),
                 switchMap(() => this.fetchAndStoreUserData$()),
-                tap(() => this.alarms.createPeriodicAlarm(ALARM_NAME, ALARM_PERIOD)),
+                switchMap(() => this.alarms.createPeriodicAlarm$(ALARM_NAME, ALARM_PERIOD)),
             )
             .subscribe();
 
-        this.storage.keysChanged$('optionsShown').subscribe(async ({optionsShown}) => {
-            if (!optionsShown) {
-                this.log.debug('Opening options page');
-                await this.runtime.openOptionsPage();
-                this.storage.setOptionsShownDate();
-            }
-        });
+        this.storage
+            .keysChanged$('optionsShown')
+            .pipe(
+                filter(({optionsShown}) => !optionsShown),
+                first(),
+                mergeMap(() => {
+                    this.log.debug('Opening options page');
+                    this.runtime.openOptionsPage();
+                    return this.storage.setOptionsShownDate$();
+                }),
+            )
+            .subscribe();
 
         this.runtime
             .onRuntimeMessage<AuthMessage>()
-            .pipe(switchMap(([{code, state}]) => this.githubAuth.fetchAuthorizationToken(code, state)))
-            .subscribe((authToken) => {
-                this.storage.saveToken(authToken);
+            .pipe(
+                mergeMap(([{code, state}]) => this.githubAuth.fetchAuthorizationToken(code, state)),
+                mergeMap((token) => this.storage.saveToken$(token)),
+            )
+            .subscribe(() => {
                 this.log.debug(`Should be authorized`);
             });
 
         this.alarms
             .alarmTriggered$(ALARM_NAME)
-            .pipe(switchMap(() => this.fetchAndStoreUserData$()))
+            .pipe(mergeMap(() => this.fetchAndStoreUserData$()))
             .subscribe();
     }
 
-    private fetchAndStoreUserData$(): Observable<void> {
-        return this.githubClient.fetchUserData$(PAGE_SIZE).pipe(
-            switchMap((userData) =>
-                this.githubClient.fetchUserOrganizations$(PAGE_SIZE).pipe(
-                    tap((orgs) => {
-                        this.storage.saveLoginData(
-                            userData.username,
-                            userData.displayName,
-                            orgs.map((o) => o.name),
-                        );
-                        this.storage.addRepositories(userData.repositories);
-                    }),
-                    mergeMap((orgs) => forkJoin(orgs.map((o) => this.githubClient.fetchOrganizationRepositories$(o)))),
-                    map((orgRepos) => {
-                        this.storage.addRepositories(orgRepos.flat(1));
-                    }),
+    private fetchAndStoreUserData$(): Observable<any> {
+        return this.storage.setLoading$(true).pipe(
+            mergeMap(() =>
+                this.githubClient.fetchUserData$(PAGE_SIZE).pipe(
+                    mergeMap((userData) =>
+                        this.githubClient.fetchUserOrganizations$(PAGE_SIZE).pipe(
+                            mergeMap((orgs) =>
+                                combineLatest([
+                                    forkJoin(orgs.map((o) => this.githubClient.fetchOrganizationRepositories$(o))),
+                                    this.storage.saveLoginData$(
+                                        userData.username,
+                                        userData.displayName,
+                                        orgs.map((o) => o.name),
+                                    ),
+                                ]),
+                            ),
+                            mergeMap(([orgRepos]) =>
+                                this.storage.saveRepositories$(userData.repositories.concat(orgRepos.flat(1))),
+                            ),
+                            mergeMap(() => this.storage.setLoading$(false)),
+                        ),
+                    ),
                 ),
             ),
         );

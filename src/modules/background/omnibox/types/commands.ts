@@ -19,5 +19,5 @@ export interface BaseSuggester {
      * Is optional, if not implemented it will resort to default handling,
      * which will just open a new tab with the `content` of the suggest result.
      */
-    handleEnter?(result: SuggestResult): void;
+    handleEnter$?(result: SuggestResult): Observable<void>;
 }

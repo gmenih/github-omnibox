@@ -15,13 +15,13 @@ function groupCountRepositories(repositories: GithubRepository[]): Array<[string
 }
 
 export const Settings: FunctionComponent = () => {
-    const storage = useStorage();
+    const {username, repositories, isLoading, displayName} = useStorage();
     const frontend = useFrontendService();
     const [showLogOutModal, setShowLogOutModal] = useState(false);
 
-    const organizations = groupCountRepositories(storage.repositories).map(([org, count]) => (
+    const organizations = groupCountRepositories(repositories).map(([org, count]) => (
         <li key={org}>
-            {org === storage.username ? <strong>{org}</strong> : org} ({count} repositories)
+            {org === username ? <strong>{org}</strong> : org} ({count} repositories)
         </li>
     ));
 
@@ -42,23 +42,34 @@ export const Settings: FunctionComponent = () => {
     };
 
     return (
-        <Section title={`\u{1F44B} Hello, ${storage.displayName}!`} type="info">
-            <div className="orgs">
+        <Section title={`\u{1F44B} Hello, ${displayName}!`} type="info">
+            {isLoading && (
                 <div className="block">
-                    We found <strong>{storage.repositories.length}</strong> repositories to search for.
+                    <div className="content">
+                        Hold on a moment while we fetch your GitHub repositories. It shouldn&apos;t take more than a
+                        minute.
+                    </div>
+                    <progress className="progress is-small is-primary" max="100" />
                 </div>
-                <div className="block">
-                    <h4 className="is-size-5">Your organizations</h4>
+            )}
+            {!isLoading && (
+                <div className="orgs">
+                    <div className="block">
+                        <h4 className="is-size-5">Your organizations</h4>
+                    </div>
+                    <div className="block">
+                        <ul>{organizations}</ul>
+                    </div>
+                    <div className="block">
+                        There are <strong>{repositories.length}</strong> repositories to search for in total.
+                    </div>
+                    <div className="block">
+                        <a className="is-link has-text-danger" onClick={confirmLogOut}>
+                            Log out
+                        </a>
+                    </div>
                 </div>
-                <div className="block">
-                    <ul>{organizations}</ul>
-                </div>
-                <div className="block">
-                    <a className="is-link has-text-danger" onClick={confirmLogOut}>
-                        Log out
-                    </a>
-                </div>
-            </div>
+            )}
 
             {showLogOutModal && (
                 <div className="modal is-active">

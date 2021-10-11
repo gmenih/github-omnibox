@@ -24,7 +24,7 @@ export class QuickSuggester implements BaseSuggester {
     });
 
     setCollection(repositories: GithubRepository[]) {
-        this.log.debug('Repositories change. Length:', repositories.length);
+        this.log.debug('Repositories changed', {length: repositories.length});
         this.fuse.setCollection(repositories);
     }
 
