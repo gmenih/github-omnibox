@@ -33,8 +33,6 @@ export const GitHubAuthentication: FC = () => {
     return (
         <Section title={'GitHub Authentication'} isExpanded={!isLoggedIn} isExpandable={true}>
             <TokenAuthorization />
-            <hr />
-            <OAuth onAuthTrigger={() => service.createOAuthTab()} />
         </Section>
     );
 };
