@@ -27,6 +27,13 @@ jobs:
             ${{ runner.OS }}-
       - name: Install dependencies
         run: npm ci
+      - name: Extract tag name
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
       - name: Build Extension
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
@@ -35,5 +42,5 @@ jobs:
       - name: Store build result
         uses: actions/upload-artifact@v2
         with:
-          name: dist
+          name: github-omnibox-${{ steps.tag.outputs.result }}
           path: dist
