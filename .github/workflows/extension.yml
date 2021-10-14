@@ -27,13 +27,9 @@ jobs:
             ${{ runner.OS }}-
       - name: Install dependencies
         run: npm ci
-      - name: Extract tag name
-        id: tag
-        uses: actions/github-script@0.2.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '');
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
       - name: Build Extension
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
@@ -42,5 +38,5 @@ jobs:
       - name: Store build result
         uses: actions/upload-artifact@v2
         with:
-          name: github-omnibox-${{ steps.tag.outputs.result }}
+          name: github-omnibox-${{ steps.extract_version.outputs.version }}
           path: dist
