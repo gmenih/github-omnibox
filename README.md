@@ -1,33 +1,41 @@
+<img src="./src/assets/repo-icon.svg" width="100" height="100">
+
 # Github Omnibox
 
-A browser extension that allows you to search GitHub repositories in your browser's omnibox (the search bar). I uses GitHub's GraphQL API, and requires user authentication to work properly, which is available either through OAuth, or generated token.
+_Github Omnibox_ is a simple browser extension that brings GitHub search into the omnibox (_that's the URL bar in your browser_). Its main feature is giving you instant suggestions of any repository you are a member of, making access to them super fast. It also supports simple queries via GitHub's API, to find specific repositories or pull requests.
 
-## Download
-[Chrome Web Store](https://chrome.google.com/webstore/detail/github-omnibox-search/pdifemobhgmmnjlfjigebjkkbhllgcgp/related)
+It binds the `gh` keyword in omnibox. Any text entered after it will be used to make the search.
 
-[Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/github-omnibox-search/)
+## Features
 
-[Latest build on GitHub](https://github.com/gmenih341/github-omnibox/releases/latest)
+By default, _GitHub Omnibox_ will search in its internal cache and try to make the best suggestion based on your query. This cache only includes repositories you are member of, so in order to support wider search results, a few special queries exist, which will always query GitHub's API to find results.
 
+* **Global API search** - using `!` in your query will make a _global_ search in GitHub and show matching results.
+* **Scoped API search** - using `@<user>` will scope search results to a specific user or organization. _(E.g.: `@octocat` would only return repositories owned by octocat)_
+* **Pull request search** - using `#` will search for pull requests instead of repositories. 
 
 ## Preview
 
+_Quick search_
 
-> Search your local, or global repositories
+![Quick search in Chrome](./.github/screenshots/chrome-quick.png)
 
-![Firefox search bar][FirefoxSearchBar]
+_Searching for repositories owned by `@octocat`_
 
-> Use advanced GitHub search features
+![Quick search in Chrome](./.github/screenshots/chrome-scoped.png)
 
-![Chrome search bar][ChromeSearchBarAdv]
+_Performing a global search_
 
-> Authenticate and change your settings
+![Quick search in Chrome](./.github/screenshots/chrome-global.png)
 
-![Chrome settings][ChromeSettingsPage]
+_Searching for pull requests scoped to `@preact`_
 
+![Quick search in Chrome](./.github/screenshots/chrome-pr.png)
 
-[FirefoxSearchBar]: https://github.com/gmenih341/github-omnibox/raw/master/.github/firefox-search.png "Chrome Search bar"
+## Download
 
-[ChromeSearchBarAdv]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-search-adv.png "Chrome Search bar"
+For now, look for recent builds in Actions. Chrome and Firefox store coming up soon.
 
-[ChromeSettingsPage]: https://github.com/gmenih341/github-omnibox/raw/master/.github/chrome-settings.png "Chrome Settings"
+## Contributing
+
+Any issues, suggestions and pull requests are more than welcome!
