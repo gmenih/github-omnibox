@@ -5,20 +5,30 @@ import {Alert} from './GitHubAuthentication/Alert';
 import {GitHubAuthentication} from './GitHubAuthentication/GithubAuthentication';
 import {Section} from './Section';
 import {Settings} from './Settings';
+import pkgJson from '../../../../package.json';
 
 export const App: FunctionComponent = () => {
     const {isLoggedIn, errors, isLoading} = useStorage();
+    const version = pkgJson.version ?? 'development';
 
     return (
         <div className="container">
-            <div className="section">
-                <h1 className="title">{EXTENSION_NAME}</h1>
-                <div className="subtitle">GitHub repositories at your fingertips.</div>
-                {errors?.map((e) => (
-                    <Alert key={e} type="danger">
-                        {e}
-                    </Alert>
-                ))}
+            <div className="columns section">
+                <div className="column is-1">
+                    <img src="assets/icon-64.png" />
+                </div>
+                <div className="column">
+                    <h1 className="title">
+                        {EXTENSION_NAME}
+                        <span className="tag is-info is-light ml-3">{version}</span>
+                    </h1>
+                    <div className="subtitle">GitHub repositories at your fingertips.</div>
+                    {errors?.map((e) => (
+                        <Alert key={e} type="danger">
+                            {e}
+                        </Alert>
+                    ))}
+                </div>
             </div>
 
             <div className="section">

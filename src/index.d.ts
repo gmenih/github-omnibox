@@ -1,4 +1,4 @@
-declare module '*.json' {
-    const content: string;
-    export default content;
+declare module '*/package.json' {
+    const pkgJson: {version: string};
+    export default pkgJson;
 }

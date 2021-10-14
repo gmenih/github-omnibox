@@ -31,7 +31,7 @@ export const GitHubAuthentication: FC = () => {
     const {isLoggedIn} = useStorage();
 
     return (
-        <Section title={'\u{1F91F} GitHub Authentication'} isExpanded={!isLoggedIn} isExpandable={true}>
+        <Section title={'GitHub Authentication'} isExpanded={!isLoggedIn} isExpandable={true}>
             <TokenAuthorization />
             <hr />
             <OAuth onAuthTrigger={() => service.createOAuthTab()} />
