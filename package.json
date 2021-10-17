@@ -1,6 +1,6 @@
 {
   "name": "github-omnibox",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "full_name": "GitHub Omnibox",
   "description": "A browser extension that suggests your GitHub repositories in Omnibox",
   "main": "webpack/config.js",
