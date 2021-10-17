@@ -119,7 +119,7 @@ const config = {
         }),
         new CopyWebpackPlugin({
             patterns: iconSizes.map((size) => ({
-                from: 'src/assets/repo-icon.png',
+                from: 'src/assets/repo-icon.svg',
                 to: `assets/icon-${size}.png`,
                 transform: (content) => {
                     return sharp(content).resize(size, size).png().toBuffer();

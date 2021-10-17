@@ -8,6 +8,7 @@ import {ResultType, SearchTerm} from '../../search-term/types/search-term';
 import {BaseSuggester} from '../types/commands';
 
 const SEARCH_DEBOUNCE_MS = 500;
+const DEFAULT_REPOS_SIZE = 12;
 
 @injectable()
 @singleton()
@@ -29,7 +30,7 @@ export class GithubSuggester implements BaseSuggester {
     }
 
     private searchRepositories$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
-        return this.githubClient.searchRepositories$(searchTerm.term, 5).pipe(
+        return this.githubClient.searchRepositories$(searchTerm.term, DEFAULT_REPOS_SIZE).pipe(
             map((repositories) =>
                 repositories.map(
                     (repo): SuggestResult => ({
@@ -43,7 +44,7 @@ export class GithubSuggester implements BaseSuggester {
     }
 
     private searchPullRequests$(searchTerm: SearchTerm): Observable<SuggestResult[]> {
-        return this.githubClient.searchPullRequests$(searchTerm.term, 5).pipe(
+        return this.githubClient.searchPullRequests$(searchTerm.term, DEFAULT_REPOS_SIZE).pipe(
             map((issues) =>
                 issues.map(
                     (issue): SuggestResult => ({
