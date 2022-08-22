@@ -33,8 +33,7 @@ _Searching for pull requests scoped to `@preact`_
 ![Quick search in Chrome](./.github/screenshots/chrome-pr.png)
 
 ## Download
-
-For now, look for recent builds in Actions. Chrome and Firefox store coming up soon.
+Chrome WebStore: https://chrome.google.com/webstore/detail/github-omnibox/pdifemobhgmmnjlfjigebjkkbhllgcgp
 
 ## Contributing
 
